@@ -51,6 +51,7 @@ export type AppState =
 
 export interface SearchForSeasonState {
   kind: StateType.SearchForSeason;
+  screenNumber: number;
 
   user: Option<firebase.User>;
   query: string;
@@ -60,14 +61,17 @@ export interface SearchForSeasonState {
 
 export interface SignInState {
   kind: StateType.SignIn;
+  screenNumber: number;
 }
 
 export interface WaitForSignInCompletionState {
   kind: StateType.WaitForSignInCompletion;
+  screenNumber: number;
 }
 
 export interface UserProfileState {
   kind: StateType.UserProfile;
+  screenNumber: number;
 
   user: firebase.User;
   fullName: Option<FullName>;
@@ -75,6 +79,7 @@ export interface UserProfileState {
 
 export interface UserSeasonsState {
   kind: StateType.UserSeasons;
+  screenNumber: number;
 
   user: firebase.User;
   seasons: Option<SeasonSummary[]>;
@@ -82,6 +87,7 @@ export interface UserSeasonsState {
 
 export interface CreateSeasonState {
   kind: StateType.CreateSeason;
+  screenNumber: number;
 
   user: firebase.User;
   seasonName: string;
@@ -93,6 +99,7 @@ export interface CreateSeasonState {
 
 export interface SeasonMenuState {
   kind: StateType.SeasonMenu;
+  screenNumber: number;
 
   user: Option<firebase.User>;
   seasonSummary: SeasonSummary;
@@ -100,6 +107,7 @@ export interface SeasonMenuState {
 
 export interface AthletesMenuState {
   kind: StateType.AthletesMenu;
+  screenNumber: number;
 
   user: Option<firebase.User>;
   doesUserHaveWriteAccess: boolean;
@@ -117,6 +125,7 @@ export interface AthletesMenuState {
 
 export interface PasteAthletesState {
   kind: StateType.PasteAthletes;
+  screenNumber: number;
 
   user: firebase.User;
   seasonSummary: SeasonSummary;
@@ -127,6 +136,7 @@ export interface PasteAthletesState {
 
 export interface CorrectPastedAthletesState {
   kind: StateType.CorrectPastedAthletes;
+  screenNumber: number;
 
   user: firebase.User;
   seasonSummary: SeasonSummary;
@@ -138,14 +148,17 @@ export interface CorrectPastedAthletesState {
 
 export interface ManuallyAddAthleteState {
   kind: StateType.ManuallyAddAthlete;
+  screenNumber: number;
 }
 
 export interface AssistantsMenuState {
   kind: StateType.AssistantsMenu;
+  screenNumber: number;
 }
 
 export interface SeasonMeetsState {
   kind: StateType.SeasonMeets;
+  screenNumber: number;
 
   user: Option<firebase.User>;
   doesUserHaveWriteAccess: boolean;
@@ -156,8 +169,10 @@ export interface SeasonMeetsState {
 
 export interface EditMeetState {
   kind: StateType.EditMeet;
+  screenNumber: number;
 }
 
 export interface ViewMeetState {
   kind: StateType.ViewMeet;
+  screenNumber: number;
 }

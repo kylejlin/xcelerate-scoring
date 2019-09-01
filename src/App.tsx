@@ -10,7 +10,8 @@ import {
   UserProfileState,
   UserSeasonsState,
 } from "./types/states";
-import { createControllers, ControllerCollection } from "./types/controllers";
+import { ControllerCollection } from "./types/controllers";
+import createControllers from "./createControllers";
 import doesUserAccountExist from "./firestore/doesUserAccountExist";
 import getUserSeasons from "./firestore/getUserSeasons";
 import guessFullName from "./guessFullName";
@@ -36,10 +37,11 @@ export default class App extends React.Component<{}, AppState> {
     super(props);
 
     if (localStorage.getItem(LocalStorageKeys.IsWaitingForSignIn) === "true") {
-      this.state = { kind: StateType.WaitForSignInCompletion };
+      this.state = { kind: StateType.WaitForSignInCompletion, screenNumber: 0 };
     } else {
       this.state = {
         kind: StateType.SearchForSeason,
+        screenNumber: 0,
         user: Option.none(),
         query: "",
         isLoading: false,
@@ -56,39 +58,47 @@ export default class App extends React.Component<{}, AppState> {
       if (user) {
         doesUserAccountExist(user).then(doesExist => {
           if (doesExist) {
-            const state: UserSeasonsState = {
-              kind: StateType.UserSeasons,
-              user,
-              seasons: Option.none(),
-            };
-            this.setState(state);
-
-            getUserSeasons(user).then(seasonSummaries => {
-              if (this.state.kind === StateType.UserSeasons) {
-                this.setState({
-                  ...this.state,
-                  seasons: Option.some(seasonSummaries),
-                });
-              }
+            this.setState(prevState => {
+              const newScreenNumber = prevState.screenNumber + 1;
+              getUserSeasons(user).then(seasonSummaries => {
+                if (this.state.screenNumber === newScreenNumber) {
+                  this.setState({
+                    ...this.state,
+                    seasons: Option.some(seasonSummaries),
+                  });
+                }
+              });
+              return {
+                kind: StateType.UserSeasons,
+                screenNumber: newScreenNumber,
+                user,
+                seasons: Option.none(),
+              };
             });
           } else {
-            const state: UserProfileState = {
-              kind: StateType.UserProfile,
-              user,
-              fullName: Option.some(guessFullName(user.displayName || "")),
-            };
-            this.setState(state);
+            this.setState(prevState => {
+              const newScreeNumber = prevState.screenNumber + 1;
+              return {
+                kind: StateType.UserProfile,
+                screenNumber: newScreeNumber,
+                user,
+                fullName: Option.some(guessFullName(user.displayName || "")),
+              };
+            });
           }
         });
       } else {
-        const state: SearchForSeasonState = {
-          kind: StateType.SearchForSeason,
-          user: Option.none(),
-          query: "",
-          isLoading: false,
-          seasons: Option.none(),
-        };
-        this.setState(state);
+        this.setState(prevState => {
+          const newScreenNumber = prevState.screenNumber + 1;
+          return {
+            kind: StateType.SearchForSeason,
+            screenNumber: newScreenNumber,
+            user: Option.none(),
+            query: "",
+            isLoading: false,
+            seasons: Option.none(),
+          };
+        });
       }
     });
   }
@@ -200,4 +210,78 @@ export default class App extends React.Component<{}, AppState> {
         );
     }
   }
+
+  transitionScreens<NewState extends AppState>(
+    newScreen: Omit<NewState, "screenNumber">
+  ): ScreenUpdater<NewState> {
+    const callbacks: ScreenUpdaterCallback<NewState>[] = [];
+    let updatedState = Option.none<UpdatedState<NewState>>();
+    this.setState(prevState => {
+      const newScreenNumber = prevState.screenNumber + 1;
+      const newState = {
+        ...newScreen,
+        screenNumber: newScreenNumber,
+      } as NewState;
+      const updateScreen = (
+        newStateOrUpdater:
+          | Partial<NewState>
+          | ((prevState: NewState) => Partial<NewState>)
+      ) => {
+        if (this.state.screenNumber === newScreenNumber) {
+          this.setState(newStateOrUpdater as (
+            | AppState
+            | ((prevState: AppState) => AppState)));
+        }
+      };
+      updatedState = Option.some({
+        state: newState,
+        updateScreen,
+      });
+      callbacks.forEach(callback => {
+        callback(newState, updateScreen);
+      });
+      return newState;
+    });
+
+    return {
+      update(callback) {
+        updatedState.match({
+          none: () => {
+            console.log(
+              "callbacks have not yet been called. queuing passed callback"
+            );
+            callbacks.push(callback);
+          },
+          some: updatedState => {
+            console.log(
+              "callbacks have already been called. immediately calling passed callback"
+            );
+            callback(updatedState.state, updatedState.updateScreen);
+          },
+        });
+      },
+    };
+  }
+}
+
+interface ScreenUpdater<NewState> {
+  update(callback: ScreenUpdaterCallback<NewState>): void;
+}
+
+type ScreenUpdaterCallback<NewState> = (
+  state: NewState,
+  updateScreen: (
+    newStateOrUpdater:
+      | Partial<NewState>
+      | ((prevState: NewState) => Partial<NewState>)
+  ) => void
+) => void;
+
+interface UpdatedState<State> {
+  state: State;
+  updateScreen(
+    newStateOrStateUpdater:
+      | Partial<State>
+      | ((prevState: State) => Partial<State>)
+  ): void;
 }
