@@ -21,6 +21,14 @@ export interface ControllerCollection {
   seasonMeetsController: SeasonMeetsController;
 }
 
+export interface SharedControllerMethods {
+  navigateToSearchForSeasonScreen(): void;
+  navigateToSignInScreen(): void;
+  navigateToUserSeasonsScreen(): void;
+  navigateToUserProfileScreen(): void;
+  viewSeason(seasonSummary: SeasonSummary): void;
+}
+
 export interface SearchForSeasonController {
   navigateToSignInScreen(): void;
   navigateToUserSeasonsScreen(): void;

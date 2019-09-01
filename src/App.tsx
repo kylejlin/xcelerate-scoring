@@ -3,13 +3,7 @@ import React from "react";
 
 import "./App.css";
 
-import {
-  AppState,
-  SearchForSeasonState,
-  StateType,
-  UserProfileState,
-  UserSeasonsState,
-} from "./types/states";
+import { AppState, StateType } from "./types/states";
 import { ControllerCollection } from "./types/controllers";
 import createControllers from "./createControllers";
 import doesUserAccountExist from "./firestore/doesUserAccountExist";
