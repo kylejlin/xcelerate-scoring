@@ -129,6 +129,7 @@ export interface SeasonMeetsController {
   navigateToUserProfileScreen(): void;
   viewSeason(seasonSummary: SeasonSummary): void;
   viewMeet(meetSummary: MeetSummary): void;
+  editMeet(meetSummary: MeetSummary): void;
   editPendingMeetName(event: React.ChangeEvent): void;
   addMeet(): void;
 }

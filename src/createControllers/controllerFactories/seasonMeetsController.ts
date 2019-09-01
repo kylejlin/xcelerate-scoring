@@ -26,6 +26,9 @@ export default function getSeasonsMeetsController(
     viewMeet(meetSummary: MeetSummary) {
       throw new Error("TODO viewMeet");
     },
+    editMeet(meetSummary: MeetSummary) {
+      throw new Error("TODO editMeet");
+    },
     editPendingMeetName(event: React.ChangeEvent) {
       if (app.state.kind === StateType.SeasonMeets) {
         const pendingMeetName = (event.target as HTMLInputElement).value;

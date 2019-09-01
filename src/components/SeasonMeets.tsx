@@ -40,8 +40,16 @@ export default function SeasonMeets({
           ) : (
             <ul>
               {meets.map(meet => (
-                <li key={meet.id} onClick={() => controller.viewMeet(meet)}>
-                  {meet.name}
+                <li key={meet.id}>
+                  <span>{meet.name}</span>
+                  <button onClick={() => controller.viewMeet(meet)}>
+                    View
+                  </button>
+                  {state.doesUserHaveWriteAccess && (
+                    <button onClick={() => controller.editMeet(meet)}>
+                      Edit
+                    </button>
+                  )}
                 </li>
               ))}
             </ul>
