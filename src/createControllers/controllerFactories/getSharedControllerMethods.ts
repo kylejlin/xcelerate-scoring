@@ -21,7 +21,7 @@ export default function getSharedControllerMethods(
 ): SharedControllerMethods {
   return {
     navigateToSearchForSeasonScreen() {
-      app.transitionScreens<SearchForSeasonState>({
+      app.newScreen<SearchForSeasonState>({
         kind: StateType.SearchForSeason,
         user: app.getUser(),
         query: "",
@@ -42,7 +42,7 @@ export default function getSharedControllerMethods(
           );
         },
         some: user => {
-          app.transitionScreens<UserSeasonsState>({
+          app.newScreen<UserSeasonsState>({
             kind: StateType.UserSeasons,
             user,
             seasons: Option.none(),
@@ -60,7 +60,7 @@ export default function getSharedControllerMethods(
     },
     navigateToUserProfileScreen() {
       app
-        .transitionScreens<UserProfileState>({
+        .newScreen<UserProfileState>({
           kind: StateType.UserProfile,
           user: app
             .getUser()
@@ -76,7 +76,7 @@ export default function getSharedControllerMethods(
         });
     },
     viewSeason(seasonSummary: SeasonSummary) {
-      app.transitionScreens<SeasonMenuState>({
+      app.newScreen<SeasonMenuState>({
         kind: StateType.SeasonMenu,
         user: app.getUser(),
         seasonSummary,

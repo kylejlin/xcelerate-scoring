@@ -36,7 +36,7 @@ export default function getSeasonMenuController(
     navigateToUserProfileScreen,
     navigateToAthletesMenu() {
       if (app.state.kind === StateType.SeasonMenu) {
-        app.transitionScreens<AthletesMenuState>({
+        app.newScreen<AthletesMenuState>({
           kind: StateType.AthletesMenu,
           user: app.state.user,
           doesUserHaveWriteAccess: false,
@@ -88,7 +88,7 @@ export default function getSeasonMenuController(
     },
     navigateToSeasonMeetsScreen() {
       if (app.state.kind === StateType.SeasonMenu) {
-        app.transitionScreens<SeasonMeetsState>({
+        app.newScreen<SeasonMeetsState>({
           kind: StateType.SeasonMeets,
 
           user: app.state.user,

@@ -47,7 +47,7 @@ export default function getAthletesMenuController(
     viewSeason,
     navigateToPasteAthletesScreen() {
       if (app.state.kind === StateType.AthletesMenu) {
-        app.transitionScreens<PasteAthletesState>({
+        app.newScreen<PasteAthletesState>({
           kind: StateType.PasteAthletes,
 
           user: app.state.user.expect(

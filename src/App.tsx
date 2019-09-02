@@ -205,7 +205,7 @@ export default class App extends React.Component<{}, AppState> {
     }
   }
 
-  transitionScreens<NewState extends AppState>(
+  newScreen<NewState extends AppState>(
     newScreen: Omit<NewState, "screenNumber">
   ): ScreenUpdater<NewState> {
     const callbacks: ScreenUpdaterCallback<NewState>[] = [];

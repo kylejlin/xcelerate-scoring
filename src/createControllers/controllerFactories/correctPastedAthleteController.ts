@@ -37,7 +37,7 @@ export default function getCorrectPastedAthletesController(
       // and pasteAthletesController.navigateToAthletesMenu
       if (app.state.kind === StateType.CorrectPastedAthletes) {
         const { user } = app.state;
-        app.transitionScreens<AthletesMenuState>({
+        app.newScreen<AthletesMenuState>({
           kind: StateType.AthletesMenu,
           user: Option.some(app.state.user),
           doesUserHaveWriteAccess: false,

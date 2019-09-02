@@ -40,7 +40,7 @@ export default function getPasteAthletesController(
       // TODO DRY
       // This code loosely repeats seasonMenuController.navigateToAthletesMenu
       if (app.state.kind === StateType.PasteAthletes) {
-        app.transitionScreens<AthletesMenuState>({
+        app.newScreen<AthletesMenuState>({
           kind: StateType.AthletesMenu,
           user: Option.some(app.state.user),
           doesUserHaveWriteAccess: false,
@@ -111,7 +111,7 @@ export default function getPasteAthletesController(
     },
     submitSpreadsheetData() {
       if (app.state.kind === StateType.PasteAthletes) {
-        app.transitionScreens<CorrectPastedAthletesState>({
+        app.newScreen<CorrectPastedAthletesState>({
           kind: StateType.CorrectPastedAthletes,
           user: app.state.user,
           seasonSummary: app.state.seasonSummary,

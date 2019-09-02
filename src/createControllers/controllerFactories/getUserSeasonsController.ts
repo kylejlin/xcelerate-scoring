@@ -14,7 +14,7 @@ export default function getUserSeasonsController(
     viewSeason,
     navigateToCreateSeasonScreen() {
       if (app.state.kind === StateType.UserSeasons) {
-        app.transitionScreens<CreateSeasonState>({
+        app.newScreen<CreateSeasonState>({
           kind: StateType.CreateSeason,
           user: app.state.user,
           seasonName: "My Awesome Season",
