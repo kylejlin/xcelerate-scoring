@@ -27,21 +27,12 @@ import EditMeet from "./components/EditMeet";
 
 export default class App extends React.Component<{}, AppState> {
   private controllers: ControllerCollection;
-  editMeetInputRefs: React.RefObject<HTMLInputElement>[];
 
   constructor(props: {}) {
     super(props);
 
     // @ts-ignore
     window.app = this;
-
-    this.editMeetInputRefs = [
-      React.createRef(),
-      React.createRef(),
-      React.createRef(),
-      React.createRef(),
-      React.createRef(),
-    ];
 
     if (localStorage.getItem(LocalStorageKeys.IsWaitingForSignIn) === "true") {
       this.state = { kind: StateType.WaitForSignInCompletion, screenNumber: 0 };
@@ -189,7 +180,6 @@ export default class App extends React.Component<{}, AppState> {
           <EditMeet
             state={this.state}
             controller={this.controllers.editMeetController}
-            inputRefs={this.editMeetInputRefs}
           />
         );
       default:

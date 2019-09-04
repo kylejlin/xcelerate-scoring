@@ -4,7 +4,12 @@ import {
 } from "../../types/controllers";
 import App from "../../App";
 import { StateType } from "../../types/states";
-import { RaceAction, RaceActionKind, RaceDivisionUtil } from "../../types/race";
+import {
+  RaceAction,
+  RaceActionKind,
+  RaceDivisionUtil,
+  Delete as RaceActionDelete,
+} from "../../types/race";
 import appendAction from "../../firestore/appendAction";
 import Option from "../../types/Option";
 
@@ -18,23 +23,6 @@ export default function getEditMeetController(
     viewSeason,
   }: SharedControllerMethods
 ): EditMeetController {
-  function focusCorrectInput(event?: React.FocusEvent) {
-    if (app.state.kind === StateType.EditMeet) {
-      if (event) {
-        event.preventDefault();
-      }
-
-      const focused = app.editMeetInputRefs[app.state.pendingAthleteId.length];
-      if (focused) {
-        focused.current!.focus();
-      }
-    } else {
-      throw new Error(
-        "Attempted to focusIput when user was not on EditMeet screen."
-      );
-    }
-  }
-
   return {
     navigateToSearchForSeasonScreen,
     navigateToSignInScreen,
@@ -50,74 +38,65 @@ export default function getEditMeetController(
         editedDivision: Option.some(division),
       }));
     },
-    focusCorrectInput(event: React.FocusEvent) {
-      focusCorrectInput(event);
-    },
-    handlePossibleBackspace(event: React.KeyboardEvent) {
-      if (event.key === "Backspace" || event.key === "Delete") {
-        app
-          .updateScreen(StateType.EditMeet, prevState => ({
-            pendingAthleteId: prevState.pendingAthleteId.slice(0, -1),
-          }))
-          .update(state => {
-            const newlyFocusedInput =
-              app.editMeetInputRefs[state.pendingAthleteId.length];
-            setTimeout(function focusCorrectInput() {
-              newlyFocusedInput.current!.focus();
-            });
-          });
-      }
-    },
-    appendDigitToPendingAthleteId(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.EditMeet) {
-        const digit = parseInt((event.target as HTMLInputElement).value, 10);
-        if (isDigit(digit)) {
-          app
-            .updateScreen(StateType.EditMeet, prevState => ({
-              pendingAthleteId: prevState.pendingAthleteId + digit,
-            }))
-            .update((state, updateScreen) => {
-              if (state.pendingAthleteId.length === 5) {
-                updateScreen({
-                  pendingAthleteId: "",
-                });
+    editPendingAthleteId(event: React.ChangeEvent) {
+      const newPendingId = (event.target as HTMLInputElement).value;
 
-                const action: RaceAction = state.insertionIndex.match({
-                  none: () => ({
-                    kind: RaceActionKind.InsertAtEnd,
-                    athleteId: state.pendingAthleteId,
-                  }),
-                  some: insertionIndex => ({
-                    kind: RaceActionKind.InsertAbove,
-                    insertionIndex,
-                    athleteId: state.pendingAthleteId,
-                  }),
-                });
-                const editedDivision = state.editedDivision.expect(
-                  "Attempted to appendDigitToPendingAthleteId when user has not selected division to edit."
-                );
-                appendAction(
-                  state.seasonSummary.id,
-                  state.meetSummary.id,
-                  editedDivision,
-                  action
-                );
-              } else {
-                setTimeout(function focusCorrectInput() {
-                  focusCorrectInput();
-                });
-              }
+      app.updateScreen(StateType.EditMeet, state => {
+        if (isPartialId(newPendingId)) {
+          if (newPendingId.length < 5) {
+            return { pendingAthleteId: newPendingId };
+          } else {
+            const action: RaceAction = state.insertionIndex.match({
+              none: () => ({
+                kind: RaceActionKind.InsertAtEnd,
+                athleteId: newPendingId,
+              }),
+              some: insertionIndex => ({
+                kind: RaceActionKind.InsertAbove,
+                insertionIndex,
+                athleteId: newPendingId,
+              }),
             });
+            const editedDivision = state.editedDivision.expect(
+              "Attempted to appendDigitToPendingAthleteId when user has not selected division to edit."
+            );
+            appendAction(
+              state.seasonSummary.id,
+              state.meetSummary.id,
+              editedDivision,
+              action
+            );
+            return { pendingAthleteId: "" };
+          }
+        } else {
+          return state;
         }
-      } else {
-        throw new Error(
-          "Attempted to appendDigitToPendingAthleteId when user was not on EditMeet screen."
+      });
+    },
+    setInsertionIndex(insertionIndex: Option<number>) {
+      app.updateScreen(StateType.EditMeet, () => ({ insertionIndex }));
+    },
+    deleteAthlete(athleteId: string) {
+      app.updateScreen(StateType.EditMeet, state => {
+        const action: RaceActionDelete = {
+          kind: RaceActionKind.Delete,
+          athleteId,
+        };
+        const editedDivision = state.editedDivision.expect(
+          "Attempted to appendDigitToPendingAthleteId when user has not selected division to edit."
         );
-      }
+        appendAction(
+          state.seasonSummary.id,
+          state.meetSummary.id,
+          editedDivision,
+          action
+        );
+        return state;
+      });
     },
   };
 }
 
-function isDigit(number: number): boolean {
-  return number === ~~number && 0 <= number && number <= 9;
+function isPartialId(string: string): boolean {
+  return /^\d{0,5}$/.test(string);
 }

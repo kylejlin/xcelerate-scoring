@@ -4,11 +4,11 @@ import { EditMeetState } from "../types/states";
 import { EditMeetController } from "../types/controllers";
 
 import { RaceDivisionUtil } from "../types/race";
+import Option from "../types/Option";
 
 export default function EditMeet({
   state,
   controller,
-  inputRefs,
 }: Props): React.ReactElement {
   return (
     <div className="App">
@@ -30,6 +30,9 @@ export default function EditMeet({
           );
           const divisionStr = RaceDivisionUtil.stringify(editedDivision);
           const race = races.getRace(editedDivision);
+          const insertionIndex = state.insertionIndex.unwrapOr(
+            race.getFinisherIds().length
+          );
           return (
             <div>
               <select value={divisionStr} onChange={controller.selectDivision}>
@@ -44,61 +47,62 @@ export default function EditMeet({
               </select>
               <h3>{divisionStr}</h3>
               <ul>
-                {race.getFinisherIds().map(athleteId => (
-                  <li key={athleteId}>{athleteId}</li>
-                ))}
+                {(() => {
+                  const athleteIds = race
+                    .getFinisherIds()
+                    .map((athleteId, i) => (
+                      <li key={athleteId}>
+                        {athleteId}
+                        <button
+                          onClick={() =>
+                            controller.setInsertionIndex(Option.some(i))
+                          }
+                        >
+                          Insert above
+                        </button>
+                        <button
+                          onClick={() => controller.deleteAthlete(athleteId)}
+                        >
+                          Delete
+                        </button>
+                      </li>
+                    ));
+                  const pendingAthleteId = state.editedDivision.match({
+                    none: () => [],
+                    some: () => [
+                      <li key="pendingAthleteId">
+                        <input
+                          type="number"
+                          value={state.pendingAthleteId}
+                          onChange={controller.editPendingAthleteId}
+                        />
+                      </li>,
+                    ],
+                  });
+                  const insertAtBottom = state.insertionIndex.match({
+                    none: () => [],
+                    some: () => [
+                      <li key="insertAtBottom">
+                        <button
+                          onClick={() =>
+                            controller.setInsertionIndex(Option.none())
+                          }
+                        >
+                          Insert at bottom
+                        </button>
+                      </li>,
+                    ],
+                  });
+                  return athleteIds
+                    .slice(0, insertionIndex)
+                    .concat(pendingAthleteId)
+                    .concat(athleteIds.slice(insertionIndex))
+                    .concat(insertAtBottom);
+                })()}
               </ul>
             </div>
           );
         },
-      })}
-
-      {state.editedDivision.match({
-        none: () => null,
-        some: () => (
-          <>
-            <input
-              type="number"
-              value={state.pendingAthleteId.charAt(0)}
-              onChange={controller.appendDigitToPendingAthleteId}
-              ref={inputRefs[0]}
-              onFocus={controller.focusCorrectInput}
-              onKeyUp={controller.handlePossibleBackspace}
-            />
-            <input
-              type="number"
-              value={state.pendingAthleteId.charAt(1)}
-              onChange={controller.appendDigitToPendingAthleteId}
-              ref={inputRefs[1]}
-              onFocus={controller.focusCorrectInput}
-              onKeyUp={controller.handlePossibleBackspace}
-            />
-            <input
-              type="number"
-              value={state.pendingAthleteId.charAt(2)}
-              onChange={controller.appendDigitToPendingAthleteId}
-              ref={inputRefs[2]}
-              onFocus={controller.focusCorrectInput}
-              onKeyUp={controller.handlePossibleBackspace}
-            />
-            <input
-              type="number"
-              value={state.pendingAthleteId.charAt(3)}
-              onChange={controller.appendDigitToPendingAthleteId}
-              ref={inputRefs[3]}
-              onFocus={controller.focusCorrectInput}
-              onKeyUp={controller.handlePossibleBackspace}
-            />
-            <input
-              type="number"
-              value={state.pendingAthleteId.charAt(4)}
-              onChange={controller.appendDigitToPendingAthleteId}
-              ref={inputRefs[4]}
-              onFocus={controller.focusCorrectInput}
-              onKeyUp={controller.handlePossibleBackspace}
-            />
-          </>
-        ),
       })}
     </div>
   );
@@ -107,5 +111,4 @@ export default function EditMeet({
 interface Props {
   state: EditMeetState;
   controller: EditMeetController;
-  inputRefs: React.RefObject<HTMLInputElement>[];
 }

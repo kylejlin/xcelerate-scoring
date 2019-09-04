@@ -7,6 +7,7 @@ import {
   MeetSummary,
   SeasonSummary,
 } from "./misc";
+import Option from "./Option";
 
 export interface ControllerCollection {
   searchForSeasonController: SearchForSeasonController;
@@ -142,7 +143,7 @@ export interface EditMeetController {
   navigateToUserProfileScreen(): void;
   back(): void;
   selectDivision(event: React.ChangeEvent): void;
-  focusCorrectInput(event: React.FocusEvent): void;
-  appendDigitToPendingAthleteId(event: React.ChangeEvent): void;
-  handlePossibleBackspace(event: React.KeyboardEvent): void;
+  editPendingAthleteId(event: React.ChangeEvent): void;
+  setInsertionIndex(insertionIndex: Option<number>): void;
+  deleteAthlete(athleteId: string): void;
 }
