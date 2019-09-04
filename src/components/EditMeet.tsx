@@ -22,9 +22,9 @@ export default function EditMeet({
       <button onClick={() => controller.back}>Back</button>
       <h2>{state.meetSummary.name} - Edit</h2>
 
-      {state.races.match({
+      {Option.all([state.races, state.athletes]).match({
         none: () => <p>Loading races...</p>,
-        some: races => {
+        some: ([races, athletes]) => {
           const editedDivision = state.editedDivision.expect(
             "Should editedDivison should have been populated if races has loaded."
           );
@@ -48,25 +48,40 @@ export default function EditMeet({
               <h3>{divisionStr}</h3>
               <ul>
                 {(() => {
-                  const athleteIds = race
+                  const athleteNames = race
                     .getFinisherIds()
-                    .map((athleteId, i) => (
-                      <li key={athleteId}>
-                        {athleteId}
-                        <button
-                          onClick={() =>
-                            controller.setInsertionIndex(Option.some(i))
-                          }
-                        >
-                          Insert above
-                        </button>
-                        <button
-                          onClick={() => controller.deleteAthlete(athleteId)}
-                        >
-                          Delete
-                        </button>
-                      </li>
-                    ));
+                    .map((athleteId, i) => {
+                      const athlete = athletes.find(
+                        athlete => athlete.id === athleteId
+                      );
+                      const place = i + 1;
+                      const firstName =
+                        athlete === undefined ? (
+                          <span>
+                            Athlete not found. Please reload the page.
+                          </span>
+                        ) : (
+                          <span>{athlete.firstName}</span>
+                        );
+                      return (
+                        <li key={athleteId}>
+                          <span>{place}. </span>
+                          {firstName}
+                          <button
+                            onClick={() =>
+                              controller.setInsertionIndex(Option.some(i))
+                            }
+                          >
+                            Insert above
+                          </button>
+                          <button
+                            onClick={() => controller.deleteAthlete(athleteId)}
+                          >
+                            Delete
+                          </button>
+                        </li>
+                      );
+                    });
                   const pendingAthleteId = state.editedDivision.match({
                     none: () => [],
                     some: () => [
@@ -93,10 +108,10 @@ export default function EditMeet({
                       </li>,
                     ],
                   });
-                  return athleteIds
+                  return athleteNames
                     .slice(0, insertionIndex)
                     .concat(pendingAthleteId)
-                    .concat(athleteIds.slice(insertionIndex))
+                    .concat(athleteNames.slice(insertionIndex))
                     .concat(insertAtBottom);
                 })()}
               </ul>

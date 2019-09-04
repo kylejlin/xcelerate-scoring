@@ -181,6 +181,7 @@ export interface EditMeetState {
   editedDivision: Option<RaceDivision>;
   pendingAthleteId: string;
   insertionIndex: Option<number>;
+  athletes: Option<Athlete[]>;
 }
 
 export interface ViewMeetState {

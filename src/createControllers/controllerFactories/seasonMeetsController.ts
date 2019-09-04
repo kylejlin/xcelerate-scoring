@@ -9,6 +9,7 @@ import { StateType, ViewMeetState, EditMeetState } from "../../types/states";
 import addMeetToSeason from "../../firestore/addMeetToSeason";
 import getMeetRaces from "../../firestore/getMeetRaces";
 import Option from "../../types/Option";
+import getSeasonAthletes from "../../firestore/getSeasonAthletes";
 
 export default function getSeasonsMeetsController(
   app: App,
@@ -59,6 +60,7 @@ export default function getSeasonsMeetsController(
             editedDivision: Option.none(),
             pendingAthleteId: "",
             insertionIndex: Option.none(),
+            athletes: Option.none(),
           })
           .update((state, updateScreen) => {
             getMeetRaces(state.seasonSummary.id, state.meetSummary.id).then(
@@ -76,6 +78,9 @@ export default function getSeasonsMeetsController(
                 });
               }
             );
+            getSeasonAthletes(state.seasonSummary.id).then(athletes => {
+              updateScreen({ athletes: Option.some(athletes) });
+            });
           });
       } else {
         throw new Error(
