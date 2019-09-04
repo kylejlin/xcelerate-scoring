@@ -13,6 +13,7 @@ import {
   PendingAthleteRowEdit,
   SeasonSummary,
 } from "./misc";
+import { Races, RaceDivision } from "./race";
 
 export enum StateType {
   SearchForSeason,
@@ -164,15 +165,32 @@ export interface SeasonMeetsState {
   doesUserHaveWriteAccess: boolean;
   seasonSummary: SeasonSummary;
   meets: Option<MeetSummary[]>;
+  gradeBounds: Option<{ min: number; max: number }>;
   pendingMeetName: string;
 }
 
 export interface EditMeetState {
   kind: StateType.EditMeet;
   screenNumber: number;
+
+  user: firebase.User;
+  seasonSummary: SeasonSummary;
+  meetSummary: MeetSummary;
+
+  races: Option<Races>;
+  editedDivision: Option<RaceDivision>;
+  pendingAthleteId: string;
+  insertionIndex: Option<number>;
 }
 
 export interface ViewMeetState {
   kind: StateType.ViewMeet;
   screenNumber: number;
+
+  user: Option<firebase.User>;
+  seasonSummary: SeasonSummary;
+  meetSummary: MeetSummary;
+
+  races: Option<Races>;
+  viewedDivision: Option<RaceDivision>;
 }

@@ -4,8 +4,11 @@ import {
 } from "../../types/controllers";
 import App from "../../App";
 import { MeetSummary } from "../../types/misc";
-import { StateType } from "../../types/states";
+import { RaceDivisionUtil, RaceUpdater } from "../../types/race";
+import { StateType, ViewMeetState, EditMeetState } from "../../types/states";
 import addMeetToSeason from "../../firestore/addMeetToSeason";
+import getMeetRaces from "../../firestore/getMeetRaces";
+import Option from "../../types/Option";
 
 export default function getSeasonsMeetsController(
   app: App,
@@ -24,10 +27,61 @@ export default function getSeasonsMeetsController(
     navigateToUserProfileScreen,
     viewSeason,
     viewMeet(meetSummary: MeetSummary) {
+      if (app.state.kind === StateType.SeasonMeets) {
+        app.newScreen<ViewMeetState>({
+          kind: StateType.ViewMeet,
+
+          user: app.state.user,
+          seasonSummary: app.state.seasonSummary,
+          meetSummary,
+          races: Option.none(),
+          viewedDivision: Option.none(),
+        });
+      } else {
+        throw new Error(
+          "Attempted to viewMeet when user was not on SeasonMeets screen."
+        );
+      }
       throw new Error("TODO viewMeet");
     },
     editMeet(meetSummary: MeetSummary) {
-      throw new Error("TODO editMeet");
+      if (app.state.kind === StateType.SeasonMeets) {
+        app
+          .newScreen<EditMeetState>({
+            kind: StateType.EditMeet,
+
+            user: app.state.user.expect(
+              "Attempted to editMeet when user was not on SeasonMeets screen."
+            ),
+            seasonSummary: app.state.seasonSummary,
+            meetSummary,
+            races: Option.none(),
+            editedDivision: Option.none(),
+            pendingAthleteId: "",
+            insertionIndex: Option.none(),
+          })
+          .update((state, updateScreen) => {
+            getMeetRaces(state.seasonSummary.id, state.meetSummary.id).then(
+              races => {
+                const currentScreenNumber = state.screenNumber;
+                RaceUpdater.updateRacesWhile(
+                  races,
+                  () => app.state.screenNumber === currentScreenNumber
+                ).onUpdate(() => {
+                  app.forceUpdate();
+                });
+                updateScreen({
+                  races: Option.some(races),
+                  editedDivision: Option.some(races.getDivisions()[0]),
+                });
+              }
+            );
+          });
+      } else {
+        throw new Error(
+          "Attempted to editMeet when user was not on SeasonMeets screen."
+        );
+      }
     },
     editPendingMeetName(event: React.ChangeEvent) {
       if (app.state.kind === StateType.SeasonMeets) {
@@ -42,20 +96,26 @@ export default function getSeasonsMeetsController(
     addMeet() {
       if (app.state.kind === StateType.SeasonMeets) {
         const { pendingMeetName } = app.state;
+        const gradeBounds = app.state.gradeBounds.expect(
+          "Attempted to addMeet when grade bounds have not yet loaded."
+        );
+        const divisions = RaceDivisionUtil.getDivisions(gradeBounds);
         if (pendingMeetName !== "") {
           app.setState({ ...app.state, pendingMeetName: "" });
-          addMeetToSeason(pendingMeetName, app.state.seasonSummary.id).then(
-            meetSummary => {
-              if (app.state.kind === StateType.SeasonMeets) {
-                app.setState({
-                  ...app.state,
-                  meets: app.state.meets.map(meets =>
-                    meets.concat([meetSummary])
-                  ),
-                });
-              }
+          addMeetToSeason(
+            pendingMeetName,
+            app.state.seasonSummary.id,
+            divisions
+          ).then(meetSummary => {
+            if (app.state.kind === StateType.SeasonMeets) {
+              app.setState({
+                ...app.state,
+                meets: app.state.meets.map(meets =>
+                  meets.concat([meetSummary])
+                ),
+              });
             }
-          );
+          });
         }
       } else {
         throw new Error(

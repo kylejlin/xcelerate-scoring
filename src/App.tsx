@@ -23,12 +23,25 @@ import AthletesMenu from "./components/AthletesMenu";
 import PasteAthletes from "./components/PasteAthletes";
 import CorrectPastedAthletes from "./components/CorrectPastedAthletes";
 import SeasonMeets from "./components/SeasonMeets";
+import EditMeet from "./components/EditMeet";
 
 export default class App extends React.Component<{}, AppState> {
   private controllers: ControllerCollection;
+  editMeetInputRefs: React.RefObject<HTMLInputElement>[];
 
   constructor(props: {}) {
     super(props);
+
+    // @ts-ignore
+    window.app = this;
+
+    this.editMeetInputRefs = [
+      React.createRef(),
+      React.createRef(),
+      React.createRef(),
+      React.createRef(),
+      React.createRef(),
+    ];
 
     if (localStorage.getItem(LocalStorageKeys.IsWaitingForSignIn) === "true") {
       this.state = { kind: StateType.WaitForSignInCompletion, screenNumber: 0 };
@@ -171,6 +184,14 @@ export default class App extends React.Component<{}, AppState> {
             controller={this.controllers.seasonMeetsController}
           />
         );
+      case StateType.EditMeet:
+        return (
+          <EditMeet
+            state={this.state}
+            controller={this.controllers.editMeetController}
+            inputRefs={this.editMeetInputRefs}
+          />
+        );
       default:
         throw new Error("TODO: Render StateType." + StateType[this.state.kind]);
     }
@@ -197,6 +218,10 @@ export default class App extends React.Component<{}, AppState> {
       case StateType.PasteAthletes:
         return Option.some(this.state.user);
       case StateType.CorrectPastedAthletes:
+        return Option.some(this.state.user);
+      case StateType.SeasonMeets:
+        return this.state.user;
+      case StateType.EditMeet:
         return Option.some(this.state.user);
       default:
         throw new Error(
@@ -241,15 +266,71 @@ export default class App extends React.Component<{}, AppState> {
       update(callback) {
         updatedState.match({
           none: () => {
-            console.log(
-              "callbacks have not yet been called. queuing passed callback"
-            );
             callbacks.push(callback);
           },
           some: updatedState => {
-            console.log(
-              "callbacks have already been called. immediately calling passed callback"
-            );
+            callback(updatedState.state, updatedState.updateScreen);
+          },
+        });
+      },
+    };
+  }
+
+  updateScreen<Kind extends AppState["kind"]>(
+    kind: Kind,
+    getNewScreen: (
+      prevState: Extract<AppState, { kind: Kind }>
+    ) => Partial<Extract<AppState, { kind: Kind }>>
+  ): ScreenUpdater<Extract<AppState, { kind: Kind }>> {
+    type State = Extract<AppState, { kind: Kind }>;
+    const callbacks: ScreenUpdaterCallback<State>[] = [];
+    let updatedState = Option.none<UpdatedState<State>>();
+    this.setState(
+      prevState => {
+        if (prevState.kind === kind) {
+          const newScreen = getNewScreen(prevState as State);
+          const { screenNumber } = prevState;
+          const newState = {
+            ...prevState,
+            ...newScreen,
+          } as State;
+          const updateScreen = (
+            newStateOrUpdater:
+              | Partial<State>
+              | ((prevState: State) => Partial<State>)
+          ) => {
+            if (this.state.screenNumber === screenNumber) {
+              this.setState(newStateOrUpdater as (
+                | AppState
+                | ((prevState: AppState) => AppState)));
+            }
+          };
+          updatedState = Option.some({
+            state: newState,
+            updateScreen,
+          });
+          return newState;
+        } else {
+          return prevState;
+        }
+      },
+      () => {
+        callbacks.forEach(callback => {
+          const { state, updateScreen } = updatedState.expect(
+            "updatedState should be set to Option::Some by the time the setState() callback is being called."
+          );
+          callback(state, updateScreen);
+        });
+      }
+    );
+
+    return {
+      update(callback) {
+        updatedState.match({
+          none: () => {
+            callbacks.push(callback);
+          },
+          some: updatedState => {
             callback(updatedState.state, updatedState.updateScreen);
           },
         });

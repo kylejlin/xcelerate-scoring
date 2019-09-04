@@ -56,12 +56,20 @@ export default function SeasonMeets({
           ),
       })}
 
-      <input
-        type="text"
-        value={state.pendingMeetName}
-        onChange={controller.editPendingMeetName}
-      />
-      <button onClick={controller.addMeet}>Add meet</button>
+      {state.gradeBounds.match({
+        none: () => null,
+        some: () => (
+          <>
+            {" "}
+            <input
+              type="text"
+              value={state.pendingMeetName}
+              onChange={controller.editPendingMeetName}
+            />
+            <button onClick={controller.addMeet}>Add meet</button>
+          </>
+        ),
+      })}
     </div>
   );
 }

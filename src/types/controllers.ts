@@ -19,6 +19,7 @@ export interface ControllerCollection {
   pasteAthletesController: PasteAthletesController;
   correctPastedAthletesController: CorrectPastedAthletesController;
   seasonMeetsController: SeasonMeetsController;
+  editMeetController: EditMeetController;
 }
 
 export interface SharedControllerMethods {
@@ -132,4 +133,15 @@ export interface SeasonMeetsController {
   editMeet(meetSummary: MeetSummary): void;
   editPendingMeetName(event: React.ChangeEvent): void;
   addMeet(): void;
+}
+
+export interface EditMeetController {
+  navigateToSearchForSeasonScreen(): void;
+  navigateToSignInScreen(): void;
+  navigateToUserSeasonsScreen(): void;
+  navigateToUserProfileScreen(): void;
+  back(): void;
+  focusCorrectInput(event?: React.FocusEvent): void;
+  appendDigitToPendingAthleteId(event: React.ChangeEvent): void;
+  handlePossibleBackspace(event: React.KeyboardEvent): void;
 }

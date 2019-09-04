@@ -1,4 +1,7 @@
+import firebase from "../firebase";
+
 import Option from "./Option";
+import inclusiveIntRange from "../inclusiveIntRange";
 
 export interface SeasonSummary {
   id: string;
@@ -29,6 +32,10 @@ export interface Athlete {
 export enum Gender {
   Male = "M",
   Female = "F",
+}
+
+export function isGender(possibleGender: string): possibleGender is Gender {
+  return possibleGender === Gender.Male || possibleGender === Gender.Female;
 }
 
 export interface AthleteFilter {

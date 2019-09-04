@@ -28,7 +28,7 @@ function isNotNumber(string: string): boolean {
 }
 
 function isNotGender(string: string): boolean {
-  return !/^[mbfg]$/i.test(string);
+  return toGender(string).isNone();
 }
 
 function getGrade(values: string[]): Option<number> {
@@ -49,9 +49,19 @@ function getGender(values: string[]): Option<Gender> {
 
 function toGender(string: string): Option<Gender> {
   const lowercase = string.toLowerCase();
-  if (lowercase === "m" || lowercase === "b") {
+  if (
+    lowercase === "m" ||
+    lowercase === "b" ||
+    lowercase === "male" ||
+    lowercase === "boy"
+  ) {
     return Option.some(Gender.Male);
-  } else if (lowercase === "f" || lowercase === "g") {
+  } else if (
+    lowercase === "f" ||
+    lowercase === "g" ||
+    lowercase === "female" ||
+    lowercase === "girl"
+  ) {
     return Option.some(Gender.Female);
   } else {
     return Option.none();

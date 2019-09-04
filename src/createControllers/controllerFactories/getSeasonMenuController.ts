@@ -19,6 +19,7 @@ import getSeasonAthletes from "../../firestore/getSeasonAthletes";
 import getSeasonAthleteFilterOptions from "../../firestore/getSeasonAthleteFilterOptions";
 
 import getSeasonMeets from "../../firestore/getSeasonMeets";
+import getSeasonGradeBounds from "../../firestore/getSeasonGradeBounds";
 
 export default function getSeasonMenuController(
   app: App,
@@ -95,6 +96,7 @@ export default function getSeasonMenuController(
           doesUserHaveWriteAccess: false,
           seasonSummary: app.state.seasonSummary,
           meets: Option.none(),
+          gradeBounds: Option.none(),
           pendingMeetName: "",
         });
 
@@ -109,6 +111,14 @@ export default function getSeasonMenuController(
         getSeasonMeets(seasonId).then(meets => {
           if (app.state.kind === StateType.SeasonMeets) {
             app.setState({ ...app.state, meets: Option.some(meets) });
+          }
+        });
+        getSeasonGradeBounds(seasonId).then(gradeBounds => {
+          if (app.state.kind === StateType.SeasonMeets) {
+            app.setState({
+              ...app.state,
+              gradeBounds: Option.some(gradeBounds),
+            });
           }
         });
       } else {
