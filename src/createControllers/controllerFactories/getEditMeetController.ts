@@ -4,8 +4,9 @@ import {
 } from "../../types/controllers";
 import App from "../../App";
 import { StateType } from "../../types/states";
-import { RaceAction, RaceActionKind } from "../../types/race";
+import { RaceAction, RaceActionKind, RaceDivisionUtil } from "../../types/race";
 import appendAction from "../../firestore/appendAction";
+import Option from "../../types/Option";
 
 export default function getEditMeetController(
   app: App,
@@ -17,7 +18,24 @@ export default function getEditMeetController(
     viewSeason,
   }: SharedControllerMethods
 ): EditMeetController {
-  const editMeetController: EditMeetController = {
+  function focusCorrectInput(event?: React.FocusEvent) {
+    if (app.state.kind === StateType.EditMeet) {
+      if (event) {
+        event.preventDefault();
+      }
+
+      const focused = app.editMeetInputRefs[app.state.pendingAthleteId.length];
+      if (focused) {
+        focused.current!.focus();
+      }
+    } else {
+      throw new Error(
+        "Attempted to focusIput when user was not on EditMeet screen."
+      );
+    }
+  }
+
+  return {
     navigateToSearchForSeasonScreen,
     navigateToSignInScreen,
     navigateToUserSeasonsScreen,
@@ -25,22 +43,15 @@ export default function getEditMeetController(
     back() {
       throw new Error("TODO back");
     },
-    focusCorrectInput(event?: React.FocusEvent) {
-      if (app.state.kind === StateType.EditMeet) {
-        if (event) {
-          event.preventDefault();
-        }
-
-        const focused =
-          app.editMeetInputRefs[app.state.pendingAthleteId.length];
-        if (focused) {
-          focused.current!.focus();
-        }
-      } else {
-        throw new Error(
-          "Attempted to focusIput when user was not on EditMeet screen."
-        );
-      }
+    selectDivision(event: React.ChangeEvent) {
+      const { value } = event.target as HTMLInputElement;
+      const division = RaceDivisionUtil.parse(value);
+      app.updateScreen(StateType.EditMeet, () => ({
+        editedDivision: Option.some(division),
+      }));
+    },
+    focusCorrectInput(event: React.FocusEvent) {
+      focusCorrectInput(event);
     },
     handlePossibleBackspace(event: React.KeyboardEvent) {
       if (event.key === "Backspace" || event.key === "Delete") {
@@ -93,7 +104,7 @@ export default function getEditMeetController(
                 );
               } else {
                 setTimeout(function focusCorrectInput() {
-                  editMeetController.focusCorrectInput(undefined);
+                  focusCorrectInput();
                 });
               }
             });
@@ -105,7 +116,6 @@ export default function getEditMeetController(
       }
     },
   };
-  return editMeetController;
 }
 
 function isDigit(number: number): boolean {

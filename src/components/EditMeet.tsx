@@ -32,7 +32,7 @@ export default function EditMeet({
           const race = races.getRace(editedDivision);
           return (
             <div>
-              <select value={divisionStr}>
+              <select value={divisionStr} onChange={controller.selectDivision}>
                 {races
                   .getDivisions()
                   .map(RaceDivisionUtil.stringify)

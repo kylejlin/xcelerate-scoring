@@ -141,7 +141,8 @@ export interface EditMeetController {
   navigateToUserSeasonsScreen(): void;
   navigateToUserProfileScreen(): void;
   back(): void;
-  focusCorrectInput(event?: React.FocusEvent): void;
+  selectDivision(event: React.ChangeEvent): void;
+  focusCorrectInput(event: React.FocusEvent): void;
   appendDigitToPendingAthleteId(event: React.ChangeEvent): void;
   handlePossibleBackspace(event: React.KeyboardEvent): void;
 }
