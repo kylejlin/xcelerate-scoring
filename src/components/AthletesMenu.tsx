@@ -149,7 +149,7 @@ export default function AthletesMenu({
                 state.shouldSortByLastName
               ).map(athlete => (
                 <tr key={athlete.id}>
-                  <td>{athlete.id}</td>
+                  <td>#{athlete.id}</td>
                   <td>
                     {idOfEditedAthlete === athlete.id &&
                     editedField === AthleteField.FirstName ? (
