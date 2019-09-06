@@ -3,7 +3,7 @@ import {
   SharedControllerMethods,
 } from "../../types/controllers";
 import App from "../../App";
-import { StateType } from "../../types/states";
+import { StateType, EditMeetState } from "../../types/states";
 import {
   RaceAction,
   RaceActionKind,
@@ -20,7 +20,7 @@ export default function getEditMeetController(
     navigateToSignInScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
-    viewSeason,
+    navigateToSeasonMeetsScreen,
   }: SharedControllerMethods
 ): EditMeetController {
   return {
@@ -29,7 +29,11 @@ export default function getEditMeetController(
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
     back() {
-      throw new Error("TODO back");
+      const state = app.state as EditMeetState;
+      navigateToSeasonMeetsScreen({
+        user: Option.some(state.user),
+        seasonSummary: state.seasonSummary,
+      });
     },
     selectDivision(event: React.ChangeEvent) {
       const { value } = event.target as HTMLInputElement;

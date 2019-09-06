@@ -20,7 +20,7 @@ export default function EditMeet({
         Your seasons
       </button>
       <button onClick={controller.navigateToUserProfileScreen}>Profile</button>
-      <button onClick={() => controller.back}>Back</button>
+      <button onClick={controller.back}>Back</button>
       <h2>{state.meetSummary.name} - Edit</h2>
 
       {Option.all([state.races, state.athletes]).match({

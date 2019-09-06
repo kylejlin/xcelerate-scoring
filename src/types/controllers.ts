@@ -29,6 +29,13 @@ export interface SharedControllerMethods {
   navigateToUserSeasonsScreen(): void;
   navigateToUserProfileScreen(): void;
   viewSeason(seasonSummary: SeasonSummary): void;
+  navigateToSeasonMeetsScreen({
+    user,
+    seasonSummary,
+  }: {
+    user: Option<firebase.User>;
+    seasonSummary: SeasonSummary;
+  }): void;
 }
 
 export interface SearchForSeasonController {

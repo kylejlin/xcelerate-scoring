@@ -5,11 +5,7 @@ import {
   SeasonMenuController,
 } from "../../types/controllers";
 
-import {
-  StateType,
-  AthletesMenuState,
-  SeasonMeetsState,
-} from "../../types/states";
+import { StateType, AthletesMenuState } from "../../types/states";
 import Option from "../../types/Option";
 
 import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAccessToSeason";
@@ -18,9 +14,6 @@ import getSeasonAthletes from "../../firestore/getSeasonAthletes";
 
 import getSeasonAthleteFilterOptions from "../../firestore/getSeasonAthleteFilterOptions";
 
-import getSeasonMeets from "../../firestore/getSeasonMeets";
-import getSeasonGradeBounds from "../../firestore/getSeasonGradeBounds";
-
 export default function getSeasonMenuController(
   app: App,
   {
@@ -28,6 +21,7 @@ export default function getSeasonMenuController(
     navigateToSignInScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
+    navigateToSeasonMeetsScreen,
   }: SharedControllerMethods
 ): SeasonMenuController {
   return {
@@ -89,37 +83,9 @@ export default function getSeasonMenuController(
     },
     navigateToSeasonMeetsScreen() {
       if (app.state.kind === StateType.SeasonMenu) {
-        app.newScreen<SeasonMeetsState>({
-          kind: StateType.SeasonMeets,
-
+        navigateToSeasonMeetsScreen({
           user: app.state.user,
-          doesUserHaveWriteAccess: false,
           seasonSummary: app.state.seasonSummary,
-          meets: Option.none(),
-          gradeBounds: Option.none(),
-          pendingMeetName: "",
-        });
-
-        const seasonId = app.state.seasonSummary.id;
-        app.state.user.ifSome(user => {
-          doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
-            if (hasAccess && app.state.kind === StateType.SeasonMeets) {
-              app.setState({ ...app.state, doesUserHaveWriteAccess: true });
-            }
-          });
-        });
-        getSeasonMeets(seasonId).then(meets => {
-          if (app.state.kind === StateType.SeasonMeets) {
-            app.setState({ ...app.state, meets: Option.some(meets) });
-          }
-        });
-        getSeasonGradeBounds(seasonId).then(gradeBounds => {
-          if (app.state.kind === StateType.SeasonMeets) {
-            app.setState({
-              ...app.state,
-              gradeBounds: Option.some(gradeBounds),
-            });
-          }
         });
       } else {
         throw new Error(
