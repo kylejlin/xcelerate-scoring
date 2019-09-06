@@ -3,8 +3,9 @@ import React from "react";
 import { EditMeetState } from "../types/states";
 import { EditMeetController } from "../types/controllers";
 
-import { RaceDivisionUtil } from "../types/race";
+import { RaceDivisionUtil, RaceDivision } from "../types/race";
 import Option from "../types/Option";
+import { Athlete, Gender } from "../types/misc";
 
 export default function EditMeet({
   state,
@@ -116,6 +117,64 @@ export default function EditMeet({
                     .concat(insertAtBottom);
                 })()}
               </ul>
+
+              {state.athleteIdWhichCouldNotBeInserted.match({
+                none: () => null,
+                some: athleteId => (
+                  <div>
+                    <h3>Error inserting athlete #{athleteId}</h3>
+                    {getAthlete(athleteId, athletes).match({
+                      none: () => (
+                        <p>
+                          #{athleteId} does not refer to an existent athlete.
+                        </p>
+                      ),
+                      some: athlete => {
+                        const division = RaceDivisionUtil.getAthleteDivision(
+                          athlete
+                        );
+                        const isInWrongDivision = !RaceDivisionUtil.areDivisionsEqual(
+                          division,
+                          editedDivision
+                        );
+                        const fullName =
+                          athlete.firstName + " " + athlete.lastName;
+                        const indexInExistingFinishers = race
+                          .getFinisherIds()
+                          .findIndex(id => id === athlete.id);
+                        const isAlreadyEntered =
+                          indexInExistingFinishers !== -1;
+                        if (isInWrongDivision) {
+                          return (
+                            <p>
+                              You tried to insert a{" "}
+                              {describeDivisionInEnglish(division)} in the{" "}
+                              {describeDivisionInEnglish(editedDivision)}'s
+                              race.
+                            </p>
+                          );
+                        } else if (isAlreadyEntered) {
+                          return (
+                            <p>
+                              You tried to insert {fullName}, who has already
+                              been inserted in{" "}
+                              {addAppropriateOrdinalSuffix(
+                                indexInExistingFinishers + 1
+                              )}{" "}
+                              place.
+                            </p>
+                          );
+                        } else {
+                          return <p>Sorry, that's all we know.</p>;
+                        }
+                      },
+                    })}
+                    <button onClick={controller.dismissInsertionErrorMessage}>
+                      Dismiss
+                    </button>
+                  </div>
+                ),
+              })}
             </div>
           );
         },
@@ -127,4 +186,37 @@ export default function EditMeet({
 interface Props {
   state: EditMeetState;
   controller: EditMeetController;
+}
+
+function getAthlete(athleteId: string, athletes: Athlete[]): Option<Athlete> {
+  const athlete = athletes.find(athlete => athlete.id === athleteId);
+  return athlete !== undefined ? Option.some(athlete) : Option.none();
+}
+
+function describeDivisionInEnglish(division: RaceDivision): string {
+  const grade = addAppropriateOrdinalSuffix(division.grade);
+  const gender = childWithGender(division.gender);
+  return grade + " grade " + gender;
+}
+
+function addAppropriateOrdinalSuffix(grade: number): string {
+  switch (grade % 10) {
+    case 1:
+      return grade + "st";
+    case 2:
+      return grade + "nd";
+    case 3:
+      return grade + "rd";
+    default:
+      return grade + "th";
+  }
+}
+
+function childWithGender(gender: Gender): string {
+  switch (gender) {
+    case Gender.Male:
+      return "boy";
+    case Gender.Female:
+      return "girl";
+  }
 }

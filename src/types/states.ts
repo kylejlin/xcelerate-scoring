@@ -182,6 +182,7 @@ export interface EditMeetState {
   pendingAthleteId: string;
   insertionIndex: Option<number>;
   athletes: Option<Athlete[]>;
+  athleteIdWhichCouldNotBeInserted: Option<string>;
 }
 
 export interface ViewMeetState {

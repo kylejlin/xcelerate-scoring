@@ -146,4 +146,5 @@ export interface EditMeetController {
   editPendingAthleteId(event: React.ChangeEvent): void;
   setInsertionIndex(insertionIndex: Option<number>): void;
   deleteAthlete(athleteId: string): void;
+  dismissInsertionErrorMessage(): void;
 }

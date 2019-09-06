@@ -1,9 +1,4 @@
-import firebase from "../firebase";
-
 import Option from "./Option";
-import getSeasonAthletes from "../firestore/getSeasonAthletes";
-
-const db = firebase.firestore();
 
 export interface SeasonSummary {
   id: string;

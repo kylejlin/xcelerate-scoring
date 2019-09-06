@@ -1,6 +1,6 @@
 import firebase from "../firebase";
 
-import { Gender, isGender } from "./misc";
+import { Gender, isGender, Athlete } from "./misc";
 
 import inclusiveIntRange from "../inclusiveIntRange";
 
@@ -30,6 +30,14 @@ export const RaceDivisionUtil = {
       { grade, gender: Gender.Male },
       { grade, gender: Gender.Female },
     ]);
+  },
+
+  getAthleteDivision(athlete: Athlete): RaceDivision {
+    return { grade: athlete.grade, gender: athlete.gender };
+  },
+
+  areDivisionsEqual(a: RaceDivision, b: RaceDivision): boolean {
+    return a.grade === b.grade && a.gender === b.gender;
   },
 };
 
@@ -128,10 +136,14 @@ export class Race {
       .forEach(action => {
         switch (action.kind) {
           case RaceActionKind.InsertAtEnd:
-            ids.push(action.athleteId);
+            if (!ids.includes(action.athleteId)) {
+              ids.push(action.athleteId);
+            }
             break;
           case RaceActionKind.InsertAbove:
-            ids.splice(action.insertionIndex, 0, action.athleteId);
+            if (!ids.includes(action.athleteId)) {
+              ids.splice(action.insertionIndex, 0, action.athleteId);
+            }
             break;
           case RaceActionKind.Delete:
             ids = ids.filter(id => id !== action.athleteId);
@@ -158,10 +170,7 @@ export class RaceUpdater {
     return new RaceUpdater(races, shouldContinueListening);
   }
 
-  private constructor(
-    private races: Races,
-    private shouldContinueListening: () => boolean
-  ) {
+  private constructor(races: Races, shouldContinueListening: () => boolean) {
     this.listeners = [];
 
     const cleanupFunctions = races.getRaces().map(race =>

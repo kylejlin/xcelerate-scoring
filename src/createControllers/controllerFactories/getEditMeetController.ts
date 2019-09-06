@@ -65,7 +65,15 @@ export default function getEditMeetController(
               state.meetSummary.id,
               editedDivision,
               action
-            );
+            ).catch(err => {
+              if (isInsufficientPermissionsError(err)) {
+                app.updateScreen(StateType.EditMeet, () => ({
+                  athleteIdWhichCouldNotBeInserted: Option.some(newPendingId),
+                }));
+              } else {
+                throw err;
+              }
+            });
             return { pendingAthleteId: "" };
           }
         } else {
@@ -94,9 +102,19 @@ export default function getEditMeetController(
         return state;
       });
     },
+    dismissInsertionErrorMessage() {
+      app.updateScreen(StateType.EditMeet, () => ({
+        athleteIdWhichCouldNotBeInserted: Option.none(),
+      }));
+    },
   };
 }
 
 function isPartialId(string: string): boolean {
   return /^\d{0,5}$/.test(string);
+}
+
+function isInsufficientPermissionsError(err: Error): boolean {
+  // Hacky, but I don't know a better way.
+  return err.message.toLowerCase().includes("permission");
 }

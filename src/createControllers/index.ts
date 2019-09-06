@@ -12,7 +12,7 @@ import getSeasonMenuController from "./controllerFactories/getSeasonMenuControll
 import getAthletesMenuController from "./controllerFactories/getAthletesMenuController";
 import getPasteAthletesController from "./controllerFactories/getPasteAthletesController";
 import getCorrectPastedAthletesController from "./controllerFactories/correctPastedAthleteController";
-import getSeasonsMeetsController from "./controllerFactories/seasonMeetsController";
+import getSeasonsMeetsController from "./controllerFactories/getSeasonMeetsController";
 import getEditMeetController from "./controllerFactories/getEditMeetController";
 
 export default function createControllers(app: App): ControllerCollection {

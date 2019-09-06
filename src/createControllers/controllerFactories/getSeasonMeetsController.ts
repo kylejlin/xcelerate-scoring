@@ -61,6 +61,7 @@ export default function getSeasonsMeetsController(
             pendingAthleteId: "",
             insertionIndex: Option.none(),
             athletes: Option.none(),
+            athleteIdWhichCouldNotBeInserted: Option.none(),
           })
           .update((state, updateScreen) => {
             getMeetRaces(state.seasonSummary.id, state.meetSummary.id).then(
