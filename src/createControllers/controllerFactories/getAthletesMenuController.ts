@@ -18,7 +18,7 @@ import {
 
 import getAthleteFieldValue from "../../getAthleteFieldValue";
 
-import updateAthletes from "../../updateAthletes";
+import updateAthletesIfPendingEditIsValid from "../../updateAthletesIfPendingEditIsValid";
 
 import areAthletesEqual from "../../areAthletesEqual";
 
@@ -186,7 +186,10 @@ export default function getAthletesMenuController(
         const editedAthlete = athletes.find(
           athlete => athlete.id === pendingEdit.athleteId
         )!;
-        const updatedAthletes = updateAthletes(athletes, pendingEdit);
+        const updatedAthletes = updateAthletesIfPendingEditIsValid(
+          athletes,
+          pendingEdit
+        );
         const updatedAthlete = updatedAthletes.find(
           athlete => athlete.id === pendingEdit.athleteId
         )!;

@@ -11,7 +11,7 @@ import getCreateSeasonController from "./controllerFactories/getCreateSeasonCont
 import getSeasonMenuController from "./controllerFactories/getSeasonMenuController";
 import getAthletesMenuController from "./controllerFactories/getAthletesMenuController";
 import getPasteAthletesController from "./controllerFactories/getPasteAthletesController";
-import getCorrectPastedAthletesController from "./controllerFactories/correctPastedAthleteController";
+import getCorrectPastedAthletesController from "./controllerFactories/getCorrectPastedAthleteController";
 import getSeasonsMeetsController from "./controllerFactories/getSeasonMeetsController";
 import getEditMeetController from "./controllerFactories/getEditMeetController";
 import getViewMeetController from "./controllerFactories/getViewMeetController";

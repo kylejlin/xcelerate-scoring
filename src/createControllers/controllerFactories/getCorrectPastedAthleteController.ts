@@ -13,7 +13,7 @@ import {
   AthleteField,
 } from "../../types/misc";
 import getAthleteRowFieldValue from "../../getAthleteRowFieldValue";
-import updateAthleteRows from "../../updateAthleteRows";
+import updateAthleteRowsIfPendingEditIsValid from "../../updateAthleteRowsIfPendingEditIsValid";
 import addAthletesToSeason from "../../firestore/addAthletesToSeason";
 import Option from "../../types/Option";
 
@@ -21,10 +21,8 @@ export default function getCorrectPastedAthletesController(
   app: App,
   {
     navigateToSearchForSeasonScreen,
-    navigateToSignInScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
-    viewSeason,
   }: SharedControllerMethods
 ): CorrectPastedAthletesController {
   const correctPastedAthletesController = {
@@ -120,13 +118,11 @@ export default function getCorrectPastedAthletesController(
                 if (isSameRowCurrentlyFocused) {
                   return {
                     ...prevState,
-                    athletes: updateAthleteRows(
+                    athletes: updateAthleteRowsIfPendingEditIsValid(
                       prevState.athletes,
                       pendingAthleteEdit
                     ),
-                    pendingAthleteEdit: Option.none() as Option<
-                      PendingAthleteRowEdit
-                    >,
+                    pendingAthleteEdit: Option.none<PendingAthleteRowEdit>(),
                   };
                 } else {
                   return prevState;
@@ -161,13 +157,14 @@ export default function getCorrectPastedAthletesController(
           case AthleteField.Gender:
             app.setState({
               ...app.state,
-              athletes: updateAthleteRows(app.state.athletes, {
-                ...edit,
-                fieldValue,
-              }),
-              pendingAthleteEdit: Option.none() as Option<
-                PendingAthleteRowEdit
-              >,
+              athletes: updateAthleteRowsIfPendingEditIsValid(
+                app.state.athletes,
+                {
+                  ...edit,
+                  fieldValue,
+                }
+              ),
+              pendingAthleteEdit: Option.none<PendingAthleteRowEdit>(),
             });
             break;
         }

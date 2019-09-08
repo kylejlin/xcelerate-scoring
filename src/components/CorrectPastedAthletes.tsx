@@ -6,6 +6,8 @@ import { AthleteField, Gender } from "../types/misc";
 import areAthleteRowsValid from "../areAthleteRowsValid";
 import inclusiveIntRange from "../inclusiveIntRange";
 
+const MISSING_FIELD_PLACEHOLDER = <span className="TempMissingField">?</span>;
+
 export default function CorrectPastedAthletes({
   state,
   controller,
@@ -54,7 +56,7 @@ export default function CorrectPastedAthletes({
                           value={fieldValue}
                           onChange={controller.editSelectedAthleteField}
                         >
-                          <option value="">?</option>
+                          {fieldValue === "" && <option value="">?</option>}
                           {inclusiveIntRange(gradeBounds.min, gradeBounds.max)
                             .map(grade => "" + grade)
                             .map(grade => (
@@ -72,7 +74,7 @@ export default function CorrectPastedAthletes({
                         )
                       }
                     >
-                      {athlete.grade.unwrapOr("?")}
+                      {athlete.grade.unwrapOr(MISSING_FIELD_PLACEHOLDER)}
                     </span>
                   )}
                 </td>
@@ -92,7 +94,9 @@ export default function CorrectPastedAthletes({
                         )
                       }
                     >
-                      {athlete.firstName}
+                      {athlete.firstName === ""
+                        ? MISSING_FIELD_PLACEHOLDER
+                        : athlete.firstName}
                     </span>
                   )}
                 </td>
@@ -112,7 +116,9 @@ export default function CorrectPastedAthletes({
                         )
                       }
                     >
-                      {athlete.lastName}
+                      {athlete.lastName === ""
+                        ? MISSING_FIELD_PLACEHOLDER
+                        : athlete.lastName}
                     </span>
                   )}
                 </td>
@@ -122,7 +128,7 @@ export default function CorrectPastedAthletes({
                       value={fieldValue}
                       onChange={controller.editSelectedAthleteField}
                     >
-                      <option value="">?</option>
+                      {fieldValue === "" && <option value="">?</option>}
                       <option value={Gender.Male}>M</option>
                       <option value={Gender.Female}>F</option>
                     </select>
@@ -135,7 +141,7 @@ export default function CorrectPastedAthletes({
                         )
                       }
                     >
-                      {athlete.gender.unwrapOr("?")}
+                      {athlete.gender.unwrapOr(MISSING_FIELD_PLACEHOLDER)}
                     </span>
                   )}
                 </td>

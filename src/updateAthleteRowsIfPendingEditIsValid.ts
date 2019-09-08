@@ -3,16 +3,34 @@ import {
   AthleteRow,
   PendingAthleteRowEdit,
   Gender,
+  isGender,
 } from "./types/misc";
 import Option from "./types/Option";
+import { HUMAN_NAME } from "./consts";
 
-export default function updateAthleteRows(
+export default function updateAthleteRowsIfPendingEditIsValid(
   rows: AthleteRow[],
   pendingEdit: PendingAthleteRowEdit
 ): AthleteRow[] {
-  return rows.map((row, i) =>
-    i === pendingEdit.athleteIndex ? updateAthleteRow(row, pendingEdit) : row
-  );
+  if (isPendingEditValid(pendingEdit)) {
+    return rows.map((row, i) =>
+      i === pendingEdit.athleteIndex ? updateAthleteRow(row, pendingEdit) : row
+    );
+  } else {
+    return rows;
+  }
+}
+
+function isPendingEditValid(edit: PendingAthleteRowEdit): boolean {
+  switch (edit.editedField) {
+    case AthleteField.FirstName:
+    case AthleteField.LastName:
+      return HUMAN_NAME.test(edit.fieldValue);
+    case AthleteField.Grade:
+      return !isNaN(parseInt(edit.fieldValue, 10));
+    case AthleteField.Gender:
+      return isGender(edit.fieldValue);
+  }
 }
 
 function updateAthleteRow(
