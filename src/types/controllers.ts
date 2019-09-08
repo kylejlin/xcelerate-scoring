@@ -21,6 +21,7 @@ export interface ControllerCollection {
   correctPastedAthletesController: CorrectPastedAthletesController;
   seasonMeetsController: SeasonMeetsController;
   editMeetController: EditMeetController;
+  viewMeetController: ViewMeetController;
 }
 
 export interface SharedControllerMethods {
@@ -145,7 +146,6 @@ export interface SeasonMeetsController {
 
 export interface EditMeetController {
   navigateToSearchForSeasonScreen(): void;
-  navigateToSignInScreen(): void;
   navigateToUserSeasonsScreen(): void;
   navigateToUserProfileScreen(): void;
   back(): void;
@@ -154,4 +154,14 @@ export interface EditMeetController {
   setInsertionIndex(insertionIndex: Option<number>): void;
   deleteAthlete(athleteId: string): void;
   dismissInsertionErrorMessage(): void;
+}
+
+export interface ViewMeetController {
+  navigateToSearchForSeasonScreen(): void;
+  navigateToSignInScreen(): void;
+  navigateToUserSeasonsScreen(): void;
+  navigateToUserProfileScreen(): void;
+  back(): void;
+  selectDivision(event: React.ChangeEvent): void;
+  selectResultType(event: React.ChangeEvent): void;
 }

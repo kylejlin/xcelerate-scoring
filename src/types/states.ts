@@ -12,6 +12,7 @@ import {
   PendingAthleteDeletion,
   PendingAthleteRowEdit,
   SeasonSummary,
+  AthleteOrSchool,
 } from "./misc";
 import { Races, RaceDivision } from "./race";
 
@@ -195,4 +196,6 @@ export interface ViewMeetState {
 
   races: Option<Races>;
   viewedDivision: Option<RaceDivision>;
+  viewedResultType: AthleteOrSchool;
+  athletes: Option<Athlete[]>;
 }

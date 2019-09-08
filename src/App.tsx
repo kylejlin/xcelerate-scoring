@@ -24,6 +24,7 @@ import PasteAthletes from "./components/PasteAthletes";
 import CorrectPastedAthletes from "./components/CorrectPastedAthletes";
 import SeasonMeets from "./components/SeasonMeets";
 import EditMeet from "./components/EditMeet";
+import ViewMeet from "./components/ViewMeet";
 
 export default class App extends React.Component<{}, AppState> {
   private controllers: ControllerCollection;
@@ -182,6 +183,13 @@ export default class App extends React.Component<{}, AppState> {
             controller={this.controllers.editMeetController}
           />
         );
+      case StateType.ViewMeet:
+        return (
+          <ViewMeet
+            state={this.state}
+            controller={this.controllers.viewMeetController}
+          />
+        );
       default:
         throw new Error("TODO: Render StateType." + StateType[this.state.kind]);
     }
@@ -213,6 +221,8 @@ export default class App extends React.Component<{}, AppState> {
         return this.state.user;
       case StateType.EditMeet:
         return Option.some(this.state.user);
+      case StateType.ViewMeet:
+        return this.state.user;
       default:
         throw new Error(
           "Cannot getUser for StateType." + StateType[this.state.kind]

@@ -3,8 +3,8 @@ import {
   SharedControllerMethods,
 } from "../../types/controllers";
 import App from "../../App";
-import { MeetSummary } from "../../types/misc";
-import { RaceDivisionUtil, RaceUpdater } from "../../types/race";
+import { MeetSummary, AthleteOrSchool } from "../../types/misc";
+import { RaceDivisionUtil, RaceUpdater, RaceDivision } from "../../types/race";
 import { StateType, ViewMeetState, EditMeetState } from "../../types/states";
 import addMeetToSeason from "../../firestore/addMeetToSeason";
 import getMeetRaces from "../../firestore/getMeetRaces";
@@ -29,21 +29,45 @@ export default function getSeasonsMeetsController(
     viewSeason,
     viewMeet(meetSummary: MeetSummary) {
       if (app.state.kind === StateType.SeasonMeets) {
-        app.newScreen<ViewMeetState>({
-          kind: StateType.ViewMeet,
+        app
+          .newScreen<ViewMeetState>({
+            kind: StateType.ViewMeet,
 
-          user: app.state.user,
-          seasonSummary: app.state.seasonSummary,
-          meetSummary,
-          races: Option.none(),
-          viewedDivision: Option.none(),
-        });
+            user: app.state.user,
+            seasonSummary: app.state.seasonSummary,
+            meetSummary,
+            races: Option.none(),
+            viewedDivision: Option.none(),
+            viewedResultType: AthleteOrSchool.Athlete,
+            athletes: Option.none(),
+          })
+          .update((state, updateScreen) => {
+            getMeetRaces(state.seasonSummary.id, state.meetSummary.id).then(
+              races => {
+                const currentScreenNumber = state.screenNumber;
+                RaceUpdater.updateRacesWhile(
+                  races,
+                  () => app.state.screenNumber === currentScreenNumber
+                ).onUpdate(() => {
+                  app.forceUpdate();
+                });
+                const divisions = races.getDivisions();
+                const viewedDivision =
+                  divisions.length === 0
+                    ? Option.none<RaceDivision>()
+                    : Option.some(divisions[0]);
+                updateScreen({ races: Option.some(races), viewedDivision });
+              }
+            );
+            getSeasonAthletes(state.seasonSummary.id).then(athletes => {
+              updateScreen({ athletes: Option.some(athletes) });
+            });
+          });
       } else {
         throw new Error(
           "Attempted to viewMeet when user was not on SeasonMeets screen."
         );
       }
-      throw new Error("TODO viewMeet");
     },
     editMeet(meetSummary: MeetSummary) {
       if (app.state.kind === StateType.SeasonMeets) {
@@ -73,10 +97,12 @@ export default function getSeasonsMeetsController(
                 ).onUpdate(() => {
                   app.forceUpdate();
                 });
-                updateScreen({
-                  races: Option.some(races),
-                  editedDivision: Option.some(races.getDivisions()[0]),
-                });
+                const divisions = races.getDivisions();
+                const editedDivision =
+                  divisions.length === 0
+                    ? Option.none<RaceDivision>()
+                    : Option.some(divisions[0]);
+                updateScreen({ races: Option.some(races), editedDivision });
               }
             );
             getSeasonAthletes(state.seasonSummary.id).then(athletes => {

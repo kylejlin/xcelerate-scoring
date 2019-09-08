@@ -89,3 +89,8 @@ export interface MeetSummary {
   id: string;
   timeCreated: Date;
 }
+
+export enum AthleteOrSchool {
+  Athlete = "Athlete",
+  School = "School",
+}

@@ -21,7 +21,7 @@ export default function EditMeet({
       </button>
       <button onClick={controller.navigateToUserProfileScreen}>Profile</button>
       <button onClick={controller.back}>Back</button>
-      <h2>{state.meetSummary.name} - Edit</h2>
+      <h2>{state.meetSummary.name} - Edit results</h2>
 
       {Option.all([state.races, state.athletes]).match({
         none: () => <p>Loading races...</p>,

@@ -17,7 +17,6 @@ export default function getEditMeetController(
   app: App,
   {
     navigateToSearchForSeasonScreen,
-    navigateToSignInScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
     navigateToSeasonMeetsScreen,
@@ -25,7 +24,6 @@ export default function getEditMeetController(
 ): EditMeetController {
   return {
     navigateToSearchForSeasonScreen,
-    navigateToSignInScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
     back() {
