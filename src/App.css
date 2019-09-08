@@ -5,3 +5,9 @@
 .TempStyleItalic {
   font-style: italic;
 }
+
+.TempSpreadsheetData {
+  margin: 1em;
+  white-space: pre;
+  font-family: monospace;
+}

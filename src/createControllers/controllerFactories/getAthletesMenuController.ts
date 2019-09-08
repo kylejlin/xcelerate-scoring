@@ -295,5 +295,15 @@ export default function getAthletesMenuController(
         );
       }
     },
+    showSpreadsheetData() {
+      app.updateScreen(StateType.AthletesMenu, () => ({
+        isSpreadsheetDataShown: true,
+      }));
+    },
+    hideSpreadsheetData() {
+      app.updateScreen(StateType.AthletesMenu, () => ({
+        isSpreadsheetDataShown: false,
+      }));
+    },
   };
 }

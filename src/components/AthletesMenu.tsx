@@ -137,176 +137,204 @@ export default function AthletesMenu({
       {state.athletes.match({
         none: () => <p>Loading athletes...</p>,
         some: athletes => (
-          <table>
-            <tbody>
-              <tr>
-                <th>ID</th>
-                <th>First</th>
-                <th>Last</th>
-                <th>Grade</th>
-                <th>Gender</th>
-                <th>School</th>
-                <th></th>
-              </tr>
-              {filterAndSortAthletes(
-                athletes,
-                state.athleteFilter,
-                state.shouldSortByLastName
-              ).map(athlete => (
-                <tr key={athlete.id}>
-                  <td>#{athlete.id}</td>
-                  <td>
-                    {idOfEditedAthlete === athlete.id &&
-                    editedField === AthleteField.FirstName ? (
-                      <input
-                        type="text"
-                        value={fieldValue}
-                        onChange={controller.editSelectedAthleteField}
-                        onBlur={controller.syncAndUnfocusEditedAthleteField}
-                      />
-                    ) : (
-                      <span
-                        onClick={() =>
-                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
-                            athlete.id,
-                            AthleteField.FirstName
-                          )
-                        }
-                      >
-                        {athlete.firstName}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {idOfEditedAthlete === athlete.id &&
-                    editedField === AthleteField.LastName ? (
-                      <input
-                        type="text"
-                        value={fieldValue}
-                        onChange={controller.editSelectedAthleteField}
-                        onBlur={controller.syncAndUnfocusEditedAthleteField}
-                      />
-                    ) : (
-                      <span
-                        onClick={() =>
-                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
-                            athlete.id,
-                            AthleteField.LastName
-                          )
-                        }
-                      >
-                        {athlete.lastName}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {idOfEditedAthlete === athlete.id &&
-                    editedField === AthleteField.Grade ? (
-                      state.athleteFilterOptions.match({
-                        none: () => <p>Loading eligible grades...</p>,
-                        some: filterOptions => (
-                          <select
-                            value={fieldValue}
-                            onChange={controller.editSelectedAthleteField}
-                            onBlur={controller.syncAndUnfocusEditedAthleteField}
-                          >
-                            {inclusiveIntRange(
-                              filterOptions.minGrade,
-                              filterOptions.maxGrade
+          <>
+            <table>
+              <tbody>
+                <tr>
+                  <th>ID</th>
+                  <th>First</th>
+                  <th>Last</th>
+                  <th>Grade</th>
+                  <th>Gender</th>
+                  <th>School</th>
+                  <th></th>
+                </tr>
+                {filterAndSortAthletes(
+                  athletes,
+                  state.athleteFilter,
+                  state.shouldSortByLastName
+                ).map(athlete => (
+                  <tr key={athlete.id}>
+                    <td>#{athlete.id}</td>
+                    <td>
+                      {idOfEditedAthlete === athlete.id &&
+                      editedField === AthleteField.FirstName ? (
+                        <input
+                          type="text"
+                          value={fieldValue}
+                          onChange={controller.editSelectedAthleteField}
+                          onBlur={controller.syncAndUnfocusEditedAthleteField}
+                        />
+                      ) : (
+                        <span
+                          onClick={() =>
+                            controller.selectAthleteFieldToEditIfUserHasWriteAccess(
+                              athlete.id,
+                              AthleteField.FirstName
                             )
-                              .map(String)
-                              .map(grade => (
-                                <option key={grade} value={grade}>
-                                  {grade}
+                          }
+                        >
+                          {athlete.firstName}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {idOfEditedAthlete === athlete.id &&
+                      editedField === AthleteField.LastName ? (
+                        <input
+                          type="text"
+                          value={fieldValue}
+                          onChange={controller.editSelectedAthleteField}
+                          onBlur={controller.syncAndUnfocusEditedAthleteField}
+                        />
+                      ) : (
+                        <span
+                          onClick={() =>
+                            controller.selectAthleteFieldToEditIfUserHasWriteAccess(
+                              athlete.id,
+                              AthleteField.LastName
+                            )
+                          }
+                        >
+                          {athlete.lastName}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {idOfEditedAthlete === athlete.id &&
+                      editedField === AthleteField.Grade ? (
+                        state.athleteFilterOptions.match({
+                          none: () => <p>Loading eligible grades...</p>,
+                          some: filterOptions => (
+                            <select
+                              value={fieldValue}
+                              onChange={controller.editSelectedAthleteField}
+                              onBlur={
+                                controller.syncAndUnfocusEditedAthleteField
+                              }
+                            >
+                              {inclusiveIntRange(
+                                filterOptions.minGrade,
+                                filterOptions.maxGrade
+                              )
+                                .map(String)
+                                .map(grade => (
+                                  <option key={grade} value={grade}>
+                                    {grade}
+                                  </option>
+                                ))}
+                            </select>
+                          ),
+                        })
+                      ) : (
+                        <span
+                          onClick={() =>
+                            controller.selectAthleteFieldToEditIfUserHasWriteAccess(
+                              athlete.id,
+                              AthleteField.Grade
+                            )
+                          }
+                        >
+                          {athlete.grade}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {idOfEditedAthlete === athlete.id &&
+                      editedField === AthleteField.Gender ? (
+                        <select
+                          value={fieldValue}
+                          onChange={controller.editSelectedAthleteField}
+                          onBlur={controller.syncAndUnfocusEditedAthleteField}
+                        >
+                          <option value={Gender.Male}>M</option>
+                          <option value={Gender.Female}>F</option>
+                        </select>
+                      ) : (
+                        <span
+                          onClick={() =>
+                            controller.selectAthleteFieldToEditIfUserHasWriteAccess(
+                              athlete.id,
+                              AthleteField.Gender
+                            )
+                          }
+                        >
+                          {athlete.gender}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {idOfEditedAthlete === athlete.id &&
+                      editedField === AthleteField.School ? (
+                        state.athleteFilterOptions.match({
+                          none: () => <p>Loading schools...</p>,
+                          some: filterOptions => (
+                            <select
+                              value={fieldValue}
+                              onChange={controller.editSelectedAthleteField}
+                              onBlur={
+                                controller.syncAndUnfocusEditedAthleteField
+                              }
+                            >
+                              {filterOptions.schools.map(school => (
+                                <option key={school} value={school}>
+                                  {school}
                                 </option>
                               ))}
-                          </select>
-                        ),
-                      })
-                    ) : (
-                      <span
-                        onClick={() =>
-                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
-                            athlete.id,
-                            AthleteField.Grade
-                          )
-                        }
-                      >
-                        {athlete.grade}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {idOfEditedAthlete === athlete.id &&
-                    editedField === AthleteField.Gender ? (
-                      <select
-                        value={fieldValue}
-                        onChange={controller.editSelectedAthleteField}
-                        onBlur={controller.syncAndUnfocusEditedAthleteField}
-                      >
-                        <option value={Gender.Male}>M</option>
-                        <option value={Gender.Female}>F</option>
-                      </select>
-                    ) : (
-                      <span
-                        onClick={() =>
-                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
-                            athlete.id,
-                            AthleteField.Gender
-                          )
-                        }
-                      >
-                        {athlete.gender}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {idOfEditedAthlete === athlete.id &&
-                    editedField === AthleteField.School ? (
-                      state.athleteFilterOptions.match({
-                        none: () => <p>Loading schools...</p>,
-                        some: filterOptions => (
-                          <select
-                            value={fieldValue}
-                            onChange={controller.editSelectedAthleteField}
-                            onBlur={controller.syncAndUnfocusEditedAthleteField}
-                          >
-                            {filterOptions.schools.map(school => (
-                              <option key={school} value={school}>
-                                {school}
-                              </option>
-                            ))}
-                          </select>
-                        ),
-                      })
-                    ) : (
-                      <span
-                        onClick={() =>
-                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
-                            athlete.id,
-                            AthleteField.School
-                          )
-                        }
-                      >
-                        {athlete.school}
-                      </span>
-                    )}
-                  </td>
-                  <td>
-                    {state.doesUserHaveWriteAccess && (
-                      <button
-                        onClick={() =>
-                          controller.considerAthleteForDeletion(athlete)
-                        }
-                      >
-                        Delete
-                      </button>
-                    )}
-                  </td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
+                            </select>
+                          ),
+                        })
+                      ) : (
+                        <span
+                          onClick={() =>
+                            controller.selectAthleteFieldToEditIfUserHasWriteAccess(
+                              athlete.id,
+                              AthleteField.School
+                            )
+                          }
+                        >
+                          {athlete.school}
+                        </span>
+                      )}
+                    </td>
+                    <td>
+                      {state.doesUserHaveWriteAccess && (
+                        <button
+                          onClick={() =>
+                            controller.considerAthleteForDeletion(athlete)
+                          }
+                        >
+                          Delete
+                        </button>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+
+            {state.isSpreadsheetDataShown ? (
+              <div>
+                <button onClick={controller.hideSpreadsheetData}>
+                  Hide spreadsheet data
+                </button>
+                <div className="TempSpreadsheetData">
+                  {"ID\tFirst\tLast\tGrade\tGender\tSchool\n" +
+                    filterAndSortAthletes(
+                      athletes,
+                      state.athleteFilter,
+                      state.shouldSortByLastName
+                    )
+                      .map(getAthleteRowText)
+                      .join("\n")}
+                </div>
+              </div>
+            ) : (
+              <button onClick={controller.showSpreadsheetData}>
+                Show copyable spreadsheet data
+              </button>
+            )}
+          </>
         ),
       })}
 
@@ -392,4 +420,21 @@ function sortByFirstName(a: Athlete, b: Athlete): number {
   } else {
     return 0;
   }
+}
+
+function getAthleteRowText(athlete: Athlete): string {
+  return (
+    "#" +
+    athlete.id +
+    "\t" +
+    athlete.firstName +
+    "\t" +
+    athlete.lastName +
+    "\t" +
+    athlete.grade +
+    "\t" +
+    athlete.gender +
+    "\t" +
+    athlete.school
+  );
 }

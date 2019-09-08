@@ -47,6 +47,7 @@ export default function getSeasonMenuController(
           pendingAthleteEdit: Option.none(),
           pendingEditsBeingSyncedWithFirestore: [],
           athleteConsideredForDeletion: Option.none(),
+          isSpreadsheetDataShown: false,
         });
 
         const seasonId = app.state.seasonSummary.id;

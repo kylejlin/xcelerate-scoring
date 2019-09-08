@@ -123,6 +123,7 @@ export interface AthletesMenuState {
     | PendingAthleteEdit
     | PendingAthleteDeletion)[];
   athleteConsideredForDeletion: Option<Athlete>;
+  isSpreadsheetDataShown: boolean;
 }
 
 export interface PasteAthletesState {

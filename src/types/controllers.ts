@@ -109,6 +109,8 @@ export interface AthletesMenuController {
   considerAthleteForDeletion(athlete: Athlete): void;
   cancelAthleteDeletion(): void;
   confirmAthleteDeletion(): void;
+  showSpreadsheetData(): void;
+  hideSpreadsheetData(): void;
 }
 
 export interface PasteAthletesController {
