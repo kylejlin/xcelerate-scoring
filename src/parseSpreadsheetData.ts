@@ -6,7 +6,7 @@ export default function parseSpreadsheetData(data: string): AthleteRow[] {
     .split("\n")
     .filter(row => !/^\s*$/.test(row));
   return rowsOfTabSeparatedValues.map(row => {
-    const values = row.split("\t");
+    const values = row.split("\t").map(value => value.trim());
     const [firstName, lastName] = getName(values);
     const grade = getGrade(values);
     const gender = getGender(values);
