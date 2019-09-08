@@ -11,6 +11,7 @@ import {
   AthleteRowField,
   PendingAthleteRowEdit,
   AthleteField,
+  AthleteRow,
 } from "../../types/misc";
 import getAthleteRowFieldValue from "../../getAthleteRowFieldValue";
 import updateAthleteRowsIfPendingEditIsValid from "../../updateAthleteRowsIfPendingEditIsValid";
@@ -80,6 +81,11 @@ export default function getCorrectPastedAthletesController(
           "Attempted to navigateToAthletesMenu when user was not on CorrectPastedAthletesScreen screen."
         );
       }
+    },
+    swapFirstAndLastNames() {
+      app.updateScreen(StateType.CorrectPastedAthletes, state => ({
+        athletes: state.athletes.map(swapFirstAndLastName),
+      }));
     },
     selectAthleteFieldToEdit(
       athleteIndex: number,
@@ -190,4 +196,12 @@ export default function getCorrectPastedAthletesController(
     },
   };
   return correctPastedAthletesController;
+}
+
+function swapFirstAndLastName(athlete: AthleteRow): AthleteRow {
+  return {
+    ...athlete,
+    firstName: athlete.lastName,
+    lastName: athlete.firstName,
+  };
 }

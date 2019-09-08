@@ -128,6 +128,7 @@ export interface CorrectPastedAthletesController {
   navigateToUserSeasonsScreen(): void;
   navigateToUserProfileScreen(): void;
   navigateToAthletesMenu(): void;
+  swapFirstAndLastNames(): void;
   selectAthleteFieldToEdit(
     athleteIndex: number,
     editedRowField: AthleteRowField
