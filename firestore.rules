@@ -29,8 +29,8 @@ service cloud.firestore {
     }
     
     function isValidAthleteShape(season) {
-      return request.resource.data.firstName is string
-        && request.resource.data.lastName is string
+      return isValidHumanName(request.resource.data.firstName)
+        && isValidHumanName(request.resource.data.lastName)
         && request.resource.data.grade is int
         && season.minGrade <= request.resource.data.grade
         && request.resource.data.grade <= season.maxGrade
@@ -39,6 +39,11 @@ service cloud.firestore {
           || request.resource.data.gender == 'F'
         )
         && (request.resource.data.school in season.schools);
+    }
+    
+    function isValidHumanName(name) {
+    	return name is string
+      	&& name.matches('[[:alpha:]](\\S| )*');
     }
     
     function isValidMeetShape() {
@@ -92,21 +97,22 @@ service cloud.firestore {
           }
           
           function isRaceIdValid() {
-          	return request.resource.data.grade == idGrade()
-            	&& request.resource.data.gender == idGender()
+          	return raceAfter().grade == idGrade()
+              && raceAfter().gender == idGender()
               && season().minGrade <= idGrade()
               && idGrade() <= season().maxGrade
               && (idGender() == 'M' || idGender() == 'F');
           }
           
           function idGrade() {
-          	return int(raceId[0:(raceId.size() - 2)]);
+          	return int(raceId[0:(raceId.size() - 1)]);
           }
           
           function idGender() {
           	return raceId[raceId.size() - 1];
           }
           
+          // Deprecated
           function isRaceShapeValidOtherThanDivision() {
           	return request.resource.data.isLocked is bool
             	&& isRaceActionCounterValid();
@@ -119,7 +125,7 @@ service cloud.firestore {
             ) || (
             	request.resource.data.numberOfActions == resource.data.numberOfActions + 1
               && exists(/databases/$(database)/documents/seasons/$(seasonId)/athletes/$(request.resource.data.athletesMostRecentlyActedUpon[0]))
-              && request.resource.data.athletesMostRecentlyActedUpon[1:3] == resource.data.athletesMostRecentlyActedUpon[0:2]
+              && request.resource.data.athletesMostRecentlyActedUpon[1:4] == resource.data.athletesMostRecentlyActedUpon[0:3]
             );
           }
           
@@ -130,7 +136,7 @@ service cloud.firestore {
         	allow read: if true;
           allow create: if userHasWriteAccess()
           	&& isRaceIdValid()
-            && isRaceShapeValidOtherThanDivision()
+            && isRaceActionCounterValid()
             && request.resource.data.isLocked == false;
           allow update: if userHasWriteAccess() && isRaceIdValid() && isRaceShapeValidOtherThanDivision();
           
@@ -156,6 +162,10 @@ service cloud.firestore {
               );
             }
             
+            function isNotInsertion(action) {
+            	return action.kind == 2;
+            }
+            
             function actions() {
             	return request.resource.data.actions;
             }
@@ -164,12 +174,18 @@ service cloud.firestore {
             	return actions()[actions().size() - 1];
             }
             
+            function athlete() {
+            	return get(/databases/$(database)/documents/seasons/$(seasonId)/athletes/$(athleteId)).data;
+            }
+            
           	allow read: if true;
             allow create: if userHasWriteAccess()
             	&& isRaceIdValid()
               && isRaceUnlocked()
               && raceAfter().athletesMostRecentlyActedUpon[0] == athleteId
               && raceAfter().numberOfActions == race().numberOfActions + 1
+              && race().grade == athlete().grade
+              && race().gender == athlete().gender
               && actions().size() == 1
               && isNewActionValid(newAction());
             allow update: if userHasWriteAccess()
@@ -178,8 +194,12 @@ service cloud.firestore {
               && raceAfter().athletesMostRecentlyActedUpon[0] == athleteId
               && raceAfter().numberOfActions == race().numberOfActions + 1
               && actions().size() == resource.data.actions.size() + 1
-              && actions()[0:(actions().size() - 2)] == resource.data.actions
-              && isNewActionValid(newAction());
+              && actions()[0:(actions().size() - 1)] == resource.data.actions
+              && isNewActionValid(newAction())
+              && (
+              	isNotInsertion(newAction())
+                || resource.data.actions[resource.data.actions.size() - 1].kind == 2
+              );
           }
         }
       }
