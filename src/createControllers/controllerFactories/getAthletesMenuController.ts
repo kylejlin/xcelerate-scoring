@@ -132,22 +132,27 @@ export default function getAthletesMenuController(
         );
       }
     },
-    selectAthleteFieldToEdit(athleteId: string, editedField: AthleteField) {
+    selectAthleteFieldToEditIfUserHasWriteAccess(
+      athleteId: string,
+      editedField: AthleteField
+    ) {
       if (app.state.kind === StateType.AthletesMenu) {
-        const athletes = app.state.athletes.expect(
-          "Attempted to selectAthleteFieldToEdit when athletes have not yet loaded."
-        );
-        app.setState({
-          ...app.state,
-          pendingAthleteEdit: Option.some({
-            athleteId,
-            editedField,
-            fieldValue: getAthleteFieldValue(
-              athletes.find(athlete => athlete.id === athleteId)!,
-              editedField
-            ),
-          }),
-        });
+        if (app.state.doesUserHaveWriteAccess) {
+          const athletes = app.state.athletes.expect(
+            "Attempted to selectAthleteFieldToEdit when athletes have not yet loaded."
+          );
+          app.setState({
+            ...app.state,
+            pendingAthleteEdit: Option.some({
+              athleteId,
+              editedField,
+              fieldValue: getAthleteFieldValue(
+                athletes.find(athlete => athlete.id === athleteId)!,
+                editedField
+              ),
+            }),
+          });
+        }
       } else {
         throw new Error(
           "Attempted to selectAthleteFieldToEdit when user was not on AthleteMenu."

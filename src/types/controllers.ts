@@ -100,7 +100,10 @@ export interface AthletesMenuController {
   editFilterGrade(event: React.ChangeEvent): void;
   editFilterGender(event: React.ChangeEvent): void;
   editSortPreference(event: React.ChangeEvent): void;
-  selectAthleteFieldToEdit(athleteId: string, field: AthleteField): void;
+  selectAthleteFieldToEditIfUserHasWriteAccess(
+    athleteId: string,
+    field: AthleteField
+  ): void;
   editSelectedAthleteField(event: React.ChangeEvent): void;
   syncAndUnfocusEditedAthleteField(): void;
   considerAthleteForDeletion(athlete: Athlete): void;

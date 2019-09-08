@@ -115,19 +115,24 @@ export default function AthletesMenu({
         </select>
       </label>
 
-      <p>
-        {(() => {
-          const athletesBeingSaved =
-            state.pendingEditsBeingSyncedWithFirestore.length;
-          if (athletesBeingSaved === 0) {
-            return "All athletes saved.";
-          } else if (athletesBeingSaved === 1) {
-            return "Saving 1 athlete...";
-          } else {
-            return "Saving " + athletesBeingSaved + " athletes...";
-          }
-        })()}
-      </p>
+      {state.doesUserHaveWriteAccess && (
+        <>
+          <p>Click on a field to edit it.</p>
+          <p>
+            {(() => {
+              const athletesBeingSaved =
+                state.pendingEditsBeingSyncedWithFirestore.length;
+              if (athletesBeingSaved === 0) {
+                return "All athletes saved.";
+              } else if (athletesBeingSaved === 1) {
+                return "Saving 1 athlete...";
+              } else {
+                return "Saving " + athletesBeingSaved + " athletes...";
+              }
+            })()}
+          </p>
+        </>
+      )}
 
       {state.athletes.match({
         none: () => <p>Loading athletes...</p>,
@@ -162,7 +167,7 @@ export default function AthletesMenu({
                     ) : (
                       <span
                         onClick={() =>
-                          controller.selectAthleteFieldToEdit(
+                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                             athlete.id,
                             AthleteField.FirstName
                           )
@@ -184,7 +189,7 @@ export default function AthletesMenu({
                     ) : (
                       <span
                         onClick={() =>
-                          controller.selectAthleteFieldToEdit(
+                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                             athlete.id,
                             AthleteField.LastName
                           )
@@ -221,7 +226,7 @@ export default function AthletesMenu({
                     ) : (
                       <span
                         onClick={() =>
-                          controller.selectAthleteFieldToEdit(
+                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                             athlete.id,
                             AthleteField.Grade
                           )
@@ -245,7 +250,7 @@ export default function AthletesMenu({
                     ) : (
                       <span
                         onClick={() =>
-                          controller.selectAthleteFieldToEdit(
+                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                             athlete.id,
                             AthleteField.Gender
                           )
@@ -277,7 +282,7 @@ export default function AthletesMenu({
                     ) : (
                       <span
                         onClick={() =>
-                          controller.selectAthleteFieldToEdit(
+                          controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                             athlete.id,
                             AthleteField.School
                           )
@@ -288,13 +293,15 @@ export default function AthletesMenu({
                     )}
                   </td>
                   <td>
-                    <button
-                      onClick={() =>
-                        controller.considerAthleteForDeletion(athlete)
-                      }
-                    >
-                      Delete
-                    </button>
+                    {state.doesUserHaveWriteAccess && (
+                      <button
+                        onClick={() =>
+                          controller.considerAthleteForDeletion(athlete)
+                        }
+                      >
+                        Delete
+                      </button>
+                    )}
                   </td>
                 </tr>
               ))}
