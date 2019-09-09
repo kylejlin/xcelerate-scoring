@@ -22,7 +22,7 @@ export default function CorrectPastedAthletes({
       </button>
       <button onClick={controller.navigateToUserProfileScreen}>Profile</button>
       <button onClick={() => controller.navigateToAthletesMenu}>Back</button>
-      <h2>{state.seasonSummary.name} - Corrected pasted athletes</h2>
+      <h2>{state.seasonSummary.name} - Correct pasted athletes</h2>
       <button onClick={controller.swapFirstAndLastNames}>
         Swap first and last names
       </button>
