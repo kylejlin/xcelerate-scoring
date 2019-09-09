@@ -230,23 +230,27 @@ export default function getAthletesMenuController(
       }
     },
     considerAthleteForDeletion(athlete: Athlete) {
-      if (app.state.kind === StateType.AthletesMenu) {
-        app.setState({
-          ...app.state,
-          athleteConsideredForDeletion: Option.some(athlete),
+      app
+        .updateScreen(StateType.AthletesMenu, state => state)
+        .update((state, updateScreen) => {
+          isAthleteDeletable(state.seasonSummary.id, athlete).then(
+            isDeletable => {
+              updateScreen({
+                consideredAthleteDeletion: Option.some({
+                  athlete,
+                  isDeletable,
+                }),
+              });
+            }
+          );
         });
-      } else {
-        throw new Error(
-          "Attempted to considerAthleteForDeletion when user was not on AthleteMenu."
-        );
-      }
     },
     confirmAthleteDeletion() {
       if (app.state.kind === StateType.AthletesMenu) {
         const seasonId = app.state.seasonSummary.id;
-        const deletedAthlete = app.state.athleteConsideredForDeletion.expect(
+        const deletedAthlete = app.state.consideredAthleteDeletion.expect(
           "Attempted to confirmAthleteDeletion when user was not considering an athlete for deletion."
-        );
+        ).athlete;
         const pendingDeletion = { athleteId: deletedAthlete.id };
         const athletes = app.state.athletes.expect(
           "Attempted to confirmAthleteDeletion when athletes have not yet loaded."
@@ -259,22 +263,16 @@ export default function getAthletesMenuController(
           athletes: Option.some(
             athletes.filter(athlete => athlete.id !== deletedAthlete.id)
           ),
-          athleteConsideredForDeletion: Option.none(),
+          consideredAthleteDeletion: Option.none(),
         });
-        isAthleteDeletable(seasonId, deletedAthlete).then(isDeletable => {
-          if (isDeletable) {
-            deleteAthlete(seasonId, deletedAthlete).then(() => {
-              if (app.state.kind === StateType.AthletesMenu) {
-                app.setState({
-                  ...app.state,
-                  pendingEditsBeingSyncedWithFirestore: app.state.pendingEditsBeingSyncedWithFirestore.filter(
-                    change => change !== pendingDeletion
-                  ),
-                });
-              }
+        deleteAthlete(seasonId, deletedAthlete).then(() => {
+          if (app.state.kind === StateType.AthletesMenu) {
+            app.setState({
+              ...app.state,
+              pendingEditsBeingSyncedWithFirestore: app.state.pendingEditsBeingSyncedWithFirestore.filter(
+                change => change !== pendingDeletion
+              ),
             });
-          } else {
-            alert("TODO You cannot delete this athlete");
           }
         });
       } else {
@@ -287,7 +285,7 @@ export default function getAthletesMenuController(
       if (app.state.kind === StateType.AthletesMenu) {
         app.setState({
           ...app.state,
-          athleteConsideredForDeletion: Option.none(),
+          consideredAthleteDeletion: Option.none(),
         });
       } else {
         throw new Error(

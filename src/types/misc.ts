@@ -94,3 +94,8 @@ export enum AthleteOrSchool {
   Athlete = "Athlete",
   School = "School",
 }
+
+export interface AthleteDeletion {
+  athlete: Athlete;
+  isDeletable: boolean;
+}

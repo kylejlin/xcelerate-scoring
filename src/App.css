@@ -2,10 +2,6 @@
   color: red;
 }
 
-.TempStyleItalic {
-  font-style: italic;
-}
-
 .TempSpreadsheetData {
   margin: 1em;
   white-space: pre;

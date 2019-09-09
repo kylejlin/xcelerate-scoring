@@ -3,9 +3,13 @@ import React from "react";
 import { EditMeetState } from "../types/states";
 import { EditMeetController } from "../types/controllers";
 
-import { RaceDivisionUtil, RaceDivision } from "../types/race";
+import { RaceDivisionUtil } from "../types/race";
 import Option from "../types/Option";
-import { Athlete, Gender } from "../types/misc";
+import { Athlete } from "../types/misc";
+import {
+  describeDivisionInEnglish,
+  addAppropriateOrdinalSuffix,
+} from "../english";
 
 export default function EditMeet({
   state,
@@ -191,32 +195,4 @@ interface Props {
 function getAthlete(athleteId: string, athletes: Athlete[]): Option<Athlete> {
   const athlete = athletes.find(athlete => athlete.id === athleteId);
   return athlete !== undefined ? Option.some(athlete) : Option.none();
-}
-
-function describeDivisionInEnglish(division: RaceDivision): string {
-  const grade = addAppropriateOrdinalSuffix(division.grade);
-  const gender = childWithGender(division.gender);
-  return grade + " grade " + gender;
-}
-
-function addAppropriateOrdinalSuffix(grade: number): string {
-  switch (grade % 10) {
-    case 1:
-      return grade + "st";
-    case 2:
-      return grade + "nd";
-    case 3:
-      return grade + "rd";
-    default:
-      return grade + "th";
-  }
-}
-
-function childWithGender(gender: Gender): string {
-  switch (gender) {
-    case Gender.Male:
-      return "boy";
-    case Gender.Female:
-      return "girl";
-  }
 }

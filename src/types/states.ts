@@ -13,6 +13,7 @@ import {
   PendingAthleteRowEdit,
   SeasonSummary,
   AthleteOrSchool,
+  AthleteDeletion,
 } from "./misc";
 import { Races, RaceDivision } from "./race";
 
@@ -122,7 +123,7 @@ export interface AthletesMenuState {
   pendingEditsBeingSyncedWithFirestore: (
     | PendingAthleteEdit
     | PendingAthleteDeletion)[];
-  athleteConsideredForDeletion: Option<Athlete>;
+  consideredAthleteDeletion: Option<AthleteDeletion>;
   isSpreadsheetDataShown: boolean;
 }
 

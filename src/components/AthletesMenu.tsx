@@ -4,6 +4,7 @@ import { AthletesMenuState } from "../types/states";
 import { AthletesMenuController } from "../types/controllers";
 import { Athlete, AthleteField, AthleteFilter, Gender } from "../types/misc";
 import inclusiveIntRange from "../inclusiveIntRange";
+import { getGenderSubjectPronoun } from "../english";
 
 export default function AthletesMenu({
   state,
@@ -338,21 +339,35 @@ export default function AthletesMenu({
         ),
       })}
 
-      {state.athleteConsideredForDeletion.match({
+      {state.consideredAthleteDeletion.match({
         none: () => null,
-        some: athlete => (
-          <div>
-            <h3>Confirm athlete deletion</h3>
-            <p>
-              Are you sure you want to delete {athlete.firstName}{" "}
-              {athlete.lastName}{" "}
-              <span className="TempStyleItalic">(#{athlete.id})</span>?
-            </p>
-            <p>This action will be irreversible.</p>
-            <button onClick={controller.cancelAthleteDeletion}>Cancel</button>
-            <button onClick={controller.confirmAthleteDeletion}>Delete</button>
-          </div>
-        ),
+        some: deletion =>
+          deletion.isDeletable ? (
+            <div>
+              <h3>Confirm athlete deletion</h3>
+              <p>
+                Are you sure you want to delete {deletion.athlete.firstName}{" "}
+                {deletion.athlete.lastName} (#{deletion.athlete.id})?
+              </p>
+              <p>This action will be irreversible.</p>
+              <button onClick={controller.cancelAthleteDeletion}>Cancel</button>
+              <button onClick={controller.confirmAthleteDeletion}>
+                Delete
+              </button>
+            </div>
+          ) : (
+            <div>
+              <h3>Cannot delete athlete</h3>
+              <p>
+                This athlete ({deletion.athlete.firstName}{" "}
+                {deletion.athlete.lastName}) has finished one or more meets this
+                season. To delete this athlete from the season, you must first
+                delete the athlete from all the meets{" "}
+                {getGenderSubjectPronoun(deletion.athlete.gender)} finished in.
+              </p>
+              <button onClick={controller.cancelAthleteDeletion}>Ok</button>
+            </div>
+          ),
       })}
     </div>
   );

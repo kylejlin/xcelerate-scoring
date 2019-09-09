@@ -55,7 +55,7 @@ export default function getPasteAthletesController(
           shouldSortByLastName: false,
           pendingAthleteEdit: Option.none(),
           pendingEditsBeingSyncedWithFirestore: [],
-          athleteConsideredForDeletion: Option.none(),
+          consideredAthleteDeletion: Option.none(),
           isSpreadsheetDataShown: false,
         });
 
