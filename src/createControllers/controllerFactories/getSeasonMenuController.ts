@@ -5,7 +5,12 @@ import {
   SeasonMenuController,
 } from "../../types/controllers";
 
-import { StateType, AthletesMenuState } from "../../types/states";
+import {
+  StateType,
+  AthletesMenuState,
+  AssistantsMenuState,
+  SeasonMenuState,
+} from "../../types/states";
 import Option from "../../types/Option";
 
 import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAccessToSeason";
@@ -13,6 +18,10 @@ import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAc
 import getSeasonAthletes from "../../firestore/getSeasonAthletes";
 
 import getSeasonAthleteFilterOptions from "../../firestore/getSeasonAthleteFilterOptions";
+
+import getSeasonOwnerAndAssistants from "../../firestore/getSeasonOwnerAndAssistants";
+
+import getUserSeasonPermissions from "../../firestore/getUserSeasonPermissions";
 
 export default function getSeasonMenuController(
   app: App,
@@ -80,7 +89,41 @@ export default function getSeasonMenuController(
       }
     },
     navigateToAssistantsMenu() {
-      throw new Error("TODO navigateToAssistantsMenu");
+      const state = app.state as SeasonMenuState;
+      app
+        .newScreen<AssistantsMenuState>({
+          kind: StateType.AssistantsMenu,
+
+          user: state.user,
+          doesUserHaveWriteAccess: false,
+          isUserOwner: false,
+          seasonSummary: state.seasonSummary,
+          owner: Option.none(),
+          assistants: Option.none(),
+          assistantQuery: "",
+          queryResults: Option.none(),
+          areQueryResultsLoading: false,
+        })
+        .update((state, updateScreen) => {
+          getSeasonOwnerAndAssistants(state.seasonSummary.id).then(
+            ([owner, assistants]) => {
+              updateScreen({
+                owner: Option.some(owner),
+                assistants: Option.some(assistants),
+              });
+            }
+          );
+          state.user.ifSome(user => {
+            getUserSeasonPermissions(user, state.seasonSummary.id).then(
+              permissions => {
+                updateScreen({
+                  isUserOwner: permissions.isOwner,
+                  doesUserHaveWriteAccess: permissions.hasWriteAccess,
+                });
+              }
+            );
+          });
+        });
     },
     navigateToSeasonMeetsScreen() {
       if (app.state.kind === StateType.SeasonMenu) {

@@ -15,6 +15,7 @@ import getCorrectPastedAthletesController from "./controllerFactories/getCorrect
 import getSeasonsMeetsController from "./controllerFactories/getSeasonMeetsController";
 import getEditMeetController from "./controllerFactories/getEditMeetController";
 import getViewMeetController from "./controllerFactories/getViewMeetController";
+import getAssistantsMenuController from "./controllerFactories/getAssistantsMenuController";
 
 export default function createControllers(app: App): ControllerCollection {
   const shared = getSharedControllerMethods(app);
@@ -34,6 +35,7 @@ export default function createControllers(app: App): ControllerCollection {
   const seasonMeetsController = getSeasonsMeetsController(app, shared);
   const editMeetController = getEditMeetController(app, shared);
   const viewMeetController = getViewMeetController(app, shared);
+  const assistantsMenuController = getAssistantsMenuController(app, shared);
 
   return {
     searchForSeasonController,
@@ -48,5 +50,6 @@ export default function createControllers(app: App): ControllerCollection {
     seasonMeetsController,
     editMeetController,
     viewMeetController,
+    assistantsMenuController,
   };
 }

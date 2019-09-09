@@ -6,6 +6,7 @@ import {
   AthleteRowField,
   MeetSummary,
   SeasonSummary,
+  UserAccount,
 } from "./misc";
 import Option from "./Option";
 
@@ -22,6 +23,7 @@ export interface ControllerCollection {
   seasonMeetsController: SeasonMeetsController;
   editMeetController: EditMeetController;
   viewMeetController: ViewMeetController;
+  assistantsMenuController: AssistantsMenuController;
 }
 
 export interface SharedControllerMethods {
@@ -136,6 +138,18 @@ export interface CorrectPastedAthletesController {
   syncAndUnfocusEditedAthleteField(): void;
   editSelectedAthleteField(event: React.ChangeEvent): void;
   addAthletes(): void;
+}
+
+export interface AssistantsMenuController {
+  navigateToSearchForSeasonScreen(): void;
+  navigateToSignInScreen(): void;
+  navigateToUserSeasonsScreen(): void;
+  navigateToUserProfileScreen(): void;
+  back(): void;
+  deleteAssistant(assistantId: string): void;
+  editAssistantQuery(event: React.ChangeEvent): void;
+  search(): void;
+  addAssistant(assistant: UserAccount): void;
 }
 
 export interface SeasonMeetsController {

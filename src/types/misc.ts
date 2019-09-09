@@ -99,3 +99,7 @@ export interface AthleteDeletion {
   athlete: Athlete;
   isDeletable: boolean;
 }
+
+export interface UserAccount extends FullName {
+  id: string;
+}

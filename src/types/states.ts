@@ -14,6 +14,7 @@ import {
   SeasonSummary,
   AthleteOrSchool,
   AthleteDeletion,
+  UserAccount,
 } from "./misc";
 import { Races, RaceDivision } from "./race";
 
@@ -158,6 +159,16 @@ export interface ManuallyAddAthleteState {
 export interface AssistantsMenuState {
   kind: StateType.AssistantsMenu;
   screenNumber: number;
+
+  user: Option<firebase.User>;
+  doesUserHaveWriteAccess: boolean;
+  isUserOwner: boolean;
+  seasonSummary: SeasonSummary;
+  owner: Option<UserAccount>;
+  assistants: Option<UserAccount[]>;
+  assistantQuery: string;
+  queryResults: Option<UserAccount[]>;
+  areQueryResultsLoading: boolean;
 }
 
 export interface SeasonMeetsState {
