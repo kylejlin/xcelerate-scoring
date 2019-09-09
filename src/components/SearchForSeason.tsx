@@ -12,10 +12,10 @@ export default function SearchForSeason({
         none: () => (
           <button onClick={controller.navigateToSignInScreen}>Sign in</button>
         ),
-        some: user => (
+        some: () => (
           <>
             <button onClick={controller.navigateToUserSeasonsScreen}>
-              My Seasons
+              Your seasons
             </button>
             <button onClick={controller.navigateToUserProfileScreen}>
               Profile
