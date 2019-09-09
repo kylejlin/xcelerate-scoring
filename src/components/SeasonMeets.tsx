@@ -36,7 +36,11 @@ export default function SeasonMeets({
         none: () => <p>Loading meets...</p>,
         some: meets =>
           meets.length === 0 ? (
-            <p>You have no meets. Try creating one!</p>
+            state.doesUserHaveWriteAccess ? (
+              <p>You have no meets. Try creating one!</p>
+            ) : (
+              <p>This season has no meets right now.</p>
+            )
           ) : (
             <ul>
               {meets.map(meet => (
@@ -58,17 +62,18 @@ export default function SeasonMeets({
 
       {state.gradeBounds.match({
         none: () => null,
-        some: () => (
-          <>
-            {" "}
-            <input
-              type="text"
-              value={state.pendingMeetName}
-              onChange={controller.editPendingMeetName}
-            />
-            <button onClick={controller.addMeet}>Add meet</button>
-          </>
-        ),
+        some: () =>
+          state.doesUserHaveWriteAccess && (
+            <>
+              {" "}
+              <input
+                type="text"
+                value={state.pendingMeetName}
+                onChange={controller.editPendingMeetName}
+              />
+              <button onClick={controller.addMeet}>Add meet</button>
+            </>
+          ),
       })}
     </div>
   );
