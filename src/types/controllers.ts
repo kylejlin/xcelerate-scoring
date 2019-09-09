@@ -55,6 +55,7 @@ export interface SignInController {
 }
 
 export interface UserSeasonsController {
+  navigateToSearchForSeasonScreen(): void;
   navigateToUserProfileScreen(): void;
   viewSeason(seasonSummary: SeasonSummary): void;
   navigateToCreateSeasonScreen(): void;

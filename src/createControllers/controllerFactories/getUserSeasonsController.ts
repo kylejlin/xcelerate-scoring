@@ -7,9 +7,14 @@ import { StateType, CreateSeasonState } from "../../types/states";
 
 export default function getUserSeasonsController(
   app: App,
-  { navigateToUserProfileScreen, viewSeason }: SharedControllerMethods
+  {
+    navigateToSearchForSeasonScreen,
+    navigateToUserProfileScreen,
+    viewSeason,
+  }: SharedControllerMethods
 ): UserSeasonsController {
   return {
+    navigateToSearchForSeasonScreen,
     navigateToUserProfileScreen,
     viewSeason,
     navigateToCreateSeasonScreen() {

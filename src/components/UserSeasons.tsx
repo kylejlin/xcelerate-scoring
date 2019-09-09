@@ -9,6 +9,9 @@ export default function UserSeasons({
 }: Props): React.ReactElement {
   return (
     <div className="App">
+      <button onClick={controller.navigateToSearchForSeasonScreen}>
+        Search for season
+      </button>
       <button onClick={controller.navigateToUserProfileScreen}>Profile</button>
       {state.seasons.match({
         none: () => <p>Loading your seasons</p>,
