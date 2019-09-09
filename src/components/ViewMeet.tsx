@@ -109,7 +109,18 @@ export default function ViewMeet({
                                 {results.schoolResults.map(result => (
                                   <tr key={result.school}>
                                     <td>{result.place}</td>
-                                    <td>{result.points}</td>
+                                    <td>
+                                      {result.numberOfFinishersIfIncomplete.match(
+                                        {
+                                          none: () => result.points,
+                                          some: numberOfFinishers =>
+                                            result.points +
+                                            " - Incomplete (" +
+                                            numberOfFinishers +
+                                            " finishers)",
+                                        }
+                                      )}
+                                    </td>
                                     <td>{result.school}</td>
                                   </tr>
                                 ))}

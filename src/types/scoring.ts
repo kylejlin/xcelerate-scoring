@@ -10,6 +10,7 @@ export interface SchoolResult {
   place: number;
   school: string;
   points: number;
+  numberOfFinishersIfIncomplete: Option<number>;
 }
 
 export default function scoreRace(athletes: Athlete[]): RaceResults {
@@ -126,6 +127,10 @@ function placeSchools(scoringData: SchoolScoringData[]): SchoolResult[] {
         school: scoringData.school,
         points: scoringData.points,
         place: placeStartingAtZero + 1,
+        numberOfFinishersIfIncomplete:
+          scoringData.athletes < 5
+            ? Option.some(scoringData.athletes)
+            : Option.none(),
       };
     });
 }
