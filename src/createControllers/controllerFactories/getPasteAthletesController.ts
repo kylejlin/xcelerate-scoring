@@ -15,21 +15,18 @@ import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAc
 
 import getSeasonAthletes from "../../firestore/getSeasonAthletes";
 
-import getSeasonAthleteFilterOptions from "../../firestore/getSeasonAthleteFilterOptions";
+import getSeasonRaceDivisions from "../../firestore/getSeasonRaceDivisions";
 
 import parseSpreadsheetData from "../../parseSpreadsheetData";
 
-import getSeasonGradeBounds from "../../firestore/getSeasonGradeBounds";
 import Option from "../../types/Option";
 
 export default function getPasteAthletesController(
   app: App,
   {
     navigateToSearchForSeasonScreen,
-    navigateToSignInScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
-    viewSeason,
   }: SharedControllerMethods
 ): PasteAthletesController {
   return {
@@ -51,7 +48,7 @@ export default function getPasteAthletesController(
             gender: Option.none(),
             school: Option.none(),
           },
-          athleteFilterOptions: Option.none(),
+          raceDivisions: Option.none(),
           shouldSortByLastName: false,
           pendingAthleteEdit: Option.none(),
           pendingEditsBeingSyncedWithFirestore: [],
@@ -72,13 +69,13 @@ export default function getPasteAthletesController(
         );
         Promise.all([
           getSeasonAthletes(seasonId),
-          getSeasonAthleteFilterOptions(seasonId),
+          getSeasonRaceDivisions(seasonId),
         ]).then(([athletes, filterOptions]) => {
           if (app.state.kind === StateType.AthletesMenu) {
             app.setState(prevState => ({
               ...prevState,
               athletes: Option.some(athletes),
-              athleteFilterOptions: Option.some(filterOptions),
+              raceDivisions: Option.some(filterOptions),
             }));
           }
         });
@@ -112,26 +109,26 @@ export default function getPasteAthletesController(
     },
     submitSpreadsheetData() {
       if (app.state.kind === StateType.PasteAthletes) {
-        app.newScreen<AddAthletesState>({
-          kind: StateType.AddAthletes,
-          user: app.state.user,
-          seasonSummary: app.state.seasonSummary,
-          athletes: parseSpreadsheetData(
-            app.state.spreadsheetData,
-            app.state.selectedSchool
-          ),
-          pendingAthleteEdit: Option.none(),
-          gradeBounds: Option.none(),
-        });
-
-        getSeasonGradeBounds(app.state.seasonSummary.id).then(gradeBounds => {
-          if (app.state.kind === StateType.AddAthletes) {
-            app.setState({
-              ...app.state,
-              gradeBounds: Option.some(gradeBounds),
-            });
-          }
-        });
+        app
+          .newScreen<AddAthletesState>({
+            kind: StateType.AddAthletes,
+            user: app.state.user,
+            seasonSummary: app.state.seasonSummary,
+            wereAthletesPasted: true,
+            athletes: parseSpreadsheetData(
+              app.state.spreadsheetData,
+              app.state.selectedSchool
+            ),
+            pendingAthleteEdit: Option.none(),
+            raceDivisions: Option.none(),
+          })
+          .update((state, updateScreen) => {
+            getSeasonRaceDivisions(state.seasonSummary.id).then(
+              raceDivisions => {
+                updateScreen({ raceDivisions: Option.some(raceDivisions) });
+              }
+            );
+          });
       } else {
         throw new Error(
           "Attempted to submitSpreadsheetData when user was not on PasteAthletes screen."

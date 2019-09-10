@@ -41,7 +41,7 @@ export interface AthleteFilter {
   school: Option<string>;
 }
 
-export interface AthleteFilterOptions {
+export interface RaceDivisions {
   schools: string[];
   minGrade: number;
   maxGrade: number;

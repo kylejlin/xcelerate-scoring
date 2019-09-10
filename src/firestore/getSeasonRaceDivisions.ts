@@ -1,12 +1,12 @@
 import firebase from "../firebase";
 
-import { AthleteFilterOptions } from "../types/misc";
+import { RaceDivisions } from "../types/misc";
 
 const db = firebase.firestore();
 
-export default function getSeasonAthleteFilterOptions(
+export default function getSeasonRaceDivisions(
   seasonId: string
-): Promise<AthleteFilterOptions> {
+): Promise<RaceDivisions> {
   return db
     .collection("seasons")
     .doc(seasonId)
@@ -15,7 +15,7 @@ export default function getSeasonAthleteFilterOptions(
       const data = doc.data();
       if (data === undefined) {
         throw new Error(
-          "Attempted to getSeasonAthleteFilterOptions of nonexistent season."
+          "Attempted to getSeasonRaceDivisions of nonexistent season."
         );
       } else {
         return {

@@ -17,7 +17,7 @@ import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAc
 
 import getSeasonAthletes from "../../firestore/getSeasonAthletes";
 
-import getSeasonAthleteFilterOptions from "../../firestore/getSeasonAthleteFilterOptions";
+import getSeasonAthleteFilterOptions from "../../firestore/getSeasonRaceDivisions";
 
 import getSeasonOwnerAndAssistants from "../../firestore/getSeasonOwnerAndAssistants";
 
@@ -51,7 +51,7 @@ export default function getSeasonMenuController(
             gender: Option.none(),
             school: Option.none(),
           },
-          athleteFilterOptions: Option.none(),
+          raceDivisions: Option.none(),
           shouldSortByLastName: false,
           pendingAthleteEdit: Option.none(),
           pendingEditsBeingSyncedWithFirestore: [],
@@ -78,7 +78,7 @@ export default function getSeasonMenuController(
             app.setState(prevState => ({
               ...prevState,
               athletes: Option.some(athletes),
-              athleteFilterOptions: Option.some(filterOptions),
+              raceDivisions: Option.some(filterOptions),
             }));
           }
         });

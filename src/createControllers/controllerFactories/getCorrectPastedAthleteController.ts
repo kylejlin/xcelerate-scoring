@@ -6,7 +6,7 @@ import App from "../../App";
 import { StateType, AthletesMenuState } from "../../types/states";
 import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAccessToSeason";
 import getSeasonAthletes from "../../firestore/getSeasonAthletes";
-import getSeasonAthleteFilterOptions from "../../firestore/getSeasonAthleteFilterOptions";
+import getSeasonAthleteFilterOptions from "../../firestore/getSeasonRaceDivisions";
 import {
   EditableAthleteField,
   PendingHypotheticalAthleteEdit,
@@ -46,7 +46,7 @@ export default function getAddAthletesController(
             gender: Option.none(),
             school: Option.none(),
           },
-          athleteFilterOptions: Option.none(),
+          raceDivisions: Option.none(),
           shouldSortByLastName: false,
           pendingAthleteEdit: Option.none(),
           pendingEditsBeingSyncedWithFirestore: [],
@@ -71,7 +71,7 @@ export default function getAddAthletesController(
             app.setState(prevState => ({
               ...prevState,
               athletes: Option.some(athletes),
-              athleteFilterOptions: Option.some(filterOptions),
+              raceDivisions: Option.some(filterOptions),
             }));
           }
         });

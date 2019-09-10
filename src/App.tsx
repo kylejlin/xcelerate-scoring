@@ -21,7 +21,7 @@ import CreateSeason from "./components/CreateSeason";
 import SeasonMenu from "./components/SeasonMenu";
 import AthletesMenu from "./components/AthletesMenu";
 import PasteAthletes from "./components/PasteAthletes";
-import CorrectPastedAthletes from "./components/AddAthletes";
+import AddAthletes from "./components/AddAthletes";
 import AssistantsMenu from "./components/AssistantsMenu";
 import SeasonMeets from "./components/SeasonMeets";
 import EditMeet from "./components/EditMeet";
@@ -165,7 +165,7 @@ export default class App extends React.Component<{}, AppState> {
         );
       case StateType.AddAthletes:
         return (
-          <CorrectPastedAthletes
+          <AddAthletes
             state={this.state}
             controller={this.controllers.correctPastedAthletesController}
           />

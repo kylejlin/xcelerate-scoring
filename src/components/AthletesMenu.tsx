@@ -57,7 +57,7 @@ export default function AthletesMenu({
           </button>
         </>
       )}
-      {state.athleteFilterOptions.match({
+      {state.raceDivisions.match({
         none: () => <p>Loading athlete filters...</p>,
         some: filterOptions => (
           <div>
@@ -209,7 +209,7 @@ export default function AthletesMenu({
                     <td>
                       {idOfEditedAthlete === athlete.id &&
                       editedField === EditableAthleteField.Grade ? (
-                        state.athleteFilterOptions.match({
+                        state.raceDivisions.match({
                           none: () => <p>Loading eligible grades...</p>,
                           some: filterOptions => (
                             <select
@@ -272,7 +272,7 @@ export default function AthletesMenu({
                     <td>
                       {idOfEditedAthlete === athlete.id &&
                       editedField === EditableAthleteField.School ? (
-                        state.athleteFilterOptions.match({
+                        state.raceDivisions.match({
                           none: () => <p>Loading schools...</p>,
                           some: filterOptions => (
                             <select

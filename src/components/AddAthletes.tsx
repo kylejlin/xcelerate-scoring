@@ -22,7 +22,10 @@ export default function AddAthletes({
       </button>
       <button onClick={controller.navigateToUserProfileScreen}>Profile</button>
       <button onClick={() => controller.navigateToAthletesMenu}>Back</button>
-      <h2>{state.seasonSummary.name} - Correct pasted athletes</h2>
+      <h2>
+        {state.seasonSummary.name} -{" "}
+        {state.wereAthletesPasted ? "Correct pasted athletes" : "Add athletes"}
+      </h2>
       <button onClick={controller.swapFirstAndLastNames}>
         Swap first and last names
       </button>
@@ -33,6 +36,7 @@ export default function AddAthletes({
             <th>First</th>
             <th>Last</th>
             <th>Gender</th>
+            <th>School</th>
           </tr>
           {state.athletes.map((athlete, i) => {
             const [editedField, fieldValue] = state.pendingAthleteEdit.match({
@@ -52,15 +56,18 @@ export default function AddAthletes({
               >
                 <td>
                   {editedField === EditableAthleteField.Grade ? (
-                    state.gradeBounds.match({
+                    state.raceDivisions.match({
                       none: () => <p>Loading allowed grades...</p>,
-                      some: gradeBounds => (
+                      some: raceDivisions => (
                         <select
                           value={fieldValue}
                           onChange={controller.editSelectedAthleteField}
                         >
                           {fieldValue === "" && <option value="">?</option>}
-                          {inclusiveIntRange(gradeBounds.min, gradeBounds.max)
+                          {inclusiveIntRange(
+                            raceDivisions.minGrade,
+                            raceDivisions.maxGrade
+                          )
                             .map(grade => "" + grade)
                             .map(grade => (
                               <option value={grade}>{grade}</option>
