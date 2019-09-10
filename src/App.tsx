@@ -21,7 +21,7 @@ import CreateSeason from "./components/CreateSeason";
 import SeasonMenu from "./components/SeasonMenu";
 import AthletesMenu from "./components/AthletesMenu";
 import PasteAthletes from "./components/PasteAthletes";
-import CorrectPastedAthletes from "./components/CorrectPastedAthletes";
+import CorrectPastedAthletes from "./components/AddAthletes";
 import AssistantsMenu from "./components/AssistantsMenu";
 import SeasonMeets from "./components/SeasonMeets";
 import EditMeet from "./components/EditMeet";
@@ -163,7 +163,7 @@ export default class App extends React.Component<{}, AppState> {
             controller={this.controllers.pasteAthletesController}
           />
         );
-      case StateType.CorrectPastedAthletes:
+      case StateType.AddAthletes:
         return (
           <CorrectPastedAthletes
             state={this.state}
@@ -223,7 +223,7 @@ export default class App extends React.Component<{}, AppState> {
         return this.state.user;
       case StateType.PasteAthletes:
         return Option.some(this.state.user);
-      case StateType.CorrectPastedAthletes:
+      case StateType.AddAthletes:
         return Option.some(this.state.user);
       case StateType.AssistantsMenu:
         return this.state.user;

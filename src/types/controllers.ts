@@ -2,8 +2,7 @@ import React from "react";
 
 import {
   Athlete,
-  AthleteField,
-  AthleteRowField,
+  EditableAthleteField,
   MeetSummary,
   SeasonSummary,
   UserAccount,
@@ -19,7 +18,7 @@ export interface ControllerCollection {
   seasonMenuController: SeasonMenuController;
   athletesMenuController: AthletesMenuController;
   pasteAthletesController: PasteAthletesController;
-  correctPastedAthletesController: CorrectPastedAthletesController;
+  correctPastedAthletesController: AddAthletesController;
   seasonMeetsController: SeasonMeetsController;
   editMeetController: EditMeetController;
   viewMeetController: ViewMeetController;
@@ -105,7 +104,7 @@ export interface AthletesMenuController {
   editSortPreference(event: React.ChangeEvent): void;
   selectAthleteFieldToEditIfUserHasWriteAccess(
     athleteId: string,
-    field: AthleteField
+    field: EditableAthleteField
   ): void;
   editSelectedAthleteField(event: React.ChangeEvent): void;
   syncAndUnfocusEditedAthleteField(): void;
@@ -126,7 +125,7 @@ export interface PasteAthletesController {
   submitSpreadsheetData(): void;
 }
 
-export interface CorrectPastedAthletesController {
+export interface AddAthletesController {
   navigateToSearchForSeasonScreen(): void;
   navigateToUserSeasonsScreen(): void;
   navigateToUserProfileScreen(): void;
@@ -134,7 +133,7 @@ export interface CorrectPastedAthletesController {
   swapFirstAndLastNames(): void;
   selectAthleteFieldToEdit(
     athleteIndex: number,
-    editedRowField: AthleteRowField
+    editedRowField: EditableAthleteField
   ): void;
   syncAndUnfocusEditedAthleteField(): void;
   editSelectedAthleteField(event: React.ChangeEvent): void;

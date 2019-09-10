@@ -1,7 +1,10 @@
-import { AthleteRow, Gender } from "./types/misc";
+import { HypotheticalAthlete, Gender } from "./types/misc";
 import Option from "./types/Option";
 
-export default function parseSpreadsheetData(data: string): AthleteRow[] {
+export default function parseSpreadsheetData(
+  data: string,
+  school: Option<string>
+): HypotheticalAthlete[] {
   const rowsOfTabSeparatedValues = data
     .split("\n")
     .filter(row => !/^\s*$/.test(row));
@@ -10,7 +13,7 @@ export default function parseSpreadsheetData(data: string): AthleteRow[] {
     const [firstName, lastName] = getName(values);
     const grade = getGrade(values);
     const gender = getGender(values);
-    return { firstName, lastName, grade, gender };
+    return { firstName, lastName, grade, gender, school };
   });
 }
 

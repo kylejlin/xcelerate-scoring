@@ -5,12 +5,12 @@ import {
   Athlete,
   AthleteFilter,
   AthleteFilterOptions,
-  AthleteRow,
+  HypotheticalAthlete,
   FullName,
   MeetSummary,
   PendingAthleteEdit,
   PendingAthleteDeletion,
-  PendingAthleteRowEdit,
+  PendingHypotheticalAthleteEdit,
   SeasonSummary,
   AthleteOrSchool,
   AthleteDeletion,
@@ -28,7 +28,7 @@ export enum StateType {
   SeasonMenu,
   AthletesMenu,
   PasteAthletes,
-  CorrectPastedAthletes,
+  AddAthletes,
   ManuallyAddAthlete,
   AssistantsMenu,
   SeasonMeets,
@@ -46,7 +46,7 @@ export type AppState =
   | SeasonMenuState
   | AthletesMenuState
   | PasteAthletesState
-  | CorrectPastedAthletesState
+  | AddAthletesState
   | ManuallyAddAthleteState
   | AssistantsMenuState
   | SeasonMeetsState
@@ -139,15 +139,14 @@ export interface PasteAthletesState {
   selectedSchool: Option<string>;
 }
 
-export interface CorrectPastedAthletesState {
-  kind: StateType.CorrectPastedAthletes;
+export interface AddAthletesState {
+  kind: StateType.AddAthletes;
   screenNumber: number;
 
   user: firebase.User;
   seasonSummary: SeasonSummary;
-  selectedSchool: string;
-  athletes: AthleteRow[];
-  pendingAthleteEdit: Option<PendingAthleteRowEdit>;
+  athletes: HypotheticalAthlete[];
+  pendingAthleteEdit: Option<PendingHypotheticalAthleteEdit>;
   gradeBounds: Option<{ min: number; max: number }>;
 }
 

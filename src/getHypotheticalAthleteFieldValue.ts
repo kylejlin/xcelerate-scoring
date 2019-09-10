@@ -1,7 +1,7 @@
-import { Athlete, EditableAthleteField } from "./types/misc";
+import { EditableAthleteField, HypotheticalAthlete } from "./types/misc";
 
-export default function getAthleteFieldValue(
-  athlete: Athlete,
+export default function getHypotheticalAthleteFieldValue(
+  athlete: HypotheticalAthlete,
   field: EditableAthleteField
 ): string {
   switch (field) {
@@ -10,10 +10,10 @@ export default function getAthleteFieldValue(
     case EditableAthleteField.LastName:
       return athlete.lastName;
     case EditableAthleteField.Grade:
-      return "" + athlete.grade;
+      return athlete.grade.map(g => "" + g).unwrapOr("");
     case EditableAthleteField.Gender:
-      return athlete.gender;
+      return athlete.gender.unwrapOr("");
     case EditableAthleteField.School:
-      return athlete.school;
+      return athlete.school.unwrapOr("");
   }
 }

@@ -11,7 +11,7 @@ import getSeasonSchools from "../../firestore/getSeasonSchools";
 
 import {
   Gender,
-  AthleteField,
+  EditableAthleteField,
   PendingAthleteEdit,
   Athlete,
 } from "../../types/misc";
@@ -134,7 +134,7 @@ export default function getAthletesMenuController(
     },
     selectAthleteFieldToEditIfUserHasWriteAccess(
       athleteId: string,
-      editedField: AthleteField
+      editedField: EditableAthleteField
     ) {
       if (app.state.kind === StateType.AthletesMenu) {
         if (app.state.doesUserHaveWriteAccess) {

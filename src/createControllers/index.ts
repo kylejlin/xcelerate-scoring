@@ -11,7 +11,7 @@ import getCreateSeasonController from "./controllerFactories/getCreateSeasonCont
 import getSeasonMenuController from "./controllerFactories/getSeasonMenuController";
 import getAthletesMenuController from "./controllerFactories/getAthletesMenuController";
 import getPasteAthletesController from "./controllerFactories/getPasteAthletesController";
-import getCorrectPastedAthletesController from "./controllerFactories/getCorrectPastedAthleteController";
+import getAddAthletesController from "./controllerFactories/getCorrectPastedAthleteController";
 import getSeasonsMeetsController from "./controllerFactories/getSeasonMeetsController";
 import getEditMeetController from "./controllerFactories/getEditMeetController";
 import getViewMeetController from "./controllerFactories/getViewMeetController";
@@ -28,10 +28,7 @@ export default function createControllers(app: App): ControllerCollection {
   const seasonMenuController = getSeasonMenuController(app, shared);
   const athletesMenuController = getAthletesMenuController(app, shared);
   const pasteAthletesController = getPasteAthletesController(app, shared);
-  const correctPastedAthletesController = getCorrectPastedAthletesController(
-    app,
-    shared
-  );
+  const correctPastedAthletesController = getAddAthletesController(app, shared);
   const seasonMeetsController = getSeasonsMeetsController(app, shared);
   const editMeetController = getEditMeetController(app, shared);
   const viewMeetController = getViewMeetController(app, shared);

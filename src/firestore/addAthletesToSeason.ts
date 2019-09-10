@@ -1,11 +1,10 @@
 import firebase from "../firebase";
-import { Athlete, AthleteRow } from "../types/misc";
+import { Athlete, HypotheticalAthlete } from "../types/misc";
 
 const db = firebase.firestore();
 
 export default function addAthletesToSeason(
-  athleteRows: AthleteRow[],
-  school: string,
+  athleteRows: HypotheticalAthlete[],
   seasonId: string
 ): Promise<void> {
   const seasonRef = db.collection("seasons").doc(seasonId);
@@ -31,7 +30,11 @@ export default function addAthletesToSeason(
                 i +
                 " did not have a gender."
             ),
-            school,
+            school: row.school.expect(
+              "Attempted to addAthletesToSeason when athlete " +
+                i +
+                " did not have a school."
+            ),
             id: zeroPadToFiveDigits(athleteIdCounter + i),
           }));
           const newAthleteIdCounter = athleteIdCounter + athleteRows.length;

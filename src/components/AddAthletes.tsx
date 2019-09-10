@@ -1,14 +1,14 @@
 import React from "react";
 
-import { CorrectPastedAthletesState } from "../types/states";
-import { CorrectPastedAthletesController } from "../types/controllers";
-import { AthleteField, Gender } from "../types/misc";
+import { AddAthletesState } from "../types/states";
+import { AddAthletesController } from "../types/controllers";
+import { EditableAthleteField, Gender } from "../types/misc";
 import areAthleteRowsValid from "../areAthleteRowsValid";
 import inclusiveIntRange from "../inclusiveIntRange";
 
 const MISSING_FIELD_PLACEHOLDER = <span className="TempMissingField">?</span>;
 
-export default function CorrectPastedAthletes({
+export default function AddAthletes({
   state,
   controller,
 }: Props): React.ReactElement {
@@ -51,7 +51,7 @@ export default function CorrectPastedAthletes({
                 }
               >
                 <td>
-                  {editedField === AthleteField.Grade ? (
+                  {editedField === EditableAthleteField.Grade ? (
                     state.gradeBounds.match({
                       none: () => <p>Loading allowed grades...</p>,
                       some: gradeBounds => (
@@ -73,7 +73,7 @@ export default function CorrectPastedAthletes({
                       onClick={() =>
                         controller.selectAthleteFieldToEdit(
                           i,
-                          AthleteField.Grade
+                          EditableAthleteField.Grade
                         )
                       }
                     >
@@ -82,7 +82,7 @@ export default function CorrectPastedAthletes({
                   )}
                 </td>
                 <td>
-                  {editedField === AthleteField.FirstName ? (
+                  {editedField === EditableAthleteField.FirstName ? (
                     <input
                       value={fieldValue}
                       onChange={controller.editSelectedAthleteField}
@@ -93,7 +93,7 @@ export default function CorrectPastedAthletes({
                       onClick={() =>
                         controller.selectAthleteFieldToEdit(
                           i,
-                          AthleteField.FirstName
+                          EditableAthleteField.FirstName
                         )
                       }
                     >
@@ -104,7 +104,7 @@ export default function CorrectPastedAthletes({
                   )}
                 </td>
                 <td>
-                  {editedField === AthleteField.LastName ? (
+                  {editedField === EditableAthleteField.LastName ? (
                     <input
                       value={fieldValue}
                       onChange={controller.editSelectedAthleteField}
@@ -115,7 +115,7 @@ export default function CorrectPastedAthletes({
                       onClick={() =>
                         controller.selectAthleteFieldToEdit(
                           i,
-                          AthleteField.LastName
+                          EditableAthleteField.LastName
                         )
                       }
                     >
@@ -126,7 +126,7 @@ export default function CorrectPastedAthletes({
                   )}
                 </td>
                 <td>
-                  {editedField === AthleteField.Gender ? (
+                  {editedField === EditableAthleteField.Gender ? (
                     <select
                       value={fieldValue}
                       onChange={controller.editSelectedAthleteField}
@@ -140,7 +140,7 @@ export default function CorrectPastedAthletes({
                       onClick={() =>
                         controller.selectAthleteFieldToEdit(
                           i,
-                          AthleteField.Gender
+                          EditableAthleteField.Gender
                         )
                       }
                     >
@@ -163,6 +163,6 @@ export default function CorrectPastedAthletes({
 }
 
 interface Props {
-  state: CorrectPastedAthletesState;
-  controller: CorrectPastedAthletesController;
+  state: AddAthletesState;
+  controller: AddAthletesController;
 }

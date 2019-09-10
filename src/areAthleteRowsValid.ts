@@ -1,7 +1,9 @@
-import { AthleteRow } from "./types/misc";
+import { HypotheticalAthlete } from "./types/misc";
 import { HUMAN_NAME } from "./consts";
 
-export default function areAthleteRowsValid(athletes: AthleteRow[]): boolean {
+export default function areAthleteRowsValid(
+  athletes: HypotheticalAthlete[]
+): boolean {
   return athletes.every(
     athlete =>
       HUMAN_NAME.test(athlete.firstName) &&

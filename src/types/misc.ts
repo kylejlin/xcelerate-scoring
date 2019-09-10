@@ -49,11 +49,11 @@ export interface AthleteFilterOptions {
 
 export interface PendingAthleteEdit {
   athleteId: string;
-  editedField: AthleteField;
+  editedField: EditableAthleteField;
   fieldValue: string;
 }
 
-export enum AthleteField {
+export enum EditableAthleteField {
   FirstName,
   LastName,
   Grade,
@@ -61,24 +61,19 @@ export enum AthleteField {
   School,
 }
 
-export interface AthleteRow {
+export interface HypotheticalAthlete {
   firstName: string;
   lastName: string;
   grade: Option<number>;
   gender: Option<Gender>;
+  school: Option<string>;
 }
 
-export interface PendingAthleteRowEdit {
+export interface PendingHypotheticalAthleteEdit {
   athleteIndex: number;
-  editedField: AthleteRowField;
+  editedField: EditableAthleteField;
   fieldValue: string;
 }
-
-export type AthleteRowField =
-  | AthleteField.FirstName
-  | AthleteField.LastName
-  | AthleteField.Grade
-  | AthleteField.Gender;
 
 export interface PendingAthleteDeletion {
   athleteId: string;

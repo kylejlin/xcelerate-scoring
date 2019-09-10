@@ -2,7 +2,12 @@ import React from "react";
 
 import { AthletesMenuState } from "../types/states";
 import { AthletesMenuController } from "../types/controllers";
-import { Athlete, AthleteField, AthleteFilter, Gender } from "../types/misc";
+import {
+  Athlete,
+  EditableAthleteField,
+  AthleteFilter,
+  Gender,
+} from "../types/misc";
 import inclusiveIntRange from "../inclusiveIntRange";
 import { getGenderSubjectPronoun } from "../english";
 
@@ -159,7 +164,7 @@ export default function AthletesMenu({
                     <td>#{athlete.id}</td>
                     <td>
                       {idOfEditedAthlete === athlete.id &&
-                      editedField === AthleteField.FirstName ? (
+                      editedField === EditableAthleteField.FirstName ? (
                         <input
                           type="text"
                           value={fieldValue}
@@ -171,7 +176,7 @@ export default function AthletesMenu({
                           onClick={() =>
                             controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                               athlete.id,
-                              AthleteField.FirstName
+                              EditableAthleteField.FirstName
                             )
                           }
                         >
@@ -181,7 +186,7 @@ export default function AthletesMenu({
                     </td>
                     <td>
                       {idOfEditedAthlete === athlete.id &&
-                      editedField === AthleteField.LastName ? (
+                      editedField === EditableAthleteField.LastName ? (
                         <input
                           type="text"
                           value={fieldValue}
@@ -193,7 +198,7 @@ export default function AthletesMenu({
                           onClick={() =>
                             controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                               athlete.id,
-                              AthleteField.LastName
+                              EditableAthleteField.LastName
                             )
                           }
                         >
@@ -203,7 +208,7 @@ export default function AthletesMenu({
                     </td>
                     <td>
                       {idOfEditedAthlete === athlete.id &&
-                      editedField === AthleteField.Grade ? (
+                      editedField === EditableAthleteField.Grade ? (
                         state.athleteFilterOptions.match({
                           none: () => <p>Loading eligible grades...</p>,
                           some: filterOptions => (
@@ -232,7 +237,7 @@ export default function AthletesMenu({
                           onClick={() =>
                             controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                               athlete.id,
-                              AthleteField.Grade
+                              EditableAthleteField.Grade
                             )
                           }
                         >
@@ -242,7 +247,7 @@ export default function AthletesMenu({
                     </td>
                     <td>
                       {idOfEditedAthlete === athlete.id &&
-                      editedField === AthleteField.Gender ? (
+                      editedField === EditableAthleteField.Gender ? (
                         <select
                           value={fieldValue}
                           onChange={controller.editSelectedAthleteField}
@@ -256,7 +261,7 @@ export default function AthletesMenu({
                           onClick={() =>
                             controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                               athlete.id,
-                              AthleteField.Gender
+                              EditableAthleteField.Gender
                             )
                           }
                         >
@@ -266,7 +271,7 @@ export default function AthletesMenu({
                     </td>
                     <td>
                       {idOfEditedAthlete === athlete.id &&
-                      editedField === AthleteField.School ? (
+                      editedField === EditableAthleteField.School ? (
                         state.athleteFilterOptions.match({
                           none: () => <p>Loading schools...</p>,
                           some: filterOptions => (
@@ -290,7 +295,7 @@ export default function AthletesMenu({
                           onClick={() =>
                             controller.selectAthleteFieldToEditIfUserHasWriteAccess(
                               athlete.id,
-                              AthleteField.School
+                              EditableAthleteField.School
                             )
                           }
                         >

@@ -1,7 +1,7 @@
 import {
-  AthleteField,
-  AthleteRow,
-  PendingAthleteRowEdit,
+  EditableAthleteField,
+  HypotheticalAthlete,
+  PendingHypotheticalAthleteEdit,
   Gender,
   isGender,
 } from "./types/misc";
@@ -9,9 +9,9 @@ import Option from "./types/Option";
 import { HUMAN_NAME } from "./consts";
 
 export default function updateAthleteRowsIfPendingEditIsValid(
-  rows: AthleteRow[],
-  pendingEdit: PendingAthleteRowEdit
-): AthleteRow[] {
+  rows: HypotheticalAthlete[],
+  pendingEdit: PendingHypotheticalAthleteEdit
+): HypotheticalAthlete[] {
   if (isPendingEditValid(pendingEdit)) {
     return rows.map((row, i) =>
       i === pendingEdit.athleteIndex ? updateAthleteRow(row, pendingEdit) : row
@@ -21,35 +21,37 @@ export default function updateAthleteRowsIfPendingEditIsValid(
   }
 }
 
-function isPendingEditValid(edit: PendingAthleteRowEdit): boolean {
+function isPendingEditValid(edit: PendingHypotheticalAthleteEdit): boolean {
   switch (edit.editedField) {
-    case AthleteField.FirstName:
-    case AthleteField.LastName:
+    case EditableAthleteField.FirstName:
+    case EditableAthleteField.LastName:
       return HUMAN_NAME.test(edit.fieldValue);
-    case AthleteField.Grade:
+    case EditableAthleteField.Grade:
       return !isNaN(parseInt(edit.fieldValue, 10));
-    case AthleteField.Gender:
+    case EditableAthleteField.Gender:
       return isGender(edit.fieldValue);
+    case EditableAthleteField.School:
+      return true;
   }
 }
 
 function updateAthleteRow(
-  row: AthleteRow,
-  pendingEdit: PendingAthleteRowEdit
-): AthleteRow {
+  row: HypotheticalAthlete,
+  pendingEdit: PendingHypotheticalAthleteEdit
+): HypotheticalAthlete {
   switch (pendingEdit.editedField) {
-    case AthleteField.FirstName:
+    case EditableAthleteField.FirstName:
       return { ...row, firstName: pendingEdit.fieldValue };
-    case AthleteField.LastName:
+    case EditableAthleteField.LastName:
       return { ...row, lastName: pendingEdit.fieldValue };
-    case AthleteField.Grade: {
+    case EditableAthleteField.Grade: {
       const gradeOrNaN = parseInt(pendingEdit.fieldValue, 10);
       const grade: Option<number> = isNaN(gradeOrNaN)
         ? Option.none()
         : Option.some(gradeOrNaN);
       return { ...row, grade };
     }
-    case AthleteField.Gender: {
+    case EditableAthleteField.Gender: {
       const gender: Option<Gender> = (() => {
         if (pendingEdit.fieldValue === Gender.Male) {
           return Option.some(Gender.Male);
@@ -60,6 +62,13 @@ function updateAthleteRow(
         }
       })();
       return { ...row, gender };
+    }
+    case EditableAthleteField.School: {
+      const school: Option<string> =
+        pendingEdit.fieldValue === ""
+          ? Option.none()
+          : Option.some(pendingEdit.fieldValue);
+      return { ...row, school };
     }
   }
 }

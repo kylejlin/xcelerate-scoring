@@ -1,6 +1,6 @@
 import {
   Athlete,
-  AthleteField,
+  EditableAthleteField,
   Gender,
   PendingAthleteEdit,
   isGender,
@@ -22,29 +22,29 @@ export default function updateAthletesIfPendingEditIsValid(
 
 function isPendingEditValid(edit: PendingAthleteEdit): boolean {
   switch (edit.editedField) {
-    case AthleteField.FirstName:
-    case AthleteField.LastName:
+    case EditableAthleteField.FirstName:
+    case EditableAthleteField.LastName:
       return HUMAN_NAME.test(edit.fieldValue);
-    case AthleteField.Grade:
+    case EditableAthleteField.Grade:
       return !isNaN(parseInt(edit.fieldValue, 10));
-    case AthleteField.Gender:
+    case EditableAthleteField.Gender:
       return isGender(edit.fieldValue);
-    case AthleteField.School:
+    case EditableAthleteField.School:
       return true;
   }
 }
 
 function updateAthlete(athlete: Athlete, edit: PendingAthleteEdit): Athlete {
   switch (edit.editedField) {
-    case AthleteField.FirstName:
+    case EditableAthleteField.FirstName:
       return { ...athlete, firstName: edit.fieldValue };
-    case AthleteField.LastName:
+    case EditableAthleteField.LastName:
       return { ...athlete, lastName: edit.fieldValue };
-    case AthleteField.Grade:
+    case EditableAthleteField.Grade:
       return { ...athlete, grade: parseInt(edit.fieldValue, 10) };
-    case AthleteField.Gender:
+    case EditableAthleteField.Gender:
       return { ...athlete, gender: edit.fieldValue as Gender };
-    case AthleteField.School:
+    case EditableAthleteField.School:
       return { ...athlete, school: edit.fieldValue };
   }
 }

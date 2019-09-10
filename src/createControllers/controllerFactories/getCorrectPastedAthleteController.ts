@@ -1,5 +1,5 @@
 import {
-  CorrectPastedAthletesController,
+  AddAthletesController,
   SharedControllerMethods,
 } from "../../types/controllers";
 import App from "../../App";
@@ -8,24 +8,23 @@ import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAc
 import getSeasonAthletes from "../../firestore/getSeasonAthletes";
 import getSeasonAthleteFilterOptions from "../../firestore/getSeasonAthleteFilterOptions";
 import {
-  AthleteRowField,
-  PendingAthleteRowEdit,
-  AthleteField,
-  AthleteRow,
+  EditableAthleteField,
+  PendingHypotheticalAthleteEdit,
+  HypotheticalAthlete,
 } from "../../types/misc";
-import getAthleteRowFieldValue from "../../getAthleteRowFieldValue";
+import getHypotheticalAthleteFieldValue from "../../getHypotheticalAthleteFieldValue";
 import updateAthleteRowsIfPendingEditIsValid from "../../updateAthleteRowsIfPendingEditIsValid";
 import addAthletesToSeason from "../../firestore/addAthletesToSeason";
 import Option from "../../types/Option";
 
-export default function getCorrectPastedAthletesController(
+export default function getAddAthletesController(
   app: App,
   {
     navigateToSearchForSeasonScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
   }: SharedControllerMethods
-): CorrectPastedAthletesController {
+): AddAthletesController {
   const correctPastedAthletesController = {
     navigateToSearchForSeasonScreen,
     navigateToUserSeasonsScreen,
@@ -34,7 +33,7 @@ export default function getCorrectPastedAthletesController(
       // TODO DRY
       // This code loosely repeats seasonMenuController.navigateToAthletesMenu
       // and pasteAthletesController.navigateToAthletesMenu
-      if (app.state.kind === StateType.CorrectPastedAthletes) {
+      if (app.state.kind === StateType.AddAthletes) {
         const { user } = app.state;
         app.newScreen<AthletesMenuState>({
           kind: StateType.AthletesMenu,
@@ -78,24 +77,24 @@ export default function getCorrectPastedAthletesController(
         });
       } else {
         throw new Error(
-          "Attempted to navigateToAthletesMenu when user was not on CorrectPastedAthletesScreen screen."
+          "Attempted to navigateToAthletesMenu when user was not on AddAthletesScreen screen."
         );
       }
     },
     swapFirstAndLastNames() {
-      app.updateScreen(StateType.CorrectPastedAthletes, state => ({
+      app.updateScreen(StateType.AddAthletes, state => ({
         athletes: state.athletes.map(swapFirstAndLastName),
       }));
     },
     selectAthleteFieldToEdit(
       athleteIndex: number,
-      editedField: AthleteRowField
+      editedField: EditableAthleteField
     ) {
-      if (app.state.kind === StateType.CorrectPastedAthletes) {
+      if (app.state.kind === StateType.AddAthletes) {
         const pendingAthleteEdit = Option.some({
           athleteIndex,
           editedField,
-          fieldValue: getAthleteRowFieldValue(
+          fieldValue: getHypotheticalAthleteFieldValue(
             app.state.athletes[athleteIndex],
             editedField
           ),
@@ -106,17 +105,17 @@ export default function getCorrectPastedAthletesController(
         }));
       } else {
         throw new Error(
-          "Attempted to selectAthleteField when user was not on CorrectPastedAthletes screen."
+          "Attempted to selectAthleteField when user was not on AddAthletes screen."
         );
       }
     },
     syncAndUnfocusEditedAthleteField() {
-      if (app.state.kind === StateType.CorrectPastedAthletes) {
+      if (app.state.kind === StateType.AddAthletes) {
         const originalAthleteIndex = app.state.pendingAthleteEdit.expect(
           "Attempted to stopEditingAthleteFields when user was not editing a field."
         ).athleteIndex;
         app.setState(prevState => {
-          if (prevState.kind === StateType.CorrectPastedAthletes) {
+          if (prevState.kind === StateType.AddAthletes) {
             // Prevent data race
             const newState = prevState.pendingAthleteEdit.map(
               pendingAthleteEdit => {
@@ -129,7 +128,9 @@ export default function getCorrectPastedAthletesController(
                       prevState.athletes,
                       pendingAthleteEdit
                     ),
-                    pendingAthleteEdit: Option.none<PendingAthleteRowEdit>(),
+                    pendingAthleteEdit: Option.none<
+                      PendingHypotheticalAthleteEdit
+                    >(),
                   };
                 } else {
                   return prevState;
@@ -142,26 +143,26 @@ export default function getCorrectPastedAthletesController(
         });
       } else {
         throw new Error(
-          "Attempted to unfocusEditedAthleteField when user was not on CorrectPastedAthletes screen."
+          "Attempted to unfocusEditedAthleteField when user was not on AddAthletes screen."
         );
       }
     },
     editSelectedAthleteField(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.CorrectPastedAthletes) {
+      if (app.state.kind === StateType.AddAthletes) {
         const fieldValue = (event.target as HTMLInputElement).value;
         const edit = app.state.pendingAthleteEdit.expect(
           "Attempted to editSelectedAthleteField when user was not editing any field."
         );
         switch (edit.editedField) {
-          case AthleteField.FirstName:
-          case AthleteField.LastName:
+          case EditableAthleteField.FirstName:
+          case EditableAthleteField.LastName:
             app.setState({
               ...app.state,
               pendingAthleteEdit: Option.some({ ...edit, fieldValue }),
             });
             break;
-          case AthleteField.Grade:
-          case AthleteField.Gender:
+          case EditableAthleteField.Grade:
+          case EditableAthleteField.Gender:
             app.setState({
               ...app.state,
               athletes: updateAthleteRowsIfPendingEditIsValid(
@@ -171,26 +172,25 @@ export default function getCorrectPastedAthletesController(
                   fieldValue,
                 }
               ),
-              pendingAthleteEdit: Option.none<PendingAthleteRowEdit>(),
+              pendingAthleteEdit: Option.none<PendingHypotheticalAthleteEdit>(),
             });
             break;
         }
       } else {
         throw new Error(
-          "Attempted to editSelectedAthleteField when user was not on CorrectPastedAthletes screen."
+          "Attempted to editSelectedAthleteField when user was not on AddAthletes screen."
         );
       }
     },
     addAthletes() {
-      if (app.state.kind === StateType.CorrectPastedAthletes) {
+      if (app.state.kind === StateType.AddAthletes) {
         addAthletesToSeason(
           app.state.athletes,
-          app.state.selectedSchool,
           app.state.seasonSummary.id
         ).then(correctPastedAthletesController.navigateToAthletesMenu);
       } else {
         throw new Error(
-          "Attempted to addAthletes when user was not on CorrectPastedAthletes screen."
+          "Attempted to addAthletes when user was not on AddAthletes screen."
         );
       }
     },
@@ -198,7 +198,9 @@ export default function getCorrectPastedAthletesController(
   return correctPastedAthletesController;
 }
 
-function swapFirstAndLastName(athlete: AthleteRow): AthleteRow {
+function swapFirstAndLastName(
+  athlete: HypotheticalAthlete
+): HypotheticalAthlete {
   return {
     ...athlete,
     firstName: athlete.lastName,

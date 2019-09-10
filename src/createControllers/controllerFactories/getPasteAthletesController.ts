@@ -8,7 +8,7 @@ import {
 import {
   StateType,
   AthletesMenuState,
-  CorrectPastedAthletesState,
+  AddAthletesState,
 } from "../../types/states";
 
 import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAccessToSeason";
@@ -112,20 +112,20 @@ export default function getPasteAthletesController(
     },
     submitSpreadsheetData() {
       if (app.state.kind === StateType.PasteAthletes) {
-        app.newScreen<CorrectPastedAthletesState>({
-          kind: StateType.CorrectPastedAthletes,
+        app.newScreen<AddAthletesState>({
+          kind: StateType.AddAthletes,
           user: app.state.user,
           seasonSummary: app.state.seasonSummary,
-          selectedSchool: app.state.selectedSchool.expect(
-            "Attempted to submitSpreadsheetData when user had not selected a school."
+          athletes: parseSpreadsheetData(
+            app.state.spreadsheetData,
+            app.state.selectedSchool
           ),
-          athletes: parseSpreadsheetData(app.state.spreadsheetData),
           pendingAthleteEdit: Option.none(),
           gradeBounds: Option.none(),
         });
 
         getSeasonGradeBounds(app.state.seasonSummary.id).then(gradeBounds => {
-          if (app.state.kind === StateType.CorrectPastedAthletes) {
+          if (app.state.kind === StateType.AddAthletes) {
             app.setState({
               ...app.state,
               gradeBounds: Option.some(gradeBounds),
