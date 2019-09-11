@@ -5,7 +5,12 @@ import {
   AthletesMenuController,
 } from "../../types/controllers";
 
-import { StateType, PasteAthletesState } from "../../types/states";
+import {
+  StateType,
+  PasteAthletesState,
+  AddAthletesState,
+  AthletesMenuState,
+} from "../../types/states";
 
 import getSeasonSchools from "../../firestore/getSeasonSchools";
 
@@ -28,6 +33,7 @@ import isAthleteDeletable from "../../firestore/isAthleteDeletable";
 
 import deleteAthlete from "../../firestore/deleteAthlete";
 import Option from "../../types/Option";
+import getSeasonRaceDivisions from "../../firestore/getSeasonRaceDivisions";
 
 export default function getAthletesMenuController(
   app: App,
@@ -73,8 +79,25 @@ export default function getAthletesMenuController(
         );
       }
     },
-    navigateToManuallyAddAthleteScreen() {
-      throw new Error("TODO navigateToManuallyAddAthleteScreen");
+    navigateToManuallyAddAthletesScreen() {
+      const state = app.state as AthletesMenuState;
+      app
+        .newScreen<AddAthletesState>({
+          kind: StateType.AddAthletes,
+          user: state.user.expect(
+            "Attempted to navigateToManuallyAddAthletesScreen when user was not logged in."
+          ),
+          seasonSummary: state.seasonSummary,
+          wereAthletesPasted: false,
+          athletes: [],
+          pendingAthleteEdit: Option.none(),
+          raceDivisions: Option.none(),
+        })
+        .update((state, updateScreen) => {
+          getSeasonRaceDivisions(state.seasonSummary.id).then(raceDivisions => {
+            updateScreen({ raceDivisions: Option.some(raceDivisions) });
+          });
+        });
     },
     editFilterSchool(event: React.ChangeEvent) {
       if (app.state.kind === StateType.AthletesMenu) {

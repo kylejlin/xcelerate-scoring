@@ -52,8 +52,8 @@ export default function AthletesMenu({
           <button onClick={controller.navigateToPasteAthletesScreen}>
             Paste athletes
           </button>
-          <button onClick={controller.navigateToManuallyAddAthleteScreen}>
-            Manually add athlete
+          <button onClick={controller.navigateToManuallyAddAthletesScreen}>
+            Manually add athletes
           </button>
         </>
       )}

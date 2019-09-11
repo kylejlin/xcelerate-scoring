@@ -97,7 +97,7 @@ export interface AthletesMenuController {
   navigateToUserProfileScreen(): void;
   viewSeason(seasonSummary: SeasonSummary): void;
   navigateToPasteAthletesScreen(): void;
-  navigateToManuallyAddAthleteScreen(): void;
+  navigateToManuallyAddAthletesScreen(): void;
   editFilterSchool(event: React.ChangeEvent): void;
   editFilterGrade(event: React.ChangeEvent): void;
   editFilterGender(event: React.ChangeEvent): void;
