@@ -21,7 +21,7 @@ export default function AddAthletes({
         Your seasons
       </button>
       <button onClick={controller.navigateToUserProfileScreen}>Profile</button>
-      <button onClick={() => controller.navigateToAthletesMenu}>Back</button>
+      <button onClick={controller.navigateToAthletesMenu}>Back</button>
       <h2>
         {state.seasonSummary.name} -{" "}
         {state.wereAthletesPasted ? "Correct pasted athletes" : "Add athletes"}
