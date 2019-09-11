@@ -167,7 +167,7 @@ export default class App extends React.Component<{}, AppState> {
         return (
           <AddAthletes
             state={this.state}
-            controller={this.controllers.correctPastedAthletesController}
+            controller={this.controllers.addAthletesController}
           />
         );
       case StateType.AssistantsMenu:

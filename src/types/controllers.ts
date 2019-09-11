@@ -18,7 +18,7 @@ export interface ControllerCollection {
   seasonMenuController: SeasonMenuController;
   athletesMenuController: AthletesMenuController;
   pasteAthletesController: PasteAthletesController;
-  correctPastedAthletesController: AddAthletesController;
+  addAthletesController: AddAthletesController;
   seasonMeetsController: SeasonMeetsController;
   editMeetController: EditMeetController;
   viewMeetController: ViewMeetController;
