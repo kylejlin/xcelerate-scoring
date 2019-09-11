@@ -8,16 +8,18 @@ import {
 import Option from "./types/Option";
 import { HUMAN_NAME } from "./consts";
 
-export default function updateAthleteRowsIfPendingEditIsValid(
-  rows: HypotheticalAthlete[],
+export default function updateHypotheticalAthletesIfPendingEditIsValid(
+  athletes: HypotheticalAthlete[],
   pendingEdit: PendingHypotheticalAthleteEdit
 ): HypotheticalAthlete[] {
   if (isPendingEditValid(pendingEdit)) {
-    return rows.map((row, i) =>
-      i === pendingEdit.athleteIndex ? updateAthleteRow(row, pendingEdit) : row
+    return athletes.map((athlete, i) =>
+      i === pendingEdit.athleteIndex
+        ? updateAthlete(athlete, pendingEdit)
+        : athlete
     );
   } else {
-    return rows;
+    return athletes;
   }
 }
 
@@ -35,21 +37,21 @@ function isPendingEditValid(edit: PendingHypotheticalAthleteEdit): boolean {
   }
 }
 
-function updateAthleteRow(
-  row: HypotheticalAthlete,
+function updateAthlete(
+  athlete: HypotheticalAthlete,
   pendingEdit: PendingHypotheticalAthleteEdit
 ): HypotheticalAthlete {
   switch (pendingEdit.editedField) {
     case EditableAthleteField.FirstName:
-      return { ...row, firstName: pendingEdit.fieldValue };
+      return { ...athlete, firstName: pendingEdit.fieldValue };
     case EditableAthleteField.LastName:
-      return { ...row, lastName: pendingEdit.fieldValue };
+      return { ...athlete, lastName: pendingEdit.fieldValue };
     case EditableAthleteField.Grade: {
       const gradeOrNaN = parseInt(pendingEdit.fieldValue, 10);
       const grade: Option<number> = isNaN(gradeOrNaN)
         ? Option.none()
         : Option.some(gradeOrNaN);
-      return { ...row, grade };
+      return { ...athlete, grade };
     }
     case EditableAthleteField.Gender: {
       const gender: Option<Gender> = (() => {
@@ -61,14 +63,14 @@ function updateAthleteRow(
           return Option.none() as Option<Gender>;
         }
       })();
-      return { ...row, gender };
+      return { ...athlete, gender };
     }
     case EditableAthleteField.School: {
       const school: Option<string> =
         pendingEdit.fieldValue === ""
           ? Option.none()
           : Option.some(pendingEdit.fieldValue);
-      return { ...row, school };
+      return { ...athlete, school };
     }
   }
 }

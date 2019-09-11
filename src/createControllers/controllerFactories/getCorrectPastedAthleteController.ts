@@ -3,7 +3,11 @@ import {
   SharedControllerMethods,
 } from "../../types/controllers";
 import App from "../../App";
-import { StateType, AthletesMenuState } from "../../types/states";
+import {
+  StateType,
+  AthletesMenuState,
+  AddAthletesState,
+} from "../../types/states";
 import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAccessToSeason";
 import getSeasonAthletes from "../../firestore/getSeasonAthletes";
 import getSeasonAthleteFilterOptions from "../../firestore/getSeasonRaceDivisions";
@@ -13,7 +17,7 @@ import {
   HypotheticalAthlete,
 } from "../../types/misc";
 import getHypotheticalAthleteFieldValue from "../../getHypotheticalAthleteFieldValue";
-import updateAthleteRowsIfPendingEditIsValid from "../../updateAthleteRowsIfPendingEditIsValid";
+import updateHypotheticalAthletesIfPendingEditIsValid from "../../updateHypotheticalAthletesIfPendingEditIsValid";
 import addAthletesToSeason from "../../firestore/addAthletesToSeason";
 import Option from "../../types/Option";
 
@@ -124,7 +128,7 @@ export default function getAddAthletesController(
                 if (isSameRowCurrentlyFocused) {
                   return {
                     ...prevState,
-                    athletes: updateAthleteRowsIfPendingEditIsValid(
+                    athletes: updateHypotheticalAthletesIfPendingEditIsValid(
                       prevState.athletes,
                       pendingAthleteEdit
                     ),
@@ -163,9 +167,10 @@ export default function getAddAthletesController(
             break;
           case EditableAthleteField.Grade:
           case EditableAthleteField.Gender:
+          case EditableAthleteField.School:
             app.setState({
               ...app.state,
-              athletes: updateAthleteRowsIfPendingEditIsValid(
+              athletes: updateHypotheticalAthletesIfPendingEditIsValid(
                 app.state.athletes,
                 {
                   ...edit,
@@ -181,6 +186,22 @@ export default function getAddAthletesController(
           "Attempted to editSelectedAthleteField when user was not on AddAthletes screen."
         );
       }
+    },
+    deleteAthlete(athleteIndex: number) {
+      const state = app.state as AddAthletesState;
+      app.setState({
+        ...state,
+        athletes: state.athletes
+          .slice(0, athleteIndex)
+          .concat(state.athletes.slice(athleteIndex + 1)),
+      });
+    },
+    appendDefaultHypotheticalAthlete() {
+      const state = app.state as AddAthletesState;
+      app.setState({
+        ...state,
+        athletes: state.athletes.concat([getDefaultHypotheticalAthlete()]),
+      });
     },
     addAthletes() {
       if (app.state.kind === StateType.AddAthletes) {
@@ -205,5 +226,15 @@ function swapFirstAndLastName(
     ...athlete,
     firstName: athlete.lastName,
     lastName: athlete.firstName,
+  };
+}
+
+function getDefaultHypotheticalAthlete(): HypotheticalAthlete {
+  return {
+    firstName: "",
+    lastName: "",
+    grade: Option.none(),
+    gender: Option.none(),
+    school: Option.none(),
   };
 }

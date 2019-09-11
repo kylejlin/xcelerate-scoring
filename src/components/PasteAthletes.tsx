@@ -43,9 +43,7 @@ export default function PasteAthletes({
       {state.selectedSchool.match({
         none: () => null,
         some: () => (
-          <button onClick={controller.submitSpreadsheetData}>
-            Add athletes
-          </button>
+          <button onClick={controller.submitSpreadsheetData}>Next</button>
         ),
       })}
     </div>

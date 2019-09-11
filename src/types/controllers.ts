@@ -137,6 +137,8 @@ export interface AddAthletesController {
   ): void;
   syncAndUnfocusEditedAthleteField(): void;
   editSelectedAthleteField(event: React.ChangeEvent): void;
+  deleteAthlete(athleteIndex: number): void;
+  appendDefaultHypotheticalAthlete(): void;
   addAthletes(): void;
 }
 
