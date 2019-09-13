@@ -69,11 +69,11 @@ export default class Option<T> {
     }
   }
 
-  isNone() {
+  isNone(): boolean {
     return (this as any).isNone_;
   }
 
-  isSome() {
+  isSome(): boolean {
     return !this.isNone();
   }
 
@@ -86,6 +86,12 @@ export default class Option<T> {
 
   ifSome(executor: (value: T) => void): void {
     this.map(executor);
+  }
+
+  ifNone(executor: () => void): void {
+    if (this.isNone()) {
+      executor();
+    }
   }
 
   unwrap(): T {

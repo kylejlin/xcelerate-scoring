@@ -7,13 +7,9 @@ import {
 
 import {
   StateType,
-  AthletesMenuState,
   AddAthletesState,
+  PasteAthletesState,
 } from "../../types/states";
-
-import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAccessToSeason";
-
-import getSeasonAthletes from "../../firestore/getSeasonAthletes";
 
 import getSeasonRaceDivisions from "../../firestore/getSeasonRaceDivisions";
 
@@ -27,6 +23,7 @@ export default function getPasteAthletesController(
     navigateToSearchForSeasonScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
+    navigateToAthletesMenu,
   }: SharedControllerMethods
 ): PasteAthletesController {
   return {
@@ -34,56 +31,12 @@ export default function getPasteAthletesController(
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
     navigateToAthletesMenu() {
-      // TODO DRY
-      // This code loosely repeats seasonMenuController.navigateToAthletesMenu
-      if (app.state.kind === StateType.PasteAthletes) {
-        app.newScreen<AthletesMenuState>({
-          kind: StateType.AthletesMenu,
-          user: Option.some(app.state.user),
-          doesUserHaveWriteAccess: false,
-          seasonSummary: app.state.seasonSummary,
-          athletes: Option.none(),
-          athleteFilter: {
-            grade: Option.none(),
-            gender: Option.none(),
-            school: Option.none(),
-          },
-          raceDivisions: Option.none(),
-          shouldSortByLastName: false,
-          pendingAthleteEdit: Option.none(),
-          pendingEditsBeingSyncedWithFirestore: [],
-          consideredAthleteDeletion: Option.none(),
-          isSpreadsheetDataShown: false,
-        });
-
-        const seasonId = app.state.seasonSummary.id;
-        doesUserHaveWriteAccessToSeason(app.state.user, seasonId).then(
-          hasAccess => {
-            if (hasAccess) {
-              app.setState(prevState => ({
-                ...prevState,
-                doesUserHaveWriteAccess: true,
-              }));
-            }
-          }
-        );
-        Promise.all([
-          getSeasonAthletes(seasonId),
-          getSeasonRaceDivisions(seasonId),
-        ]).then(([athletes, filterOptions]) => {
-          if (app.state.kind === StateType.AthletesMenu) {
-            app.setState(prevState => ({
-              ...prevState,
-              athletes: Option.some(athletes),
-              raceDivisions: Option.some(filterOptions),
-            }));
-          }
-        });
-      } else {
-        throw new Error(
-          "Attempted to navigateToAthletesMenu when user was not on PasteAthletes screen."
-        );
-      }
+      const state = app.state as PasteAthletesState;
+      navigateToAthletesMenu(
+        Option.some(state.user),
+        state.seasonSummary,
+        Option.some(true)
+      );
     },
     editSpreadsheetData(event: React.ChangeEvent) {
       if (app.state.kind === StateType.PasteAthletes) {

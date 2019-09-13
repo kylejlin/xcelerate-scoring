@@ -7,6 +7,7 @@ import {
   UserProfileState,
   SeasonMenuState,
   SeasonMeetsState,
+  AthletesMenuState,
 } from "../../types/states";
 import Option from "../../types/Option";
 
@@ -19,6 +20,8 @@ import { SharedControllerMethods } from "../../types/controllers";
 import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAccessToSeason";
 import getSeasonMeets from "../../firestore/getSeasonMeets";
 import getSeasonGradeBounds from "../../firestore/getSeasonGradeBounds";
+import getSeasonAthletes from "../../firestore/getSeasonAthletes";
+import getSeasonRaceDivisions from "../../firestore/getSeasonRaceDivisions";
 
 export default function getSharedControllerMethods(
   app: App
@@ -85,6 +88,59 @@ export default function getSharedControllerMethods(
         user: app.getUser(),
         seasonSummary,
       });
+    },
+    navigateToAthletesMenu(
+      user: Option<firebase.User>,
+      seasonSummary: SeasonSummary,
+      userHasAccessToSeason: Option<boolean>
+    ) {
+      app
+        .newScreen<AthletesMenuState>({
+          kind: StateType.AthletesMenu,
+          user,
+          doesUserHaveWriteAccess: userHasAccessToSeason.unwrapOr(false),
+          seasonSummary: seasonSummary,
+          athletes: Option.none(),
+          athleteFilter: {
+            grade: Option.none(),
+            gender: Option.none(),
+            school: Option.none(),
+          },
+          raceDivisions: Option.none(),
+          shouldSortByLastName: false,
+          pendingAthleteEdit: Option.none(),
+          pendingEditsBeingSyncedWithFirestore: [],
+          consideredAthleteDeletion: Option.none(),
+          isSpreadsheetDataShown: false,
+        })
+        .update((_state, updateScreen) => {
+          const seasonId = seasonSummary.id;
+
+          userHasAccessToSeason.ifNone(() => {
+            user.ifSome(user => {
+              doesUserHaveWriteAccessToSeason(user, seasonId).then(
+                hasAccess => {
+                  if (hasAccess) {
+                    app.setState(prevState => ({
+                      ...prevState,
+                      doesUserHaveWriteAccess: true,
+                    }));
+                  }
+                }
+              );
+            });
+          });
+
+          Promise.all([
+            getSeasonAthletes(seasonId),
+            getSeasonRaceDivisions(seasonId),
+          ]).then(([athletes, filterOptions]) => {
+            updateScreen({
+              athletes: Option.some(athletes),
+              raceDivisions: Option.some(filterOptions),
+            });
+          });
+        });
     },
     navigateToSeasonMeetsScreen({
       user,

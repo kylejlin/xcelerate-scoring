@@ -31,6 +31,11 @@ export interface SharedControllerMethods {
   navigateToUserSeasonsScreen(): void;
   navigateToUserProfileScreen(): void;
   viewSeason(seasonSummary: SeasonSummary): void;
+  navigateToAthletesMenu(
+    user: Option<firebase.User>,
+    seasonSummary: SeasonSummary,
+    userHasAccessToSeason: Option<boolean>
+  ): void;
   navigateToSeasonMeetsScreen({
     user,
     seasonSummary,
