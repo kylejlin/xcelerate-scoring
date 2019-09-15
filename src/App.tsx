@@ -3,7 +3,7 @@ import React from "react";
 
 import "./App.css";
 
-import { AppState, StateType } from "./types/states";
+import { AppState, StateType, StateOf } from "./types/states";
 import { ControllerCollection } from "./types/controllers";
 import createControllers from "./createControllers";
 import doesUserAccountExist from "./firestore/doesUserAccountExist";
@@ -26,9 +26,12 @@ import AssistantsMenu from "./components/AssistantsMenu";
 import SeasonMeets from "./components/SeasonMeets";
 import EditMeet from "./components/EditMeet";
 import ViewMeet from "./components/ViewMeet";
+import { ScreenHandle } from "./types/handle";
 
 export default class App extends React.Component<{}, AppState> {
   private controllers: ControllerCollection;
+  private screenExpirationListener: () => void;
+  private expiration: Promise<void>;
 
   constructor(props: {}) {
     super(props);
@@ -49,7 +52,19 @@ export default class App extends React.Component<{}, AppState> {
       };
     }
 
+    this.bindMethods();
+
     this.controllers = createControllers(this);
+
+    this.screenExpirationListener = function noOp() {};
+    this.expiration = new Promise(resolve => {
+      this.screenExpirationListener = resolve;
+    });
+  }
+
+  private bindMethods() {
+    this.newScreen = this.newScreen.bind(this);
+    this.unsafeGetScreenHandle = this.unsafeGetScreenHandle.bind(this);
   }
 
   componentDidMount() {
@@ -240,7 +255,7 @@ export default class App extends React.Component<{}, AppState> {
     }
   }
 
-  newScreen<NewState extends AppState>(
+  newScreenOLD<NewState extends AppState>(
     newScreen: Omit<NewState, "screenNumber">
   ): ScreenUpdater<NewState> {
     const callbacks: ScreenUpdaterCallback<NewState>[] = [];
@@ -344,6 +359,57 @@ export default class App extends React.Component<{}, AppState> {
             callback(updatedState.state, updatedState.updateScreen);
           },
         });
+      },
+    };
+  }
+
+  newScreen<T extends AppState["kind"]>(
+    kind: T,
+    state: Omit<StateOf<T>, "kind" | "screenNumber">
+  ): Promise<ScreenHandle<T>> {
+    this.screenExpirationListener();
+    return new Promise<ScreenHandle<T>>(resolve => {
+      this.setState(prevState => {
+        const newScreenNumber = prevState.screenNumber + 1;
+        const newState = {
+          kind,
+          screenNumber: newScreenNumber,
+          ...state,
+        } as StateOf<T>;
+        const expiration = new Promise<void>(resolve => {
+          this.screenExpirationListener = resolve;
+        });
+        const screenHandle: ScreenHandle<T> = {
+          state: newState,
+          expiration,
+          update: (
+            state: Partial<Omit<StateOf<T>, "kind" | "screenNumber">>
+          ) => {
+            if (this.state.screenNumber === newScreenNumber) {
+              this.setState(prevState => ({ ...prevState, ...state }));
+            }
+          },
+          newScreen: this.newScreen,
+        };
+        resolve(screenHandle);
+        return newState;
+      });
+    });
+  }
+
+  unsafeGetScreenHandle<T extends AppState["kind"]>(): ScreenHandle<T> {
+    const currentScreenNumber = this.state.screenNumber;
+
+    return {
+      state: this.state as StateOf<T>,
+      expiration: this.expiration,
+      newScreen: (kind, state) => {
+        return this.newScreen(kind, state);
+      },
+      update: state => {
+        if (this.state.screenNumber === currentScreenNumber) {
+          this.setState(prevState => ({ ...prevState, ...state }));
+        }
       },
     };
   }

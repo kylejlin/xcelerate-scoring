@@ -1,35 +1,24 @@
-import App from "../../App";
-
-import {
-  SearchForSeasonState,
-  StateType,
-  UserSeasonsState,
-  UserProfileState,
-  SeasonMenuState,
-  SeasonMeetsState,
-  AthletesMenuState,
-} from "../../types/states";
+import { StateType } from "../../types/states";
 import Option from "../../types/Option";
 
 import getUserSeasons from "../../firestore/getUserSeasons";
 
 import getUserName from "../../firestore/getUserName";
 
-import { SeasonSummary } from "../../types/misc";
+import { SeasonSummary, Gender } from "../../types/misc";
 import { SharedControllerMethods } from "../../types/controllers";
 import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAccessToSeason";
 import getSeasonMeets from "../../firestore/getSeasonMeets";
 import getSeasonGradeBounds from "../../firestore/getSeasonGradeBounds";
-import getSeasonAthletes from "../../firestore/getSeasonAthletes";
-import getSeasonRaceDivisions from "../../firestore/getSeasonRaceDivisions";
+import openSeasonAthletesHandleUntil from "../../firestore/openSeasonAthletesHandleUntil";
+import { UnknownScreenHandle } from "../../types/handle";
 
 export default function getSharedControllerMethods(
-  app: App
+  app: UnknownScreenHandle
 ): SharedControllerMethods {
   return {
     navigateToSearchForSeasonScreen() {
-      app.newScreen<SearchForSeasonState>({
-        kind: StateType.SearchForSeason,
+      app.newScreen(StateType.SearchForSeason, {
         user: app.getUser(),
         query: "",
         isLoading: false,
@@ -37,9 +26,7 @@ export default function getSharedControllerMethods(
       });
     },
     navigateToSignInScreen() {
-      app.setState({
-        kind: StateType.SignIn,
-      });
+      app.newScreen(StateType.SignIn, {});
     },
     navigateToUserSeasonsScreen() {
       app.getUser().match({
@@ -49,26 +36,22 @@ export default function getSharedControllerMethods(
           );
         },
         some: user => {
-          app.newScreen<UserSeasonsState>({
-            kind: StateType.UserSeasons,
-            user,
-            seasons: Option.none(),
-          });
-          getUserSeasons(user).then(seasonSummaries => {
-            if (app.state.kind === StateType.UserSeasons) {
-              app.setState({
-                ...app.state,
-                seasons: Option.some(seasonSummaries),
+          app
+            .newScreen(StateType.UserSeasons, {
+              user,
+              seasons: Option.none(),
+            })
+            .then(screen => {
+              getUserSeasons(user).then(seasonSummaries => {
+                screen.update({ seasons: Option.some(seasonSummaries) });
               });
-            }
-          });
+            });
         },
       });
     },
     navigateToUserProfileScreen() {
       app
-        .newScreen<UserProfileState>({
-          kind: StateType.UserProfile,
+        .newScreen(StateType.UserProfile, {
           user: app
             .getUser()
             .expect(
@@ -76,15 +59,14 @@ export default function getSharedControllerMethods(
             ),
           fullName: Option.none(),
         })
-        .update((state, updateScreen) => {
-          getUserName(state.user).then(profile => {
-            updateScreen({ fullName: Option.some(profile) });
+        .then(screen => {
+          getUserName(screen.state.user).then(profile => {
+            screen.update({ fullName: Option.some(profile) });
           });
         });
     },
     viewSeason(seasonSummary: SeasonSummary) {
-      app.newScreen<SeasonMenuState>({
-        kind: StateType.SeasonMenu,
+      app.newScreen(StateType.SeasonMenu, {
         user: app.getUser(),
         seasonSummary,
       });
@@ -95,16 +77,15 @@ export default function getSharedControllerMethods(
       userHasAccessToSeason: Option<boolean>
     ) {
       app
-        .newScreen<AthletesMenuState>({
-          kind: StateType.AthletesMenu,
+        .newScreen(StateType.AthletesMenu, {
           user,
           doesUserHaveWriteAccess: userHasAccessToSeason.unwrapOr(false),
           seasonSummary: seasonSummary,
           athletes: Option.none(),
           athleteFilter: {
-            grade: Option.none(),
-            gender: Option.none(),
-            school: Option.none(),
+            grade: Option.none<number>(),
+            gender: Option.none<Gender>(),
+            school: Option.none<string>(),
           },
           raceDivisions: Option.none(),
           shouldSortByLastName: false,
@@ -113,7 +94,7 @@ export default function getSharedControllerMethods(
           consideredAthleteDeletion: Option.none(),
           isSpreadsheetDataShown: false,
         })
-        .update((_state, updateScreen) => {
+        .then(screen => {
           const seasonId = seasonSummary.id;
 
           userHasAccessToSeason.ifNone(() => {
@@ -121,24 +102,22 @@ export default function getSharedControllerMethods(
               doesUserHaveWriteAccessToSeason(user, seasonId).then(
                 hasAccess => {
                   if (hasAccess) {
-                    app.setState(prevState => ({
-                      ...prevState,
-                      doesUserHaveWriteAccess: true,
-                    }));
+                    screen.update({ doesUserHaveWriteAccess: true });
                   }
                 }
               );
             });
           });
 
-          Promise.all([
-            getSeasonAthletes(seasonId),
-            getSeasonRaceDivisions(seasonId),
-          ]).then(([athletes, filterOptions]) => {
-            updateScreen({
-              athletes: Option.some(athletes),
-              raceDivisions: Option.some(filterOptions),
-            });
+          const { raceDivisions, athletes } = openSeasonAthletesHandleUntil(
+            seasonId,
+            screen.expiration
+          );
+          raceDivisions.then(raceDivisions => {
+            screen.update({ raceDivisions: Option.some(raceDivisions) });
+          });
+          athletes.onUpdate(athletes => {
+            screen.update({ athletes: Option.some(athletes) });
           });
         });
     },
@@ -149,38 +128,31 @@ export default function getSharedControllerMethods(
       user: Option<firebase.User>;
       seasonSummary: SeasonSummary;
     }) {
-      app.newScreen<SeasonMeetsState>({
-        kind: StateType.SeasonMeets,
-
-        user,
-        doesUserHaveWriteAccess: false,
-        seasonSummary,
-        meets: Option.none(),
-        gradeBounds: Option.none(),
-        pendingMeetName: "",
-      });
-
-      const seasonId = seasonSummary.id;
-      user.ifSome(user => {
-        doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
-          if (hasAccess && app.state.kind === StateType.SeasonMeets) {
-            app.setState({ ...app.state, doesUserHaveWriteAccess: true });
-          }
-        });
-      });
-      getSeasonMeets(seasonId).then(meets => {
-        if (app.state.kind === StateType.SeasonMeets) {
-          app.setState({ ...app.state, meets: Option.some(meets) });
-        }
-      });
-      getSeasonGradeBounds(seasonId).then(gradeBounds => {
-        if (app.state.kind === StateType.SeasonMeets) {
-          app.setState({
-            ...app.state,
-            gradeBounds: Option.some(gradeBounds),
+      app
+        .newScreen(StateType.SeasonMeets, {
+          user,
+          doesUserHaveWriteAccess: false,
+          seasonSummary,
+          meets: Option.none(),
+          gradeBounds: Option.none(),
+          pendingMeetName: "",
+        })
+        .then(screen => {
+          const seasonId = seasonSummary.id;
+          user.ifSome(user => {
+            doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
+              if (hasAccess) {
+                screen.update({ doesUserHaveWriteAccess: true });
+              }
+            });
           });
-        }
-      });
+          getSeasonMeets(seasonId).then(meets => {
+            screen.update({ meets: Option.some(meets) });
+          });
+          getSeasonGradeBounds(seasonId).then(gradeBounds => {
+            screen.update({ gradeBounds: Option.some(gradeBounds) });
+          });
+        });
     },
   };
 }

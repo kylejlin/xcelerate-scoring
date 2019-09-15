@@ -53,7 +53,7 @@ export default function getAthletesMenuController(
     viewSeason,
     navigateToPasteAthletesScreen() {
       if (app.state.kind === StateType.AthletesMenu) {
-        app.newScreen<PasteAthletesState>({
+        app.newScreenOLD<PasteAthletesState>({
           kind: StateType.PasteAthletes,
 
           user: app.state.user.expect(
@@ -82,7 +82,7 @@ export default function getAthletesMenuController(
     navigateToManuallyAddAthletesScreen() {
       const state = app.state as AthletesMenuState;
       app
-        .newScreen<AddAthletesState>({
+        .newScreenOLD<AddAthletesState>({
           kind: StateType.AddAthletes,
           user: state.user.expect(
             "Attempted to navigateToManuallyAddAthletesScreen when user was not logged in."

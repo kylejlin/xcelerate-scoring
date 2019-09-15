@@ -53,6 +53,11 @@ export type AppState =
   | EditMeetState
   | ViewMeetState;
 
+export type StateOf<Kind extends AppState["kind"]> = Extract<
+  AppState,
+  { kind: Kind }
+>;
+
 export interface SearchForSeasonState {
   kind: StateType.SearchForSeason;
   screenNumber: number;

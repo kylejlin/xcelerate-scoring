@@ -17,8 +17,10 @@ import getEditMeetController from "./controllerFactories/getEditMeetController";
 import getViewMeetController from "./controllerFactories/getViewMeetController";
 import getAssistantsMenuController from "./controllerFactories/getAssistantsMenuController";
 
+import { getUnknownScreenHandle, getScreenGuarantee } from "./handleFactories";
+
 export default function createControllers(app: App): ControllerCollection {
-  const shared = getSharedControllerMethods(app);
+  const shared = getSharedControllerMethods(getUnknownScreenHandle(app));
 
   const searchForSeasonController = getSearchForSeasonController(app, shared);
   const signInController = getSignInController(app, shared);
@@ -29,7 +31,10 @@ export default function createControllers(app: App): ControllerCollection {
   const athletesMenuController = getAthletesMenuController(app, shared);
   const pasteAthletesController = getPasteAthletesController(app, shared);
   const addAthletesController = getAddAthletesController(app, shared);
-  const seasonMeetsController = getSeasonsMeetsController(app, shared);
+  const seasonMeetsController = getSeasonsMeetsController(
+    getScreenGuarantee(app),
+    shared
+  );
   const editMeetController = getEditMeetController(app, shared);
   const viewMeetController = getViewMeetController(app, shared);
   const assistantsMenuController = getAssistantsMenuController(app, shared);

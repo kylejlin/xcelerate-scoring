@@ -63,7 +63,7 @@ export default function getPasteAthletesController(
     submitSpreadsheetData() {
       if (app.state.kind === StateType.PasteAthletes) {
         app
-          .newScreen<AddAthletesState>({
+          .newScreenOLD<AddAthletesState>({
             kind: StateType.AddAthletes,
             user: app.state.user,
             seasonSummary: app.state.seasonSummary,

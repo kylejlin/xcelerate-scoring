@@ -163,31 +163,31 @@ export class Race {
 export class RaceUpdater {
   private listeners: (() => void)[];
 
-  static updateRacesWhile(
+  static updateRacesUntil(
     races: Races,
-    shouldContinueListening: () => boolean
+    stopListening: Promise<void>
   ): RaceUpdater {
-    return new RaceUpdater(races, shouldContinueListening);
+    return new RaceUpdater(races, stopListening);
   }
 
-  private constructor(races: Races, shouldContinueListening: () => boolean) {
+  private constructor(races: Races, stopListening: Promise<void>) {
     this.listeners = [];
 
     const cleanupFunctions = races.getRaces().map(race =>
       race.raceRef.collection("actionLists").onSnapshot(actionListsQuery => {
-        if (shouldContinueListening()) {
-          const actions = actionListsQuery.docs.flatMap(getActions);
-          const wereNewActionsAdded = race.setActions(actions);
-          if (wereNewActionsAdded) {
-            this.callListeners();
-          }
-        } else {
-          cleanupFunctions.forEach(stopListeningToChanges => {
-            stopListeningToChanges();
-          });
+        const actions = actionListsQuery.docs.flatMap(getActions);
+        const wereNewActionsAdded = race.setActions(actions);
+        if (wereNewActionsAdded) {
+          this.callListeners();
         }
       })
     );
+
+    stopListening.then(() => {
+      cleanupFunctions.forEach(stopListeningToChanges => {
+        stopListeningToChanges();
+      });
+    });
   }
 
   private callListeners() {

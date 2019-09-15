@@ -39,7 +39,7 @@ export default function getSeasonMenuController(
     navigateToAssistantsMenu() {
       const state = app.state as SeasonMenuState;
       app
-        .newScreen<AssistantsMenuState>({
+        .newScreenOLD<AssistantsMenuState>({
           kind: StateType.AssistantsMenu,
 
           user: state.user,
