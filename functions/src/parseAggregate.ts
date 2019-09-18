@@ -3,7 +3,6 @@ import * as admin from "firebase-admin";
 import { Athlete } from "./types/athlete";
 import Option from "./types/Option";
 import { getOrderedTeams, Teams } from "./types/team";
-import { zeroPadToFiveDigits } from "./misc";
 
 export default function parseAggregate(
   data: admin.firestore.DocumentData
@@ -41,9 +40,7 @@ export default function parseAggregate(
                 i += 3
               ) {
                 athletes.push({
-                  id: zeroPadToFiveDigits(
-                    athleteIdsAndNamesInThisSchoolAndDivision[i] as number
-                  ),
+                  id: athleteIdsAndNamesInThisSchoolAndDivision[i] as number,
                   firstName: athleteIdsAndNamesInThisSchoolAndDivision[
                     i + 1
                   ] as string,

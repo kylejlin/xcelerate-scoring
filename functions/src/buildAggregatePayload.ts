@@ -14,11 +14,7 @@ export default function buildAggregatePayload(
     );
     payload.push(athletesPartOfTeam.length * 3);
     athletesPartOfTeam.forEach(athlete => {
-      payload.push(
-        parseInt(athlete.id, 10),
-        athlete.firstName,
-        athlete.lastName
-      );
+      payload.push(athlete.id, athlete.firstName, athlete.lastName);
     });
   });
   return payload;

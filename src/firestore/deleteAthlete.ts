@@ -1,16 +1,16 @@
 import firebase from "../firebase";
 import { Athlete } from "../types/misc";
 
-const db = firebase.firestore();
+const functions = firebase.functions();
+const deleteAthletes = functions.httpsCallable("deleteAthletes");
 
 export default function deleteAthlete(
   seasonId: string,
   athlete: Athlete
 ): Promise<void> {
-  return db
-    .collection("seasons")
-    .doc(seasonId)
-    .collection("athletes")
-    .doc(athlete.id)
-    .delete();
+  console.log("deleteAthlete", seasonId, athlete.id, parseInt(athlete.id, 10));
+  return deleteAthletes({
+    seasonId,
+    athleteIds: [parseInt(athlete.id, 10)],
+  }).then();
 }
