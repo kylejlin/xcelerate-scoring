@@ -1,12 +1,12 @@
 import firebase from "../firebase";
 
-import { RaceDivisions } from "../types/misc";
+import { Teams } from "../types/misc";
 
 const db = firebase.firestore();
 
 export default function getSeasonRaceDivisions(
   seasonId: string
-): Promise<RaceDivisions> {
+): Promise<Teams> {
   return db
     .collection("seasons")
     .doc(seasonId)

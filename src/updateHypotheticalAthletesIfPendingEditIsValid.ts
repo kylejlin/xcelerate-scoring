@@ -1,6 +1,6 @@
 import {
   EditableAthleteField,
-  HypotheticalAthlete,
+  TentativeHypotheticalAthlete,
   PendingHypotheticalAthleteEdit,
   Gender,
   isGender,
@@ -9,9 +9,9 @@ import Option from "./types/Option";
 import { HUMAN_NAME } from "./consts";
 
 export default function updateHypotheticalAthletesIfPendingEditIsValid(
-  athletes: HypotheticalAthlete[],
+  athletes: TentativeHypotheticalAthlete[],
   pendingEdit: PendingHypotheticalAthleteEdit
-): HypotheticalAthlete[] {
+): TentativeHypotheticalAthlete[] {
   if (isPendingEditValid(pendingEdit)) {
     return athletes.map((athlete, i) =>
       i === pendingEdit.athleteIndex
@@ -38,9 +38,9 @@ function isPendingEditValid(edit: PendingHypotheticalAthleteEdit): boolean {
 }
 
 function updateAthlete(
-  athlete: HypotheticalAthlete,
+  athlete: TentativeHypotheticalAthlete,
   pendingEdit: PendingHypotheticalAthleteEdit
-): HypotheticalAthlete {
+): TentativeHypotheticalAthlete {
   switch (pendingEdit.editedField) {
     case EditableAthleteField.FirstName:
       return { ...athlete, firstName: pendingEdit.fieldValue };

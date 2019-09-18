@@ -38,6 +38,8 @@ export default class App extends React.Component<{}, AppState> {
 
     // @ts-ignore
     window.app = this;
+    // @ts-ignore
+    window.fb = firebase;
 
     if (localStorage.getItem(LocalStorageKeys.IsWaitingForSignIn) === "true") {
       this.state = { kind: StateType.WaitForSignInCompletion, screenNumber: 0 };

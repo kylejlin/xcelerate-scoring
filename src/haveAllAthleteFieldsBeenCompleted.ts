@@ -1,8 +1,8 @@
-import { HypotheticalAthlete } from "./types/misc";
+import { TentativeHypotheticalAthlete } from "./types/misc";
 import { HUMAN_NAME } from "./consts";
 
 export default function haveAllAthleteFieldsBeenCompleted(
-  athletes: HypotheticalAthlete[]
+  athletes: TentativeHypotheticalAthlete[]
 ): boolean {
   return athletes.every(
     athlete =>

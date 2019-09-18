@@ -1,7 +1,10 @@
-import { EditableAthleteField, HypotheticalAthlete } from "./types/misc";
+import {
+  EditableAthleteField,
+  TentativeHypotheticalAthlete,
+} from "./types/misc";
 
 export default function getHypotheticalAthleteFieldValue(
-  athlete: HypotheticalAthlete,
+  athlete: TentativeHypotheticalAthlete,
   field: EditableAthleteField
 ): string {
   switch (field) {

@@ -1,10 +1,10 @@
-import { HypotheticalAthlete, Gender } from "./types/misc";
+import { TentativeHypotheticalAthlete, Gender } from "./types/misc";
 import Option from "./types/Option";
 
 export default function parseSpreadsheetData(
   data: string,
   school: Option<string>
-): HypotheticalAthlete[] {
+): TentativeHypotheticalAthlete[] {
   const rowsOfTabSeparatedValues = data
     .split("\n")
     .filter(row => !/^\s*$/.test(row));

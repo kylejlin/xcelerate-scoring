@@ -7,7 +7,8 @@ import { StateType, AddAthletesState } from "../../types/states";
 import {
   EditableAthleteField,
   PendingHypotheticalAthleteEdit,
-  HypotheticalAthlete,
+  TentativeHypotheticalAthlete,
+  finalizeTentativeAthlete,
 } from "../../types/misc";
 import getHypotheticalAthleteFieldValue from "../../getHypotheticalAthleteFieldValue";
 import updateHypotheticalAthletesIfPendingEditIsValid from "../../updateHypotheticalAthletesIfPendingEditIsValid";
@@ -156,8 +157,13 @@ export default function getAddAthletesController(
     addAthletes() {
       if (app.state.kind === StateType.AddAthletes) {
         addAthletesToSeason(
-          app.state.athletes,
-          app.state.seasonSummary.id
+          Option.all(app.state.athletes.map(finalizeTentativeAthlete)).expect(
+            "Attempted to addAthletes when one or more athletes was missing a field."
+          ),
+          app.state.seasonSummary.id,
+          app.state.raceDivisions.expect(
+            "Attempted to addAthletes before state.raceDivisions has loaded."
+          )
         ).then(correctPastedAthletesController.navigateToAthletesMenu);
       } else {
         throw new Error(
@@ -170,8 +176,8 @@ export default function getAddAthletesController(
 }
 
 function swapFirstAndLastName(
-  athlete: HypotheticalAthlete
-): HypotheticalAthlete {
+  athlete: TentativeHypotheticalAthlete
+): TentativeHypotheticalAthlete {
   return {
     ...athlete,
     firstName: athlete.lastName,
@@ -179,7 +185,7 @@ function swapFirstAndLastName(
   };
 }
 
-function getDefaultHypotheticalAthlete(): HypotheticalAthlete {
+function getDefaultHypotheticalAthlete(): TentativeHypotheticalAthlete {
   return {
     firstName: "",
     lastName: "",

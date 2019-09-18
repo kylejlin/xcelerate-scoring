@@ -4,8 +4,8 @@ import Option from "./Option";
 import {
   Athlete,
   AthleteFilter,
-  RaceDivisions,
-  HypotheticalAthlete,
+  Teams,
+  TentativeHypotheticalAthlete,
   FullName,
   MeetSummary,
   PendingAthleteEdit,
@@ -123,7 +123,7 @@ export interface AthletesMenuState {
   seasonSummary: SeasonSummary;
   athletes: Option<Athlete[]>;
   athleteFilter: AthleteFilter;
-  raceDivisions: Option<RaceDivisions>;
+  raceDivisions: Option<Teams>;
   shouldSortByLastName: boolean;
   pendingAthleteEdit: Option<PendingAthleteEdit>;
   pendingEditsBeingSyncedWithFirestore: (
@@ -151,9 +151,9 @@ export interface AddAthletesState {
   user: firebase.User;
   seasonSummary: SeasonSummary;
   wereAthletesPasted: boolean;
-  athletes: HypotheticalAthlete[];
+  athletes: TentativeHypotheticalAthlete[];
   pendingAthleteEdit: Option<PendingHypotheticalAthleteEdit>;
-  raceDivisions: Option<RaceDivisions>;
+  raceDivisions: Option<Teams>;
 }
 
 export interface ManuallyAddAthleteState {

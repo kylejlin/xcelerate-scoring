@@ -75,7 +75,9 @@ export default function AddAthletes({
                             )
                               .map(grade => "" + grade)
                               .map(grade => (
-                                <option value={grade}>{grade}</option>
+                                <option key={grade} value={grade}>
+                                  {grade}
+                                </option>
                               ))}
                           </select>
                         ) : (
