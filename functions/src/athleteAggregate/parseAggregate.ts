@@ -1,16 +1,13 @@
 import * as admin from "firebase-admin";
 
+import { Aggregate } from "./types";
 import { Athlete } from "../types/athlete";
 import Option from "../types/Option";
 import { getOrderedTeams, TeamsRecipe } from "../types/team";
 
 export default function parseAggregate(
   data: admin.firestore.DocumentData
-): Option<{
-  lowestAvailableAthleteId: number;
-  teams: TeamsRecipe;
-  athletes: Athlete[];
-}> {
+): Option<Aggregate> {
   const { lowestAvailableAthleteId, payload } = data;
   if (isNonNegativeInt(lowestAvailableAthleteId) && Array.isArray(payload)) {
     const [minGrade, maxGrade, numberOfSchools, ...rest] = payload;

@@ -1,15 +1,21 @@
 import { Athlete, Gender } from "./athlete";
 
-export function getOrderedTeams({
-  minGrade,
-  maxGrade,
-  schools,
-}: TeamsRecipe): Team[] {
-  const orderedSchools = schools.slice().sort();
-  const divisions = getOrderedDivisions(minGrade, maxGrade);
+export function getOrderedTeams(teamsRecipe: TeamsRecipe): Team[] {
+  const orderedSchools = teamsRecipe.schools.slice().sort();
+  const divisions = getOrderedDivisions(teamsRecipe);
   return orderedSchools.flatMap(school =>
     divisions.map(division => ({ school, ...division }))
   );
+}
+
+export function getOrderedDivisions({
+  minGrade,
+  maxGrade,
+}: DivisionsRecipe): Division[] {
+  return inclusiveIntRange(minGrade, maxGrade).flatMap(grade => [
+    { grade, gender: Gender.Male },
+    { grade, gender: Gender.Female },
+  ]);
 }
 
 export function isAthetePartOfTeam(athlete: Athlete, team: Team): boolean {
@@ -20,9 +26,21 @@ export function isAthetePartOfTeam(athlete: Athlete, team: Team): boolean {
   );
 }
 
+export function isAthleteInDivision(
+  athlete: Athlete,
+  division: Division
+): boolean {
+  return athlete.grade === division.grade && athlete.gender === division.gender;
+}
+
 export interface Division {
   grade: number;
   gender: Gender;
+}
+
+export interface DivisionsRecipe {
+  minGrade: number;
+  maxGrade: number;
 }
 
 export interface Team extends Division {
@@ -33,13 +51,6 @@ export interface TeamsRecipe {
   minGrade: number;
   maxGrade: number;
   schools: string[];
-}
-
-function getOrderedDivisions(min: number, max: number): Division[] {
-  return inclusiveIntRange(min, max).flatMap(grade => [
-    { grade, gender: Gender.Male },
-    { grade, gender: Gender.Female },
-  ]);
 }
 
 function inclusiveIntRange(min: number, max: number): number[] {
