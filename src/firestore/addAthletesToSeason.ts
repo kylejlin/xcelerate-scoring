@@ -1,13 +1,10 @@
-import firebase from "../firebase";
+import { addAthletes } from "./private/cloudFunctions";
 import {
   HypotheticalAthlete,
   compressHypotheticalAthlete,
   Teams,
 } from "../types/misc";
 import Option from "../types/Option";
-
-const functions = firebase.functions();
-const addAthletes = functions.httpsCallable("addAthletes");
 
 export default function addAthletesToSeason(
   athletes: HypotheticalAthlete[],
