@@ -152,6 +152,7 @@ export interface AddAthletesState {
   athletes: TentativeHypotheticalAthlete[];
   pendingAthleteEdit: Option<PendingHypotheticalAthleteEdit>;
   raceDivisions: Option<Teams>;
+  areAthletesBeingAdded: boolean;
 }
 
 export interface AssistantsMenuState {

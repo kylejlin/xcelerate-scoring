@@ -74,6 +74,7 @@ export default function getPasteAthletesController(
             ),
             pendingAthleteEdit: Option.none(),
             raceDivisions: Option.none(),
+            areAthletesBeingAdded: false,
           })
           .update((state, updateScreen) => {
             getSeasonRaceDivisions(state.seasonSummary.id).then(

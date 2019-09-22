@@ -30,7 +30,10 @@ export default function createControllers(app: App): ControllerCollection {
   const seasonMenuController = getSeasonMenuController(app, shared);
   const athletesMenuController = getAthletesMenuController(app, shared);
   const pasteAthletesController = getPasteAthletesController(app, shared);
-  const addAthletesController = getAddAthletesController(app, shared);
+  const addAthletesController = getAddAthletesController(
+    getScreenGuarantee(app),
+    shared
+  );
   const seasonMeetsController = getSeasonsMeetsController(
     getScreenGuarantee(app),
     shared

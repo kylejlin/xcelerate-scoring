@@ -92,6 +92,7 @@ export default function getAthletesMenuController(
           athletes: [],
           pendingAthleteEdit: Option.none(),
           raceDivisions: Option.none(),
+          areAthletesBeingAdded: false,
         })
         .update((state, updateScreen) => {
           getSeasonRaceDivisions(state.seasonSummary.id).then(raceDivisions => {
