@@ -29,7 +29,6 @@ export enum StateType {
   AthletesMenu,
   PasteAthletes,
   AddAthletes,
-  ManuallyAddAthlete,
   AssistantsMenu,
   SeasonMeets,
   EditMeet,
@@ -47,7 +46,6 @@ export type AppState =
   | AthletesMenuState
   | PasteAthletesState
   | AddAthletesState
-  | ManuallyAddAthleteState
   | AssistantsMenuState
   | SeasonMeetsState
   | EditMeetState
@@ -154,11 +152,6 @@ export interface AddAthletesState {
   athletes: TentativeHypotheticalAthlete[];
   pendingAthleteEdit: Option<PendingHypotheticalAthleteEdit>;
   raceDivisions: Option<Teams>;
-}
-
-export interface ManuallyAddAthleteState {
-  kind: StateType.ManuallyAddAthlete;
-  screenNumber: number;
 }
 
 export interface AssistantsMenuState {

@@ -215,8 +215,6 @@ export default class App extends React.Component<{}, AppState> {
             controller={this.controllers.viewMeetController}
           />
         );
-      default:
-        throw new Error("TODO: Render StateType." + StateType[this.state.kind]);
     }
   }
 
@@ -250,10 +248,6 @@ export default class App extends React.Component<{}, AppState> {
         return Option.some(this.state.user);
       case StateType.ViewMeet:
         return this.state.user;
-      default:
-        throw new Error(
-          "Cannot getUser for StateType." + StateType[this.state.kind]
-        );
     }
   }
 
