@@ -4,7 +4,7 @@ export function getOrderedTeams({
   minGrade,
   maxGrade,
   schools,
-}: Teams): Team[] {
+}: TeamsRecipe): Team[] {
   const orderedSchools = schools.slice().sort();
   const divisions = getOrderedDivisions(minGrade, maxGrade);
   return orderedSchools.flatMap(school =>
@@ -29,7 +29,7 @@ export interface Team extends Division {
   school: string;
 }
 
-export interface Teams {
+export interface TeamsRecipe {
   minGrade: number;
   maxGrade: number;
   schools: string[];

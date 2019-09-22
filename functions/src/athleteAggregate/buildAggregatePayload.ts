@@ -1,9 +1,13 @@
-import { Athlete } from "./types/athlete";
-import { Teams, getOrderedTeams, isAthetePartOfTeam } from "./types/team";
+import { Athlete } from "../types/athlete";
+import {
+  TeamsRecipe,
+  getOrderedTeams,
+  isAthetePartOfTeam,
+} from "../types/team";
 
 export default function buildAggregatePayload(
   athletes: Athlete[],
-  teams: Teams
+  teams: TeamsRecipe
 ): (string | number)[] {
   const { minGrade, maxGrade, schools } = teams;
   const payload = [minGrade, maxGrade, schools.length, ...schools];

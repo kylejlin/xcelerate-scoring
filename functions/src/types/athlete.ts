@@ -1,5 +1,5 @@
 import { isNonNegativeInt } from "./misc";
-import { Teams, getOrderedTeams } from "./team";
+import { TeamsRecipe, getOrderedTeams } from "./team";
 import Option from "./Option";
 
 export interface UnidentifiedAthlete {
@@ -28,7 +28,7 @@ export type CompressedUnidentifiedAthlete = [number, string, string];
 
 export function decompressUnidentifiedAthlete(
   athlete: CompressedUnidentifiedAthlete,
-  teams: Teams
+  teams: TeamsRecipe
 ): Option<UnidentifiedAthlete> {
   const orderedTeams = getOrderedTeams(teams);
   const [teamIndex, firstName, lastName] = athlete;
@@ -57,7 +57,7 @@ export type CompressedAthlete = [number, number, string, string];
 
 export function decompressAthlete(
   athlete: CompressedAthlete,
-  teams: Teams
+  teams: TeamsRecipe
 ): Option<Athlete> {
   const orderedTeams = getOrderedTeams(teams);
   const [id, teamIndex, firstName, lastName] = athlete;

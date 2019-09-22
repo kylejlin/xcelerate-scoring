@@ -1,14 +1,14 @@
 import * as admin from "firebase-admin";
 
-import { Athlete } from "./types/athlete";
-import Option from "./types/Option";
-import { getOrderedTeams, Teams } from "./types/team";
+import { Athlete } from "../types/athlete";
+import Option from "../types/Option";
+import { getOrderedTeams, TeamsRecipe } from "../types/team";
 
 export default function parseAggregate(
   data: admin.firestore.DocumentData
 ): Option<{
   lowestAvailableAthleteId: number;
-  teams: Teams;
+  teams: TeamsRecipe;
   athletes: Athlete[];
 }> {
   const { lowestAvailableAthleteId, payload } = data;
@@ -21,7 +21,7 @@ export default function parseAggregate(
       isNonNegativeInt(numberOfSchools)
     ) {
       const schools = rest.slice(0, numberOfSchools);
-      const teams: Teams = { minGrade, maxGrade, schools };
+      const teams: TeamsRecipe = { minGrade, maxGrade, schools };
       if (schools.length === numberOfSchools) {
         const athleteIdsAndNamesFlat2dList = rest.slice(numberOfSchools);
         const optAthleteIdsAndNames = parseFlat2dList(
