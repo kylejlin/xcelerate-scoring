@@ -3,7 +3,7 @@ import {
   SharedControllerMethods,
 } from "../../types/controllers";
 import { MeetSummary, AthleteOrSchool } from "../../types/misc";
-import { RaceDivisionUtil, RaceUpdater, RaceDivision } from "../../types/race";
+import { RaceUpdater, RaceDivision } from "../../types/race";
 import { StateType } from "../../types/states";
 import addMeetToSeason from "../../firestore/addMeetToSeason";
 import getMeetRaces from "../../firestore/getMeetRaces";
@@ -126,21 +126,17 @@ export default function getSeasonsMeetsController(
     addMeet() {
       const screen = getCurrentScreen();
       const { pendingMeetName } = screen.state;
-      const gradeBounds = screen.state.gradeBounds.expect(
-        "Attempted to addMeet when grade bounds have not yet loaded."
-      );
-      const divisions = RaceDivisionUtil.getDivisions(gradeBounds);
       if (pendingMeetName !== "") {
         screen.update({ pendingMeetName: "" });
-        addMeetToSeason(
-          pendingMeetName,
-          screen.state.seasonSummary.id,
-          divisions
-        ).then(meetSummary => {
-          screen.update({
-            meets: screen.state.meets.map(meets => meets.concat([meetSummary])),
-          });
-        });
+        addMeetToSeason(pendingMeetName, screen.state.seasonSummary.id).then(
+          meetSummary => {
+            screen.update({
+              meets: screen.state.meets.map(meets =>
+                meets.concat([meetSummary])
+              ),
+            });
+          }
+        );
       }
     },
   };

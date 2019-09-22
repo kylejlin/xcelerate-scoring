@@ -16,3 +16,8 @@ export const deleteAthletes: Callable<{
   seasonId: string;
   athleteIds: number[];
 }> = functions.httpsCallable("deleteAthletes");
+
+export const createMeet: Callable<{
+  seasonId: string;
+  meetName: string;
+}> = functions.httpsCallable("createMeet");

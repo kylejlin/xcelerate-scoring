@@ -13,6 +13,9 @@ import getUpdateMeetDataOrThrow from "./httpsErrorThrowers/getUpdateMeetDataOrTh
 import getMeetOrReject from "./httpsErrorThrowers/getMeetOrReject";
 import applyMeetInstructionsOrThrow from "./httpsErrorThrowers/applyMeetInstructionsOrThrow";
 import buildMeetPayload from "./meet/buildMeetPayload";
+import getInitialMeetPayload from "./meet/getInitialMeetPayload";
+import getCreateMeetDataOrThrow from "./httpsErrorThrowers/getCreateMeetDataOrThrow";
+import { DivisionsRecipe } from "./types/team";
 
 if ("function" !== typeof Array.prototype.flatMap) {
   flatMap.shim();
@@ -92,6 +95,31 @@ exports.deleteAthletes = functions.https.onCall((data, ctx) => {
       }
     );
   });
+});
+
+exports.createMeet = functions.https.onCall((data, ctx) => {
+  const uid = getUidOrThrow(ctx);
+  const { seasonId, meetName } = getCreateMeetDataOrThrow(data);
+
+  const seasonRef = db.collection("seasons").doc(seasonId);
+  const meetRef = seasonRef.collection("meets").doc();
+  const now = Date.now();
+
+  return db
+    .runTransaction(transaction => {
+      return getSeasonDataIfUserHasWriteAccess(
+        seasonRef,
+        uid,
+        transaction
+      ).then(seasonData => {
+        transaction.set(meetRef, {
+          name: meetName,
+          timeCreated: new Date(now),
+          payload: getInitialMeetPayload(seasonData as DivisionsRecipe),
+        });
+      });
+    })
+    .then(() => ({ meetId: meetRef.id, timeCreated: now }));
 });
 
 exports.updateMeet = functions.https.onCall((data, ctx) => {
