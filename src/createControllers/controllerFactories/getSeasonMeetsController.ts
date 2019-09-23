@@ -3,13 +3,13 @@ import {
   SharedControllerMethods,
 } from "../../types/controllers";
 import { MeetSummary, AthleteOrSchool } from "../../types/misc";
-import { RaceUpdater, RaceDivision } from "../../types/race";
+import { RaceDivision, RaceDivisionUtil } from "../../types/race";
 import { StateType } from "../../types/states";
 import addMeetToSeason from "../../firestore/addMeetToSeason";
-import getMeetRaces from "../../firestore/getMeetRaces";
 import Option from "../../types/Option";
 import openSeasonAthletesHandleUntil from "../../firestore/openSeasonAthletesHandleUntil";
 import { ScreenGuarantee } from "../../types/handle";
+import openMeetHandleUntil from "../../firestore/openMeetHandleUntil";
 
 export default function getSeasonsMeetsController(
   { getCurrentScreen }: ScreenGuarantee<StateType.SeasonMeets>,
@@ -34,33 +34,41 @@ export default function getSeasonsMeetsController(
           user: screen.state.user,
           seasonSummary: screen.state.seasonSummary,
           meetSummary,
-          races: Option.none(),
+          divisionsRecipe: Option.none(),
+          orderedRaces: Option.none(),
           viewedDivision: Option.none(),
           viewedResultType: AthleteOrSchool.Athlete,
           athletes: Option.none(),
         })
         .then(screen => {
           const { state } = screen;
-          getMeetRaces(state.seasonSummary.id, state.meetSummary.id).then(
-            races => {
-              RaceUpdater.updateRacesUntil(races, screen.expiration).onUpdate(
-                () => {
-                  // TODO Dehackify
-                  // Hack to force the app to update
-                  // Since app.forceUpdate() cannot be called
-                  screen.update({
-                    seasonSummary: { ...screen.state.seasonSummary },
-                  });
-                }
-              );
-              const divisions = races.getDivisions();
-              const viewedDivision =
-                divisions.length === 0
-                  ? Option.none<RaceDivision>()
-                  : Option.some(divisions[0]);
-              screen.update({ races: Option.some(races), viewedDivision });
-            }
+
+          const { meet, raceDivisions } = openMeetHandleUntil(
+            state.seasonSummary.id,
+            state.meetSummary.id,
+            screen.expiration
           );
+
+          meet.onUpdate(meet => {
+            screen.update({
+              orderedRaces: Option.some(meet.orderedRaceActions),
+            });
+          });
+
+          raceDivisions.then(raceDivisions => {
+            const orderedDivisions = RaceDivisionUtil.getOrderedDivisions(
+              raceDivisions
+            );
+            const firstDivision: Option<RaceDivision> =
+              orderedDivisions.length > 0
+                ? Option.some(orderedDivisions[0])
+                : Option.none();
+            screen.update({
+              divisionsRecipe: Option.some(raceDivisions),
+              viewedDivision: firstDivision,
+            });
+          });
+
           const { athletes } = openSeasonAthletesHandleUntil(
             state.seasonSummary.id,
             screen.expiration
@@ -79,7 +87,8 @@ export default function getSeasonsMeetsController(
           ),
           seasonSummary: screen.state.seasonSummary,
           meetSummary,
-          races: Option.none(),
+          divisionsRecipe: Option.none(),
+          orderedRaces: Option.none(),
           editedDivision: Option.none(),
           pendingAthleteId: "",
           insertionIndex: Option.none(),
@@ -89,26 +98,32 @@ export default function getSeasonsMeetsController(
         .then(screen => {
           const { state } = screen;
 
-          getMeetRaces(state.seasonSummary.id, state.meetSummary.id).then(
-            races => {
-              RaceUpdater.updateRacesUntil(races, screen.expiration).onUpdate(
-                () => {
-                  // TODO Dehackify
-                  // Hack to force the app to update
-                  // Since app.forceUpdate() cannot be called
-                  screen.update({
-                    seasonSummary: { ...screen.state.seasonSummary },
-                  });
-                }
-              );
-              const divisions = races.getDivisions();
-              const editedDivision =
-                divisions.length === 0
-                  ? Option.none<RaceDivision>()
-                  : Option.some(divisions[0]);
-              screen.update({ races: Option.some(races), editedDivision });
-            }
+          const { meet, raceDivisions } = openMeetHandleUntil(
+            state.seasonSummary.id,
+            state.meetSummary.id,
+            screen.expiration
           );
+
+          meet.onUpdate(meet => {
+            screen.update({
+              orderedRaces: Option.some(meet.orderedRaceActions),
+            });
+          });
+
+          raceDivisions.then(raceDivisions => {
+            const orderedDivisions = RaceDivisionUtil.getOrderedDivisions(
+              raceDivisions
+            );
+            const firstDivision: Option<RaceDivision> =
+              orderedDivisions.length > 0
+                ? Option.some(orderedDivisions[0])
+                : Option.none();
+            screen.update({
+              divisionsRecipe: Option.some(raceDivisions),
+              editedDivision: firstDivision,
+            });
+          });
+
           const { athletes } = openSeasonAthletesHandleUntil(
             state.seasonSummary.id,
             screen.expiration

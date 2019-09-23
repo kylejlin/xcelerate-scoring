@@ -74,7 +74,6 @@ export default function getSeasonMenuController(
         });
     },
     navigateToSeasonMeetsScreen() {
-      // alert("Sorry, meets have been temporarily disabled.");
       if (app.state.kind === StateType.SeasonMenu) {
         navigateToSeasonMeetsScreen({
           user: app.state.user,

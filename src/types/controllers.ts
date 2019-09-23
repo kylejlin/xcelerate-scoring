@@ -179,7 +179,7 @@ export interface EditMeetController {
   selectDivision(event: React.ChangeEvent): void;
   editPendingAthleteId(event: React.ChangeEvent): void;
   setInsertionIndex(insertionIndex: Option<number>): void;
-  deleteAthlete(athleteId: string): void;
+  deleteAthlete(athleteId: number): void;
   dismissInsertionErrorMessage(): void;
 }
 

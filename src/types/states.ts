@@ -16,7 +16,7 @@ import {
   AthleteDeletion,
   UserAccount,
 } from "./misc";
-import { Races, RaceDivision } from "./race";
+import { RaceDivision, RaceDivisionsRecipe, RaceAction } from "./race";
 
 export enum StateType {
   SearchForSeason,
@@ -190,7 +190,8 @@ export interface EditMeetState {
   seasonSummary: SeasonSummary;
   meetSummary: MeetSummary;
 
-  races: Option<Races>;
+  divisionsRecipe: Option<RaceDivisionsRecipe>;
+  orderedRaces: Option<RaceAction[][]>;
   editedDivision: Option<RaceDivision>;
   pendingAthleteId: string;
   insertionIndex: Option<number>;
@@ -206,7 +207,8 @@ export interface ViewMeetState {
   seasonSummary: SeasonSummary;
   meetSummary: MeetSummary;
 
-  races: Option<Races>;
+  divisionsRecipe: Option<RaceDivisionsRecipe>;
+  orderedRaces: Option<RaceAction[][]>;
   viewedDivision: Option<RaceDivision>;
   viewedResultType: AthleteOrSchool;
   athletes: Option<Athlete[]>;

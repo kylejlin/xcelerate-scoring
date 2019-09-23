@@ -41,13 +41,14 @@ export default function getEditMeetController(
       }));
     },
     editPendingAthleteId(event: React.ChangeEvent) {
-      const newPendingId = (event.target as HTMLInputElement).value;
+      const newPendingIdStr = (event.target as HTMLInputElement).value;
 
       app.updateScreen(StateType.EditMeet, state => {
-        if (isPartialId(newPendingId)) {
-          if (newPendingId.length < 5) {
-            return { pendingAthleteId: newPendingId };
+        if (isPartialId(newPendingIdStr)) {
+          if (newPendingIdStr.length < 5) {
+            return { pendingAthleteId: newPendingIdStr };
           } else {
+            const newPendingId = parseInt(newPendingIdStr, 10);
             const action: RaceAction = state.insertionIndex.match({
               none: () => ({
                 kind: RaceActionKind.InsertAtEnd,
@@ -59,18 +60,17 @@ export default function getEditMeetController(
                 athleteId: newPendingId,
               }),
             });
-            const editedDivision = state.editedDivision.expect(
-              "Attempted to appendDigitToPendingAthleteId when user has not selected division to edit."
-            );
             appendAction(
               state.seasonSummary.id,
               state.meetSummary.id,
-              editedDivision,
               action
             ).catch(err => {
+              console.log("hi");
               if (isInsufficientPermissionsError(err)) {
                 app.updateScreen(StateType.EditMeet, () => ({
-                  athleteIdWhichCouldNotBeInserted: Option.some(newPendingId),
+                  athleteIdWhichCouldNotBeInserted: Option.some(
+                    newPendingIdStr
+                  ),
                 }));
               } else {
                 throw err;
@@ -86,21 +86,13 @@ export default function getEditMeetController(
     setInsertionIndex(insertionIndex: Option<number>) {
       app.updateScreen(StateType.EditMeet, () => ({ insertionIndex }));
     },
-    deleteAthlete(athleteId: string) {
+    deleteAthlete(athleteId: number) {
       app.updateScreen(StateType.EditMeet, state => {
         const action: RaceActionDelete = {
           kind: RaceActionKind.Delete,
           athleteId,
         };
-        const editedDivision = state.editedDivision.expect(
-          "Attempted to appendDigitToPendingAthleteId when user has not selected division to edit."
-        );
-        appendAction(
-          state.seasonSummary.id,
-          state.meetSummary.id,
-          editedDivision,
-          action
-        );
+        appendAction(state.seasonSummary.id, state.meetSummary.id, action);
         return state;
       });
     },

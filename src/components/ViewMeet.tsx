@@ -3,7 +3,7 @@ import React from "react";
 import { ViewMeetState } from "../types/states";
 import { ViewMeetController } from "../types/controllers";
 
-import { RaceDivisionUtil, Race } from "../types/race";
+import { RaceDivisionUtil, RaceAction, getFinisherIds } from "../types/race";
 import Option from "../types/Option";
 import { Athlete, AthleteOrSchool } from "../types/misc";
 import scoreRace from "../types/scoring";
@@ -35,11 +35,24 @@ export default function ViewMeet({
       <button onClick={controller.back}>Back</button>
       <h2>{state.meetSummary.name} - View results</h2>
 
-      {Option.all([state.races, state.athletes, state.viewedDivision]).match({
+      {Option.all([
+        state.divisionsRecipe,
+        state.orderedRaces,
+        state.athletes,
+        state.viewedDivision,
+      ]).match({
         none: () => <p>Loading races...</p>,
-        some: ([races, athletes, viewedDivision]) => {
+        some: ([divisionsRecipe, orderedRaces, athletes, viewedDivision]) => {
+          const orderedDivisions = RaceDivisionUtil.getOrderedDivisions(
+            divisionsRecipe
+          );
           const divisionStr = RaceDivisionUtil.stringify(viewedDivision);
-          const race = races.getRace(viewedDivision);
+          const race =
+            orderedRaces[
+              orderedDivisions.findIndex(division =>
+                RaceDivisionUtil.areDivisionsEqual(division, viewedDivision)
+              )
+            ];
           const finishers = getFinishingAthletesIfAllCanBeFound(race, athletes);
 
           return finishers.match({
@@ -52,8 +65,7 @@ export default function ViewMeet({
                     value={divisionStr}
                     onChange={controller.selectDivision}
                   >
-                    {races
-                      .getDivisions()
+                    {orderedDivisions
                       .map(RaceDivisionUtil.stringify)
                       .map(division => (
                         <option key={division} value={division}>
@@ -146,14 +158,14 @@ interface Props {
 }
 
 function getFinishingAthletesIfAllCanBeFound(
-  race: Race,
+  race: RaceAction[],
   athletes: Athlete[]
 ): Option<Athlete[]> {
   const finishers: Athlete[] = [];
-  const ids = race.getFinisherIds();
+  const ids = getFinisherIds(race);
   for (let i = 0; i < ids.length; i++) {
     const id = ids[i];
-    const athlete = athletes.find(a => a.id === id);
+    const athlete = athletes.find(a => parseInt(a.id, 10) === id);
     if (athlete === undefined) {
       return Option.none();
     } else {

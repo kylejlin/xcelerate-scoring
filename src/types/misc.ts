@@ -1,5 +1,10 @@
 import Option from "./Option";
-import { RaceDivision, RaceDivisionUtil } from "./race";
+import {
+  RaceDivision,
+  RaceDivisionUtil,
+  RaceAction,
+  RaceDivisionsRecipe,
+} from "./race";
 
 export interface SeasonSummary {
   id: string;
@@ -58,7 +63,7 @@ export function getOrderedTeams({
   maxGrade,
 }: Teams): Team[] {
   const orderedSchools = schools.slice().sort();
-  const orderedDivisions = RaceDivisionUtil.getDivisions({
+  const orderedDivisions = RaceDivisionUtil.DEPRECATED_getDivisions({
     min: minGrade,
     max: maxGrade,
   });
@@ -142,6 +147,10 @@ export interface MeetSummary {
   name: string;
   id: string;
   timeCreated: Date;
+}
+
+export interface Meet extends MeetSummary, RaceDivisionsRecipe {
+  orderedRaceActions: RaceAction[][];
 }
 
 export enum AthleteOrSchool {

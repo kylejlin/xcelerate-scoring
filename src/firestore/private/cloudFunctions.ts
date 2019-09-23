@@ -21,3 +21,9 @@ export const createMeet: Callable<{
   seasonId: string;
   meetName: string;
 }> = functions.httpsCallable("createMeet");
+
+export const updateMeet: Callable<{
+  seasonId: string;
+  meetId: string;
+  instructions: number[];
+}> = functions.httpsCallable("updateMeet");
