@@ -17,7 +17,7 @@ export default function getMeetOrReject(
       throw new HttpsError("invalid-argument", "Invalid meet id: " + meetId);
     } else {
       return parseMeet(aggregateData).expect(
-        new HttpsError("internal", "Malformed aggregate.")
+        new HttpsError("internal", "Malformed meet document.")
       );
     }
   });
