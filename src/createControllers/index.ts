@@ -38,7 +38,10 @@ export default function createControllers(app: App): ControllerCollection {
     getScreenGuarantee(app),
     shared
   );
-  const editMeetController = getEditMeetController(app, shared);
+  const editMeetController = getEditMeetController(
+    getScreenGuarantee(app),
+    shared
+  );
   const viewMeetController = getViewMeetController(app, shared);
   const assistantsMenuController = getAssistantsMenuController(app, shared);
 

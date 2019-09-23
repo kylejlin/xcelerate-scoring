@@ -2,8 +2,7 @@ import {
   EditMeetController,
   SharedControllerMethods,
 } from "../../types/controllers";
-import App from "../../App";
-import { StateType, EditMeetState } from "../../types/states";
+import { StateType } from "../../types/states";
 import {
   RaceAction,
   RaceActionKind,
@@ -12,9 +11,10 @@ import {
 } from "../../types/race";
 import appendAction from "../../firestore/appendAction";
 import Option from "../../types/Option";
+import { ScreenGuarantee } from "../../types/handle";
 
 export default function getEditMeetController(
-  app: App,
+  { getCurrentScreen }: ScreenGuarantee<StateType.EditMeet>,
   {
     navigateToSearchForSeasonScreen,
     navigateToUserSeasonsScreen,
@@ -27,79 +27,72 @@ export default function getEditMeetController(
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
     back() {
-      const state = app.state as EditMeetState;
+      const { state } = getCurrentScreen();
       navigateToSeasonMeetsScreen({
         user: Option.some(state.user),
         seasonSummary: state.seasonSummary,
       });
     },
     selectDivision(event: React.ChangeEvent) {
+      const screen = getCurrentScreen();
       const { value } = event.target as HTMLInputElement;
       const division = RaceDivisionUtil.parse(value);
-      app.updateScreen(StateType.EditMeet, () => ({
-        editedDivision: Option.some(division),
-      }));
+      screen.update({ editedDivision: Option.some(division) });
     },
     editPendingAthleteId(event: React.ChangeEvent) {
+      const screen = getCurrentScreen();
       const newPendingIdStr = (event.target as HTMLInputElement).value;
 
-      app.updateScreen(StateType.EditMeet, state => {
-        if (isPartialId(newPendingIdStr)) {
-          if (newPendingIdStr.length < 5) {
-            return { pendingAthleteId: newPendingIdStr };
-          } else {
-            const newPendingId = parseInt(newPendingIdStr, 10);
-            const action: RaceAction = state.insertionIndex.match({
-              none: () => ({
-                kind: RaceActionKind.InsertAtEnd,
-                athleteId: newPendingId,
-              }),
-              some: insertionIndex => ({
-                kind: RaceActionKind.InsertAbove,
-                insertionIndex,
-                athleteId: newPendingId,
-              }),
-            });
-            appendAction(
-              state.seasonSummary.id,
-              state.meetSummary.id,
-              action
-            ).catch(err => {
-              console.log("hi");
-              if (isInsufficientPermissionsError(err)) {
-                app.updateScreen(StateType.EditMeet, () => ({
-                  athleteIdWhichCouldNotBeInserted: Option.some(
-                    newPendingIdStr
-                  ),
-                }));
-              } else {
-                throw err;
-              }
-            });
-            return { pendingAthleteId: "" };
-          }
+      if (isPartialId(newPendingIdStr)) {
+        if (newPendingIdStr.length < 5) {
+          screen.update({ pendingAthleteId: newPendingIdStr });
         } else {
-          return state;
+          screen.update({ pendingAthleteId: "" });
+
+          const newPendingId = parseInt(newPendingIdStr, 10);
+          const { insertionIndex, seasonSummary, meetSummary } = screen.state;
+          const action: RaceAction = insertionIndex.match({
+            none: () => ({
+              kind: RaceActionKind.InsertAtEnd,
+              athleteId: newPendingId,
+            }),
+            some: insertionIndex => ({
+              kind: RaceActionKind.InsertAbove,
+              insertionIndex,
+              athleteId: newPendingId,
+            }),
+          });
+          appendAction(seasonSummary.id, meetSummary.id, action).catch(err => {
+            console.log("hi");
+            if (isInsufficientPermissionsError(err)) {
+              screen.update({
+                athleteIdWhichCouldNotBeInserted: Option.some(newPendingIdStr),
+              });
+            } else {
+              throw err;
+            }
+          });
         }
-      });
+      }
     },
     setInsertionIndex(insertionIndex: Option<number>) {
-      app.updateScreen(StateType.EditMeet, () => ({ insertionIndex }));
+      const screen = getCurrentScreen();
+      screen.update({ insertionIndex });
     },
     deleteAthlete(athleteId: number) {
-      app.updateScreen(StateType.EditMeet, state => {
-        const action: RaceActionDelete = {
-          kind: RaceActionKind.Delete,
-          athleteId,
-        };
-        appendAction(state.seasonSummary.id, state.meetSummary.id, action);
-        return state;
-      });
+      const screen = getCurrentScreen();
+      const { seasonSummary, meetSummary } = screen.state;
+      const action: RaceActionDelete = {
+        kind: RaceActionKind.Delete,
+        athleteId,
+      };
+      appendAction(seasonSummary.id, meetSummary.id, action);
     },
     dismissInsertionErrorMessage() {
-      app.updateScreen(StateType.EditMeet, () => ({
+      const screen = getCurrentScreen();
+      screen.update({
         athleteIdWhichCouldNotBeInserted: Option.none(),
-      }));
+      });
     },
   };
 }
