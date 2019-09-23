@@ -1,4 +1,4 @@
-import { Athlete } from "../types/athlete";
+import { Athlete } from "./types";
 import {
   TeamsRecipe,
   getOrderedTeams,

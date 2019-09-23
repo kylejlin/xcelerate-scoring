@@ -2,8 +2,8 @@ import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
 import { TeamsRecipe } from "../types/team";
-import { Athlete } from "../types/athlete";
-import parseAggregate from "../athleteAggregate/parseAggregate";
+import { Athlete } from "../athlete/types";
+import parseAggregate from "../athlete/parseAggregate";
 
 const { HttpsError } = functions.https;
 

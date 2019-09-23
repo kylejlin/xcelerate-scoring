@@ -1,7 +1,7 @@
 import * as functions from "firebase-functions";
 
 import { Meet } from "../meet/types";
-import { Athlete } from "../types/athlete";
+import { Athlete } from "../athlete/types";
 import applyMeetInstructionsIfValid from "../meet/applyMeetInstructionsIfValid";
 
 const { HttpsError } = functions.https;

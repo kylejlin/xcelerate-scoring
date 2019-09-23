@@ -1,6 +1,6 @@
-import { isNonNegativeInt } from "./misc";
-import { TeamsRecipe, getOrderedTeams } from "./team";
-import Option from "./Option";
+import { isNonNegativeInt } from "../types/misc";
+import { TeamsRecipe, getOrderedTeams } from "../types/team";
+import Option from "../types/Option";
 
 export interface UnidentifiedAthlete {
   firstName: string;
@@ -78,4 +78,10 @@ export function isCompressedAthlete(x: unknown): x is CompressedAthlete {
     "string" === typeof x[2] &&
     "string" === typeof x[3]
   );
+}
+
+export interface Aggregate {
+  lowestAvailableAthleteId: number;
+  teams: TeamsRecipe;
+  athletes: Athlete[];
 }

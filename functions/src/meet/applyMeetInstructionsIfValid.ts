@@ -1,6 +1,6 @@
 import { Meet, Action } from "./types";
 import Option from "../types/Option";
-import { Athlete } from "../types/athlete";
+import { Athlete } from "../athlete/types";
 import parseInstructions from "./parseInstructions";
 import {
   getOrderedDivisions,

@@ -1,5 +1,8 @@
 import firebase from "../../firebase";
-import { CompressedHypotheticalAthlete } from "../../types/misc";
+import {
+  CompressedHypotheticalAthlete,
+  CompressedAthlete,
+} from "../../types/misc";
 
 const functions = firebase.functions();
 
@@ -11,6 +14,11 @@ export const addAthletes: Callable<{
   athletes: CompressedHypotheticalAthlete[];
   seasonId: string;
 }> = functions.httpsCallable("addAthletes");
+
+export const updateAthletes: Callable<{
+  seasonId: string;
+  athletes: CompressedAthlete[];
+}> = functions.httpsCallable("updateAthletes");
 
 export const deleteAthletes: Callable<{
   seasonId: string;

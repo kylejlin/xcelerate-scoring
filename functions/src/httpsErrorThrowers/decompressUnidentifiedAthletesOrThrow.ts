@@ -5,7 +5,7 @@ import {
   CompressedUnidentifiedAthlete,
   UnidentifiedAthlete,
   decompressUnidentifiedAthlete,
-} from "../types/athlete";
+} from "../athlete/types";
 import { TeamsRecipe } from "../types/team";
 
 const { HttpsError } = functions.https;

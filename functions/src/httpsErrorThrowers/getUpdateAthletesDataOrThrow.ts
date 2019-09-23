@@ -1,16 +1,13 @@
 import * as functions from "firebase-functions";
 
 import { isObject } from "../types/misc";
-import {
-  CompressedUnidentifiedAthlete,
-  isCompressedUnidentifiedAthlete,
-} from "../athlete/types";
+import { CompressedAthlete, isCompressedAthlete } from "../athlete/types";
 
 const { HttpsError } = functions.https;
 
-export default function getAddAthleteDataOrThrow(
+export default function getUpdateAthletesDataOrThrow(
   data: unknown
-): { seasonId: string; athletes: CompressedUnidentifiedAthlete[] } {
+): { seasonId: string; athletes: CompressedAthlete[] } {
   if (isObject(data)) {
     const { seasonId, athletes } = data;
     if (
@@ -25,6 +22,6 @@ export default function getAddAthleteDataOrThrow(
 
 function isCompressedUnidentifiedAthleteArray(
   arr: unknown
-): arr is CompressedUnidentifiedAthlete[] {
-  return Array.isArray(arr) && arr.every(isCompressedUnidentifiedAthlete);
+): arr is CompressedAthlete[] {
+  return Array.isArray(arr) && arr.every(isCompressedAthlete);
 }

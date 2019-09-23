@@ -27,7 +27,7 @@ import updateAthletesIfPendingEditIsValid from "../../updateAthletesIfPendingEdi
 
 import areAthletesEqual from "../../areAthletesEqual";
 
-import updateAthlete from "../../firestore/updateAthlete";
+import updateAthletes from "../../firestore/updateAthletes";
 
 import isAthleteDeletable from "../../firestore/isAthleteDeletable";
 
@@ -231,11 +231,17 @@ export default function getAthletesMenuController(
         });
 
         if (shouldSyncWithFirestore) {
-          updateAthlete(
+          const teams = app.state.raceDivisions.expect(
+            "Attempted to syncAndUnfocusEditedAthleteField when teams recipe has not yet loaded."
+          );
+          updateAthletes(
             app.state.seasonSummary.id,
-            updatedAthletes.find(
-              athlete => athlete.id === pendingEdit.athleteId
-            )!
+            [
+              updatedAthletes.find(
+                athlete => athlete.id === pendingEdit.athleteId
+              )!,
+            ],
+            teams
           ).then(() => {
             if (app.state.kind === StateType.AthletesMenu) {
               app.setState({

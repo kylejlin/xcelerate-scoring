@@ -1,7 +1,6 @@
 import * as admin from "firebase-admin";
 
-import { Aggregate } from "./types";
-import { Athlete } from "../types/athlete";
+import { Aggregate, Athlete } from "./types";
 import Option from "../types/Option";
 import { getOrderedTeams, TeamsRecipe } from "../types/team";
 

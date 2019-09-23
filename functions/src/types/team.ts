@@ -1,4 +1,4 @@
-import { Athlete, Gender } from "./athlete";
+import { Athlete, Gender } from "../athlete/types";
 
 export function getOrderedTeams(teamsRecipe: TeamsRecipe): Team[] {
   const orderedSchools = teamsRecipe.schools.slice().sort();

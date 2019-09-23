@@ -118,6 +118,7 @@ export function finalizeTentativeAthlete(
   }));
 }
 
+// [orderedTeamIndex, firstName, lastName]
 export type CompressedHypotheticalAthlete = [number, string, string];
 
 export function compressHypotheticalAthlete(
@@ -130,6 +131,27 @@ export function compressHypotheticalAthlete(
     return Option.none();
   } else {
     return Option.some([index, athlete.firstName, athlete.lastName]);
+  }
+}
+
+// [id, orderedTeamIndex, firstName, lastName]
+export type CompressedAthlete = [number, number, string, string];
+
+export function compressAthlete(
+  athlete: Athlete,
+  teams: Teams
+): Option<CompressedAthlete> {
+  const orderedTeams = getOrderedTeams(teams);
+  const index = orderedTeams.findIndex(team => areTeamsEqual(team, athlete));
+  if (index === -1) {
+    return Option.none();
+  } else {
+    return Option.some([
+      parseInt(athlete.id, 10),
+      index,
+      athlete.firstName,
+      athlete.lastName,
+    ]);
   }
 }
 

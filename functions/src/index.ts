@@ -2,7 +2,7 @@ import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
 import * as flatMap from "array.prototype.flatmap";
 
-import buildAggregatePayload from "./athleteAggregate/buildAggregatePayload";
+import buildAggregatePayload from "./athlete/buildAggregatePayload";
 import getSeasonDataIfUserHasWriteAccess from "./getSeasonDataIfUserHasWriteAccess";
 import getAddAthleteDataOrThrow from "./httpsErrorThrowers/getAddAthleteDataOrThrow";
 import getUidOrThrow from "./httpsErrorThrowers/getUidOrThrow";
@@ -16,6 +16,8 @@ import buildMeetPayload from "./meet/buildMeetPayload";
 import getInitialMeetPayload from "./meet/getInitialMeetPayload";
 import getCreateMeetDataOrThrow from "./httpsErrorThrowers/getCreateMeetDataOrThrow";
 import { DivisionsRecipe } from "./types/team";
+import getUpdateAthletesDataOrThrow from "./httpsErrorThrowers/getUpdateAthletesDataOrThrow";
+import decompressAthletesOrThrow from "./httpsErrorThrowers/decompressAthletesOrThrow";
 
 if ("function" !== typeof Array.prototype.flatMap) {
   flatMap.shim();
@@ -56,6 +58,45 @@ exports.addAthletes = functions.https.onCall((data, ctx) => {
               .doc(seasonId);
             transaction.set(aggregateRef, {
               lowestAvailableAthleteId: newLowestAvailableAthleteId,
+              payload: buildAggregatePayload(newAthletes, teams),
+            });
+          }
+        );
+      }
+    );
+  });
+});
+
+exports.updateAthletes = functions.https.onCall((data, ctx) => {
+  const uid = getUidOrThrow(ctx);
+  const {
+    seasonId,
+    athletes: compressedAthletes,
+  } = getUpdateAthletesDataOrThrow(data);
+  return db.runTransaction(transaction => {
+    const seasonRef = db.collection("seasons").doc(seasonId);
+    return getSeasonDataIfUserHasWriteAccess(seasonRef, uid, transaction).then(
+      () => {
+        const aggregateRef = db
+          .collection("seasonAthleteAggregates")
+          .doc(seasonId);
+        return getAggregateOrReject(transaction, aggregateRef).then(
+          ({ teams, athletes }) => {
+            const updatedAthletes = decompressAthletesOrThrow(
+              compressedAthletes,
+              teams
+            );
+            const newAthletes = athletes.map(originalAthlete => {
+              const updatedAthlete = updatedAthletes.find(
+                athlete => athlete.id === originalAthlete.id
+              );
+              if (updatedAthlete === undefined) {
+                return originalAthlete;
+              } else {
+                return updatedAthlete;
+              }
+            });
+            transaction.update(aggregateRef, {
               payload: buildAggregatePayload(newAthletes, teams),
             });
           }
