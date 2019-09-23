@@ -37,3 +37,7 @@ export function childWithGender(gender: Gender): string {
       return "girl";
   }
 }
+
+export function doesGradeStartWithVowel(grade: number): boolean {
+  return [1, 8, 11].includes(grade);
+}

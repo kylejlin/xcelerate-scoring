@@ -9,6 +9,7 @@ import { Athlete } from "../types/misc";
 import {
   describeDivisionInEnglish,
   addAppropriateOrdinalSuffix,
+  doesGradeStartWithVowel,
 } from "../english";
 
 export default function EditMeet({
@@ -180,7 +181,10 @@ export default function EditMeet({
                             if (isInWrongDivision) {
                               return (
                                 <p>
-                                  You tried to insert a{" "}
+                                  You tried to insert a
+                                  {doesGradeStartWithVowel(division.grade)
+                                    ? "n"
+                                    : ""}{" "}
                                   {describeDivisionInEnglish(division)} in the{" "}
                                   {describeDivisionInEnglish(editedDivision)}'s
                                   race.
