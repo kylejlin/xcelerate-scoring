@@ -51,18 +51,6 @@ service cloud.firestore {
       	&& name.matches('[[:alpha:]](\\S| )*');
     }
     
-    function isValidMeetShape() {
-    	return request.resource.data.name is string;
-    }
-    
-    function isTimeCreatedAccurate() {
-    	return request.resource.data.timeCreated == request.time;
-    }
-    
-    function isTimeCreatedUnchanged() {
-    	return request.resource.data.timeCreated == resource.data.timeCreated;
-    }
-    
     match /users/{userId} {
     	allow read: if true;
       allow create, update: if userId == request.auth.uid && isValidUserShape();
@@ -97,123 +85,7 @@ service cloud.firestore {
       }
       
       match /meets/{meetId} {
-      	allow read: if true;
-        
-        match /races/{raceId} {
-        	function race() {
-          	return get(/databases/$(database)/documents/seasons/$(seasonId)/meets/$(meetId)/races/$(raceId)).data;
-          }
-          
-          function raceAfter() {
-          	return getAfter(/databases/$(database)/documents/seasons/$(seasonId)/meets/$(meetId)/races/$(raceId)).data;
-          }
-          
-          function isRaceIdValid() {
-          	return raceAfter().grade == idGrade()
-              && raceAfter().gender == idGender()
-              && season().minGrade <= idGrade()
-              && idGrade() <= season().maxGrade
-              && (idGender() == 'M' || idGender() == 'F');
-          }
-          
-          function idGrade() {
-          	return int(raceId[0:(raceId.size() - 1)]);
-          }
-          
-          function idGender() {
-          	return raceId[raceId.size() - 1];
-          }
-          
-          // Deprecated
-          function isRaceShapeValidOtherThanDivision() {
-          	return request.resource.data.isLocked is bool
-            	&& isRaceActionCounterValid();
-          }
-          
-          function isRaceActionCounterValid() {
-          	return (
-            	request.resource.data.numberOfActions == 0
-            	&& request.resource.data.athletesMostRecentlyActedUpon == [null, null, null, null]
-            ) || (
-            	request.resource.data.numberOfActions == resource.data.numberOfActions + 1
-              && exists(/databases/$(database)/documents/seasons/$(seasonId)/athletes/$(request.resource.data.athletesMostRecentlyActedUpon[0]))
-              && request.resource.data.athletesMostRecentlyActedUpon[1:4] == resource.data.athletesMostRecentlyActedUpon[0:3]
-            );
-          }
-          
-          function isRaceUnlocked() {
-          	return !race().isLocked;
-          }
-          
-        	allow read: if true;
-          allow create: if userHasWriteAccess()
-          	&& isRaceIdValid()
-            && isRaceActionCounterValid()
-            && request.resource.data.isLocked == false;
-          allow update: if userHasWriteAccess() && isRaceIdValid() && isRaceShapeValidOtherThanDivision();
-          
-          match /actionLists/{athleteId} {
-            // Action kinds:
-            // 
-            // InsertAtBottom = 0
-            // InsertAbove = 1
-            // Delete = 2
-          	function isNewActionValid(action) {
-            	return action.index == race().numberOfActions && (
-              	(
-                  action.kind == 0
-                  && action.size() == 2
-                ) || (
-                  action.kind == 1
-                  && action.insertionIndex is int
-                  && action.size() == 3
-                ) || (
-                  action.kind == 2
-                  && action.size() == 2
-                )
-              );
-            }
-            
-            function isNotInsertion(action) {
-            	return action.kind == 2;
-            }
-            
-            function actions() {
-            	return request.resource.data.actions;
-            }
-            
-            function newAction() {
-            	return actions()[actions().size() - 1];
-            }
-            
-            function athlete() {
-            	return get(/databases/$(database)/documents/seasons/$(seasonId)/athletes/$(athleteId)).data;
-            }
-            
-          	allow read: if true;
-            allow create: if userHasWriteAccess()
-            	&& isRaceIdValid()
-              && isRaceUnlocked()
-              && raceAfter().athletesMostRecentlyActedUpon[0] == athleteId
-              && raceAfter().numberOfActions == race().numberOfActions + 1
-              && race().grade == athlete().grade
-              && race().gender == athlete().gender
-              && actions().size() == 1
-              && isNewActionValid(newAction());
-            allow update: if userHasWriteAccess()
-            	&& isRaceIdValid()
-              && isRaceUnlocked()
-              && raceAfter().athletesMostRecentlyActedUpon[0] == athleteId
-              && raceAfter().numberOfActions == race().numberOfActions + 1
-              && actions().size() == resource.data.actions.size() + 1
-              && actions()[0:(actions().size() - 1)] == resource.data.actions
-              && isNewActionValid(newAction())
-              && (
-              	isNotInsertion(newAction())
-                || resource.data.actions[resource.data.actions.size() - 1].kind == 2
-              );
-          }
-        }
+      	allow read: if true; 
       }
     }
 
