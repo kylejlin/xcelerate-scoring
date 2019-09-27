@@ -1,12 +1,12 @@
-import App from "../../App";
 import {
   UserSeasonsController,
   SharedControllerMethods,
 } from "../../types/controllers";
-import { StateType, CreateSeasonState } from "../../types/states";
+import { StateType } from "../../types/states";
+import { ScreenGuarantee } from "../../types/handle";
 
 export default function getUserSeasonsController(
-  app: App,
+  { getCurrentScreen }: ScreenGuarantee<StateType.UserSeasons>,
   {
     navigateToSearchForSeasonScreen,
     navigateToUserProfileScreen,
@@ -18,21 +18,15 @@ export default function getUserSeasonsController(
     navigateToUserProfileScreen,
     viewSeason,
     navigateToCreateSeasonScreen() {
-      if (app.state.kind === StateType.UserSeasons) {
-        app.newScreenOLD<CreateSeasonState>({
-          kind: StateType.CreateSeason,
-          user: app.state.user,
-          seasonName: "My Awesome Season",
-          minGrade: "6",
-          maxGrade: "8",
-          schools: [],
-          newSchoolName: "",
-        });
-      } else {
-        throw new Error(
-          "Attempted to navigateToCreateSeasonScreen when user was not on UserSeasons screen."
-        );
-      }
+      const screen = getCurrentScreen();
+      screen.newScreen(StateType.CreateSeason, {
+        user: screen.state.user,
+        seasonName: "My Awesome Season",
+        minGrade: "6",
+        maxGrade: "8",
+        schools: [],
+        newSchoolName: "",
+      });
     },
   };
 }

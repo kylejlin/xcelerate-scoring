@@ -251,52 +251,6 @@ export default class App extends React.Component<{}, AppState> {
     }
   }
 
-  newScreenOLD<NewState extends AppState>(
-    newScreen: Omit<NewState, "screenNumber">
-  ): ScreenUpdater<NewState> {
-    const callbacks: ScreenUpdaterCallback<NewState>[] = [];
-    let updatedState = Option.none<UpdatedState<NewState>>();
-    this.setState(prevState => {
-      const newScreenNumber = prevState.screenNumber + 1;
-      const newState = {
-        ...newScreen,
-        screenNumber: newScreenNumber,
-      } as NewState;
-      const updateScreen = (
-        newStateOrUpdater:
-          | Partial<NewState>
-          | ((prevState: NewState) => Partial<NewState>)
-      ) => {
-        if (this.state.screenNumber === newScreenNumber) {
-          this.setState(newStateOrUpdater as (
-            | AppState
-            | ((prevState: AppState) => AppState)));
-        }
-      };
-      updatedState = Option.some({
-        state: newState,
-        updateScreen,
-      });
-      callbacks.forEach(callback => {
-        callback(newState, updateScreen);
-      });
-      return newState;
-    });
-
-    return {
-      update(callback) {
-        updatedState.match({
-          none: () => {
-            callbacks.push(callback);
-          },
-          some: updatedState => {
-            callback(updatedState.state, updatedState.updateScreen);
-          },
-        });
-      },
-    };
-  }
-
   updateScreen<Kind extends AppState["kind"]>(
     kind: Kind,
     getNewScreen: (
@@ -378,6 +332,7 @@ export default class App extends React.Component<{}, AppState> {
         const screenHandle: ScreenHandle<T> = {
           state: newState,
           expiration,
+          hasExpired: () => this.state.screenNumber !== newScreenNumber,
           update: (
             state: Partial<Omit<StateOf<T>, "kind" | "screenNumber">>
           ) => {
@@ -399,6 +354,7 @@ export default class App extends React.Component<{}, AppState> {
     return {
       state: this.state as StateOf<T>,
       expiration: this.expiration,
+      hasExpired: () => this.state.screenNumber !== currentScreenNumber,
       newScreen: (kind, state) => {
         return this.newScreen(kind, state);
       },

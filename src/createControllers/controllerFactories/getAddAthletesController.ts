@@ -24,7 +24,7 @@ export default function getAddAthletesController(
     navigateToAthletesMenu,
   }: SharedControllerMethods
 ): AddAthletesController {
-  const correctPastedAthletesController = {
+  const addAthletesController = {
     navigateToSearchForSeasonScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
@@ -130,10 +130,14 @@ export default function getAddAthletesController(
         raceDivisions.expect(
           "Attempted to addAthletes before state.raceDivisions has loaded."
         )
-      ).then(correctPastedAthletesController.navigateToAthletesMenu);
+      ).then(() => {
+        if (!screen.hasExpired()) {
+          addAthletesController.navigateToAthletesMenu();
+        }
+      });
     },
   };
-  return correctPastedAthletesController;
+  return addAthletesController;
 }
 
 function swapFirstAndLastName(

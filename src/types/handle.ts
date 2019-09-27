@@ -14,6 +14,7 @@ export interface UnknownScreenHandle {
 export interface ScreenHandle<T extends AppState["kind"]> {
   state: StateOf<T>;
   expiration: Promise<void>;
+  hasExpired(): boolean;
   newScreen<T extends AppState["kind"]>(
     kind: T,
     state: Omit<StateOf<T>, "kind" | "screenNumber">

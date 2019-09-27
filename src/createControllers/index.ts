@@ -24,12 +24,24 @@ export default function createControllers(app: App): ControllerCollection {
 
   const searchForSeasonController = getSearchForSeasonController(app, shared);
   const signInController = getSignInController(app, shared);
-  const userSeasonsController = getUserSeasonsController(app, shared);
+  const userSeasonsController = getUserSeasonsController(
+    getScreenGuarantee(app),
+    shared
+  );
   const userProfileController = getUserProfileController(app, shared);
   const createSeasonController = getCreateSeasonController(app, shared);
-  const seasonMenuController = getSeasonMenuController(app, shared);
-  const athletesMenuController = getAthletesMenuController(app, shared);
-  const pasteAthletesController = getPasteAthletesController(app, shared);
+  const seasonMenuController = getSeasonMenuController(
+    getScreenGuarantee(app),
+    shared
+  );
+  const athletesMenuController = getAthletesMenuController(
+    getScreenGuarantee(app),
+    shared
+  );
+  const pasteAthletesController = getPasteAthletesController(
+    getScreenGuarantee(app),
+    shared
+  );
   const addAthletesController = getAddAthletesController(
     getScreenGuarantee(app),
     shared

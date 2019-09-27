@@ -1,23 +1,18 @@
-import App from "../../App";
-
 import {
   SharedControllerMethods,
   SeasonMenuController,
 } from "../../types/controllers";
 
-import {
-  StateType,
-  AssistantsMenuState,
-  SeasonMenuState,
-} from "../../types/states";
+import { StateType } from "../../types/states";
 import Option from "../../types/Option";
 
 import getSeasonOwnerAndAssistants from "../../firestore/getSeasonOwnerAndAssistants";
 
 import getUserSeasonPermissions from "../../firestore/getUserSeasonPermissions";
+import { ScreenGuarantee } from "../../types/handle";
 
 export default function getSeasonMenuController(
-  app: App,
+  { getCurrentScreen }: ScreenGuarantee<StateType.SeasonMenu>,
   {
     navigateToSearchForSeasonScreen,
     navigateToSignInScreen,
@@ -33,38 +28,38 @@ export default function getSeasonMenuController(
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
     navigateToAthletesMenu() {
-      const state = app.state as SeasonMenuState;
-      navigateToAthletesMenu(state.user, state.seasonSummary, Option.none());
+      const { user, seasonSummary } = getCurrentScreen().state;
+      navigateToAthletesMenu(user, seasonSummary, Option.none());
     },
     navigateToAssistantsMenu() {
-      const state = app.state as SeasonMenuState;
-      app
-        .newScreenOLD<AssistantsMenuState>({
-          kind: StateType.AssistantsMenu,
-
-          user: state.user,
+      const screen = getCurrentScreen();
+      const { user, seasonSummary } = screen.state;
+      screen
+        .newScreen(StateType.AssistantsMenu, {
+          user,
           doesUserHaveWriteAccess: false,
           isUserOwner: false,
-          seasonSummary: state.seasonSummary,
+          seasonSummary,
           owner: Option.none(),
           assistants: Option.none(),
           assistantQuery: "",
           queryResults: Option.none(),
           areQueryResultsLoading: false,
         })
-        .update((state, updateScreen) => {
-          getSeasonOwnerAndAssistants(state.seasonSummary.id).then(
+        .then(screen => {
+          const { seasonSummary, user } = screen.state;
+          getSeasonOwnerAndAssistants(seasonSummary.id).then(
             ([owner, assistants]) => {
-              updateScreen({
+              screen.update({
                 owner: Option.some(owner),
                 assistants: Option.some(assistants),
               });
             }
           );
-          state.user.ifSome(user => {
-            getUserSeasonPermissions(user, state.seasonSummary.id).then(
+          user.ifSome(user => {
+            getUserSeasonPermissions(user, seasonSummary.id).then(
               permissions => {
-                updateScreen({
+                screen.update({
                   isUserOwner: permissions.isOwner,
                   doesUserHaveWriteAccess: permissions.hasWriteAccess,
                 });
@@ -74,16 +69,11 @@ export default function getSeasonMenuController(
         });
     },
     navigateToSeasonMeetsScreen() {
-      if (app.state.kind === StateType.SeasonMenu) {
-        navigateToSeasonMeetsScreen({
-          user: app.state.user,
-          seasonSummary: app.state.seasonSummary,
-        });
-      } else {
-        throw new Error(
-          "Attempted to navigateToMeetsMenu when user was not on SeasonMenu screen."
-        );
-      }
+      const { user, seasonSummary } = getCurrentScreen().state;
+      navigateToSeasonMeetsScreen({
+        user,
+        seasonSummary,
+      });
     },
   };
 }

@@ -1,16 +1,9 @@
-import App from "../../App";
-
 import {
   SharedControllerMethods,
   AthletesMenuController,
 } from "../../types/controllers";
 
-import {
-  StateType,
-  PasteAthletesState,
-  AddAthletesState,
-  AthletesMenuState,
-} from "../../types/states";
+import { StateType } from "../../types/states";
 
 import getSeasonSchools from "../../firestore/getSeasonSchools";
 
@@ -34,9 +27,10 @@ import isAthleteDeletable from "../../firestore/isAthleteDeletable";
 import deleteAthlete from "../../firestore/deleteAthlete";
 import Option from "../../types/Option";
 import getSeasonRaceDivisions from "../../firestore/getSeasonRaceDivisions";
+import { ScreenGuarantee } from "../../types/handle";
 
 export default function getAthletesMenuController(
-  app: App,
+  { getCurrentScreen }: ScreenGuarantee<StateType.AthletesMenu>,
   {
     navigateToSearchForSeasonScreen,
     navigateToSignInScreen,
@@ -52,286 +46,213 @@ export default function getAthletesMenuController(
     navigateToUserProfileScreen,
     viewSeason,
     navigateToPasteAthletesScreen() {
-      if (app.state.kind === StateType.AthletesMenu) {
-        app.newScreenOLD<PasteAthletesState>({
-          kind: StateType.PasteAthletes,
-
-          user: app.state.user.expect(
+      const screen = getCurrentScreen();
+      screen
+        .newScreen(StateType.PasteAthletes, {
+          user: screen.state.user.expect(
             "Attempted to navigateToPasteAthletesScreen when user was not logged in."
           ),
-          seasonSummary: app.state.seasonSummary,
+          seasonSummary: screen.state.seasonSummary,
           spreadsheetData: "",
           schools: Option.none(),
           selectedSchool: Option.none(),
+        })
+        .then(screen => {
+          getSeasonSchools(screen.state.seasonSummary.id).then(schools => {
+            screen.update({ schools: Option.some(schools) });
+          });
         });
-
-        getSeasonSchools(app.state.seasonSummary.id).then(schools => {
-          if (app.state.kind === StateType.PasteAthletes) {
-            app.setState(prevState => ({
-              ...prevState,
-              schools: Option.some(schools),
-            }));
-          }
-        });
-      } else {
-        throw new Error(
-          "Attempted to navigateToPasteAthletesScreen when user was not on AthletesMenu."
-        );
-      }
     },
     navigateToManuallyAddAthletesScreen() {
-      const state = app.state as AthletesMenuState;
-      app
-        .newScreenOLD<AddAthletesState>({
-          kind: StateType.AddAthletes,
-          user: state.user.expect(
+      const screen = getCurrentScreen();
+      screen
+        .newScreen(StateType.AddAthletes, {
+          user: screen.state.user.expect(
             "Attempted to navigateToManuallyAddAthletesScreen when user was not logged in."
           ),
-          seasonSummary: state.seasonSummary,
+          seasonSummary: screen.state.seasonSummary,
           wereAthletesPasted: false,
           athletes: [],
           pendingAthleteEdit: Option.none(),
           raceDivisions: Option.none(),
           areAthletesBeingAdded: false,
         })
-        .update((state, updateScreen) => {
-          getSeasonRaceDivisions(state.seasonSummary.id).then(raceDivisions => {
-            updateScreen({ raceDivisions: Option.some(raceDivisions) });
-          });
+        .then(screen => {
+          getSeasonRaceDivisions(screen.state.seasonSummary.id).then(
+            raceDivisions => {
+              screen.update({ raceDivisions: Option.some(raceDivisions) });
+            }
+          );
         });
     },
     editFilterSchool(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.AthletesMenu) {
-        const { value } = event.target as HTMLInputElement;
-        const school: Option<string> =
-          value === "" ? Option.none() : Option.some(value);
-        app.setState({
-          ...app.state,
-          athleteFilter: { ...app.state.athleteFilter, school },
-        });
-      } else {
-        throw new Error(
-          "Attempted to editFilterSchool when user was not on AthletesMenu."
-        );
-      }
+      const screen = getCurrentScreen();
+      const { value } = event.target as HTMLInputElement;
+      const school: Option<string> =
+        value === "" ? Option.none() : Option.some(value);
+      screen.update({
+        athleteFilter: { ...screen.state.athleteFilter, school },
+      });
     },
     editFilterGrade(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.AthletesMenu) {
-        const { value } = event.target as HTMLInputElement;
-        const grade: Option<number> =
-          value === "" ? Option.none() : Option.some(parseInt(value, 10));
-        app.setState({
-          ...app.state,
-          athleteFilter: { ...app.state.athleteFilter, grade },
-        });
-      } else {
-        throw new Error(
-          "Attempted to editFilterGrade when user was not on AthletesMenu."
-        );
-      }
+      const screen = getCurrentScreen();
+      const { value } = event.target as HTMLInputElement;
+      const grade: Option<number> =
+        value === "" ? Option.none() : Option.some(parseInt(value, 10));
+      screen.update({
+        athleteFilter: { ...screen.state.athleteFilter, grade },
+      });
     },
     editFilterGender(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.AthletesMenu) {
-        const { value } = event.target as HTMLInputElement;
-        const gender: Option<Gender> =
-          value === "" ? Option.none() : Option.some(value as Gender);
-        app.setState({
-          ...app.state,
-          athleteFilter: { ...app.state.athleteFilter, gender },
-        });
-      } else {
-        throw new Error(
-          "Attempted to editFilterGender when user was not on AthletesMenu."
-        );
-      }
+      const screen = getCurrentScreen();
+      const { value } = event.target as HTMLInputElement;
+      const gender: Option<Gender> =
+        value === "" ? Option.none() : Option.some(value as Gender);
+      screen.update({
+        athleteFilter: { ...screen.state.athleteFilter, gender },
+      });
     },
     editSortPreference(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.AthletesMenu) {
-        const shouldSortByLastName =
-          (event.target as HTMLInputElement).value === "Last";
-        app.setState({ ...app.state, shouldSortByLastName });
-      } else {
-        throw new Error(
-          "Attempted to editSortPreference when user was not on AthleteMenu."
-        );
-      }
+      const screen = getCurrentScreen();
+      const shouldSortByLastName =
+        (event.target as HTMLInputElement).value === "Last";
+      screen.update({ shouldSortByLastName });
     },
     selectAthleteFieldToEditIfUserHasWriteAccess(
       athleteId: string,
       editedField: EditableAthleteField
     ) {
-      if (app.state.kind === StateType.AthletesMenu) {
-        if (app.state.doesUserHaveWriteAccess) {
-          const athletes = app.state.athletes.expect(
-            "Attempted to selectAthleteFieldToEdit when athletes have not yet loaded."
-          );
-          app.setState({
-            ...app.state,
-            pendingAthleteEdit: Option.some({
-              athleteId,
-              editedField,
-              fieldValue: getAthleteFieldValue(
-                athletes.find(athlete => athlete.id === athleteId)!,
-                editedField
-              ),
-            }),
-          });
-        }
-      } else {
-        throw new Error(
-          "Attempted to selectAthleteFieldToEdit when user was not on AthleteMenu."
+      const screen = getCurrentScreen();
+      if (screen.state.doesUserHaveWriteAccess) {
+        const athletes = screen.state.athletes.expect(
+          "Attempted to selectAthleteFieldToEdit when athletes have not yet loaded."
         );
+        screen.update({
+          pendingAthleteEdit: Option.some({
+            athleteId,
+            editedField,
+            fieldValue: getAthleteFieldValue(
+              athletes.find(athlete => athlete.id === athleteId)!,
+              editedField
+            ),
+          }),
+        });
       }
     },
     editSelectedAthleteField(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.AthletesMenu) {
-        const edit = app.state.pendingAthleteEdit.expect(
-          "Attempted to editSelectedAthleteField when user was not editing a field."
-        );
-        const fieldValue = (event.target as HTMLInputElement).value;
-        app.setState({
-          ...app.state,
-          pendingAthleteEdit: Option.some({ ...edit, fieldValue }),
-        });
-      } else {
-        throw new Error(
-          "Attempted to editSelectedAthleteField when user was not on AthleteMenu."
-        );
-      }
+      const screen = getCurrentScreen();
+      const edit = screen.state.pendingAthleteEdit.expect(
+        "Attempted to editSelectedAthleteField when user was not editing a field."
+      );
+      const fieldValue = (event.target as HTMLInputElement).value;
+      screen.update({
+        pendingAthleteEdit: Option.some({ ...edit, fieldValue }),
+      });
     },
     syncAndUnfocusEditedAthleteField() {
-      if (app.state.kind === StateType.AthletesMenu) {
-        const athletes = app.state.athletes.expect(
-          "Attempted to syncAndUnfocusEditedAthleteField when athletes have not yet loaded."
-        );
-        const pendingEdit = app.state.pendingAthleteEdit.expect(
-          "Attempted to syncAndUnfocusEditedAthleteField when user was not editing a field."
-        );
-        const editedAthlete = athletes.find(
-          athlete => athlete.id === pendingEdit.athleteId
-        )!;
-        const updatedAthletes = updateAthletesIfPendingEditIsValid(
-          athletes,
-          pendingEdit
-        );
-        const updatedAthlete = updatedAthletes.find(
-          athlete => athlete.id === pendingEdit.athleteId
-        )!;
-        const shouldSyncWithFirestore = !areAthletesEqual(
-          editedAthlete,
-          updatedAthlete
-        );
-        app.setState({
-          ...app.state,
-          athletes: Option.some(updatedAthletes),
-          pendingAthleteEdit: Option.none() as Option<PendingAthleteEdit>,
-          pendingEditsBeingSyncedWithFirestore: app.state.pendingEditsBeingSyncedWithFirestore.concat(
-            shouldSyncWithFirestore ? [pendingEdit] : []
-          ),
-        });
+      const screen = getCurrentScreen();
 
-        if (shouldSyncWithFirestore) {
-          const teams = app.state.raceDivisions.expect(
-            "Attempted to syncAndUnfocusEditedAthleteField when teams recipe has not yet loaded."
-          );
-          updateAthletes(
-            app.state.seasonSummary.id,
-            [
-              updatedAthletes.find(
-                athlete => athlete.id === pendingEdit.athleteId
-              )!,
-            ],
-            teams
-          ).then(() => {
-            if (app.state.kind === StateType.AthletesMenu) {
-              app.setState({
-                ...app.state,
-                pendingEditsBeingSyncedWithFirestore: app.state.pendingEditsBeingSyncedWithFirestore.filter(
-                  edit => edit !== pendingEdit
-                ),
-              });
-            }
-          });
-        }
-      } else {
-        throw new Error(
-          "Attempted to syncAndUnfocusEditedAthleteField when user was not on AthleteMenu."
+      const athletes = screen.state.athletes.expect(
+        "Attempted to syncAndUnfocusEditedAthleteField when athletes have not yet loaded."
+      );
+      const pendingEdit = screen.state.pendingAthleteEdit.expect(
+        "Attempted to syncAndUnfocusEditedAthleteField when user was not editing a field."
+      );
+      const editedAthlete = athletes.find(
+        athlete => athlete.id === pendingEdit.athleteId
+      )!;
+      const updatedAthletes = updateAthletesIfPendingEditIsValid(
+        athletes,
+        pendingEdit
+      );
+      const updatedAthlete = updatedAthletes.find(
+        athlete => athlete.id === pendingEdit.athleteId
+      )!;
+      const shouldSyncWithFirestore = !areAthletesEqual(
+        editedAthlete,
+        updatedAthlete
+      );
+      screen.update({
+        athletes: Option.some(updatedAthletes),
+        pendingAthleteEdit: Option.none() as Option<PendingAthleteEdit>,
+        pendingEditsBeingSyncedWithFirestore: screen.state.pendingEditsBeingSyncedWithFirestore.concat(
+          shouldSyncWithFirestore ? [pendingEdit] : []
+        ),
+      });
+
+      if (shouldSyncWithFirestore) {
+        const teams = screen.state.raceDivisions.expect(
+          "Attempted to syncAndUnfocusEditedAthleteField when teams recipe has not yet loaded."
         );
+        updateAthletes(
+          screen.state.seasonSummary.id,
+          [
+            updatedAthletes.find(
+              athlete => athlete.id === pendingEdit.athleteId
+            )!,
+          ],
+          teams
+        ).then(() => {
+          screen.update({
+            pendingEditsBeingSyncedWithFirestore: screen.state.pendingEditsBeingSyncedWithFirestore.filter(
+              edit => edit !== pendingEdit
+            ),
+          });
+        });
       }
     },
     considerAthleteForDeletion(athlete: Athlete) {
-      app
-        .updateScreen(StateType.AthletesMenu, state => state)
-        .update((state, updateScreen) => {
-          isAthleteDeletable(state.seasonSummary.id, athlete).then(
-            isDeletable => {
-              updateScreen({
-                consideredAthleteDeletion: Option.some({
-                  athlete,
-                  isDeletable,
-                }),
-              });
-            }
-          );
-        });
+      const screen = getCurrentScreen();
+      isAthleteDeletable(screen.state.seasonSummary.id, athlete).then(
+        isDeletable => {
+          screen.update({
+            consideredAthleteDeletion: Option.some({
+              athlete,
+              isDeletable,
+            }),
+          });
+        }
+      );
     },
     confirmAthleteDeletion() {
-      if (app.state.kind === StateType.AthletesMenu) {
-        const seasonId = app.state.seasonSummary.id;
-        const deletedAthlete = app.state.consideredAthleteDeletion.expect(
-          "Attempted to confirmAthleteDeletion when user was not considering an athlete for deletion."
-        ).athlete;
-        const pendingDeletion = { athleteId: deletedAthlete.id };
-        const athletes = app.state.athletes.expect(
-          "Attempted to confirmAthleteDeletion when athletes have not yet loaded."
-        );
-        app.setState({
-          ...app.state,
-          pendingEditsBeingSyncedWithFirestore: app.state.pendingEditsBeingSyncedWithFirestore.concat(
-            [pendingDeletion]
+      const screen = getCurrentScreen();
+
+      const seasonId = screen.state.seasonSummary.id;
+      const deletedAthlete = screen.state.consideredAthleteDeletion.expect(
+        "Attempted to confirmAthleteDeletion when user was not considering an athlete for deletion."
+      ).athlete;
+      const pendingDeletion = { athleteId: deletedAthlete.id };
+      const athletes = screen.state.athletes.expect(
+        "Attempted to confirmAthleteDeletion when athletes have not yet loaded."
+      );
+      screen.update({
+        pendingEditsBeingSyncedWithFirestore: screen.state.pendingEditsBeingSyncedWithFirestore.concat(
+          [pendingDeletion]
+        ),
+        athletes: Option.some(
+          athletes.filter(athlete => athlete.id !== deletedAthlete.id)
+        ),
+        consideredAthleteDeletion: Option.none(),
+      });
+      deleteAthlete(seasonId, deletedAthlete).then(() => {
+        screen.update({
+          pendingEditsBeingSyncedWithFirestore: screen.state.pendingEditsBeingSyncedWithFirestore.filter(
+            change => change !== pendingDeletion
           ),
-          athletes: Option.some(
-            athletes.filter(athlete => athlete.id !== deletedAthlete.id)
-          ),
-          consideredAthleteDeletion: Option.none(),
         });
-        deleteAthlete(seasonId, deletedAthlete).then(() => {
-          if (app.state.kind === StateType.AthletesMenu) {
-            app.setState({
-              ...app.state,
-              pendingEditsBeingSyncedWithFirestore: app.state.pendingEditsBeingSyncedWithFirestore.filter(
-                change => change !== pendingDeletion
-              ),
-            });
-          }
-        });
-      } else {
-        throw new Error(
-          "Attempted to confirmAthleteDeletion when user was not on AthleteMenu."
-        );
-      }
+      });
     },
     cancelAthleteDeletion() {
-      if (app.state.kind === StateType.AthletesMenu) {
-        app.setState({
-          ...app.state,
-          consideredAthleteDeletion: Option.none(),
-        });
-      } else {
-        throw new Error(
-          "Attempted to cancelAthleteDeletion when user was not on AthleteMenu."
-        );
-      }
+      const screen = getCurrentScreen();
+      screen.update({ consideredAthleteDeletion: Option.none() });
     },
     showSpreadsheetData() {
-      app.updateScreen(StateType.AthletesMenu, () => ({
-        isSpreadsheetDataShown: true,
-      }));
+      const screen = getCurrentScreen();
+      screen.update({ isSpreadsheetDataShown: true });
     },
     hideSpreadsheetData() {
-      app.updateScreen(StateType.AthletesMenu, () => ({
-        isSpreadsheetDataShown: false,
-      }));
+      const screen = getCurrentScreen();
+      screen.update({ isSpreadsheetDataShown: false });
     },
   };
 }
