@@ -41,16 +41,16 @@ export default class StatePopper {
         this.loadSearchForSeasonScreen();
         break;
       case StateType.SignIn:
-        this.loadSignInScreen();
+        this.loadUserSeasonsScreenFallingBackToSignIn();
         break;
       case StateType.UserSeasons:
-        this.loadUserSeasonsScreen();
+        this.loadUserSeasonsScreenFallingBackToSignIn();
         break;
       case StateType.UserProfile:
-        this.loadUserProfileScreen();
+        this.loadUserProfileScreenFallingBackToSignIn();
         break;
       case StateType.CreateSeason:
-        this.loadCreateSeasonScreen();
+        this.loadCreateSeasonScreenFallingBackToSignIn();
         break;
       case StateType.SeasonMenu:
         this.loadSeasonMenu(state);
@@ -59,10 +59,10 @@ export default class StatePopper {
         this.loadAthletesMenu(state);
         break;
       case StateType.PasteAthletes:
-        this.loadPasteAthletesScreen(state);
+        this.loadPasteAthletesScreenFallingBackToSignIn(state);
         break;
       case StateType.AddAthletes:
-        this.loadAddAthletesScreen(state);
+        this.loadAddAthletesScreenFallingBackToSignIn(state);
         break;
       case StateType.AssistantsMenu:
         this.loadAssistantsMenu(state);
@@ -71,7 +71,7 @@ export default class StatePopper {
         this.loadSeasonMeetsScreen(state);
         break;
       case StateType.EditMeet:
-        this.loadEditMeetScreen(state);
+        this.loadEditMeetScreenFallingBackToSignIn(state);
         break;
       case StateType.ViewMeet:
         this.loadViewMeetScreen(state);
@@ -92,14 +92,20 @@ export default class StatePopper {
     return this.app.getUser();
   }
 
-  private loadSignInScreen() {
-    this.app.replaceScreen(StateType.SignIn, {});
+  private loadUserSeasonsScreenFallingBackToSignIn() {
+    this.getUserOrLoadSignInScreen(this.loadUserSeasonsScreen);
   }
 
-  private loadUserSeasonsScreen() {
-    const user = this.getUser().expect(
-      "Attempted to loadUserSeasonsScreen when user was not signed in."
-    );
+  private getUserOrLoadSignInScreen(callback: (user: firebase.User) => void) {
+    this.getUser().match({
+      none: () => {
+        this.app.replaceScreen(StateType.SignIn, {});
+      },
+      some: callback,
+    });
+  }
+
+  private loadUserSeasonsScreen(user: firebase.User) {
     this.app
       .replaceScreen(StateType.UserSeasons, {
         user,
@@ -112,12 +118,14 @@ export default class StatePopper {
       });
   }
 
-  private loadUserProfileScreen() {
+  private loadUserProfileScreenFallingBackToSignIn() {
+    this.getUserOrLoadSignInScreen(this.loadUserProfileScreen);
+  }
+
+  private loadUserProfileScreen(user: firebase.User) {
     this.app
       .replaceScreen(StateType.UserProfile, {
-        user: this.getUser().expect(
-          "Attempted to loadUserProfileScreen when user was not signed in."
-        ),
+        user,
         fullName: Option.none(),
       })
       .then(screen => {
@@ -127,11 +135,13 @@ export default class StatePopper {
       });
   }
 
-  private loadCreateSeasonScreen() {
+  private loadCreateSeasonScreenFallingBackToSignIn() {
+    this.getUserOrLoadSignInScreen(this.loadCreateSeasonScreen);
+  }
+
+  private loadCreateSeasonScreen(user: firebase.User) {
     this.app.replaceScreen(StateType.CreateSeason, {
-      user: this.getUser().expect(
-        "Attempted to loadCreateSeasonScreen when user was not signed in."
-      ),
+      user,
       seasonName: "My Awesome Season",
       minGrade: "6",
       maxGrade: "8",
@@ -195,12 +205,21 @@ export default class StatePopper {
       });
   }
 
-  private loadPasteAthletesScreen(state: PasteAthletesCachedState) {
+  private loadPasteAthletesScreenFallingBackToSignIn(
+    state: PasteAthletesCachedState
+  ) {
+    this.getUserOrLoadSignInScreen(user => {
+      this.loadPasteAthletesScreen(state, user);
+    });
+  }
+
+  private loadPasteAthletesScreen(
+    state: PasteAthletesCachedState,
+    user: firebase.User
+  ) {
     this.app
       .replaceScreen(StateType.PasteAthletes, {
-        user: this.getUser().expect(
-          "Attempted to navigateToPasteAthletesScreen when user was not logged in."
-        ),
+        user,
         seasonSummary: state.seasonSummary,
         spreadsheetData: "",
         schools: Option.none(),
@@ -213,12 +232,21 @@ export default class StatePopper {
       });
   }
 
-  private loadAddAthletesScreen(state: AddAthletesCachedState) {
+  private loadAddAthletesScreenFallingBackToSignIn(
+    state: AddAthletesCachedState
+  ) {
+    this.getUserOrLoadSignInScreen(user => {
+      this.loadAddAthletesScreen(state, user);
+    });
+  }
+
+  private loadAddAthletesScreen(
+    state: AddAthletesCachedState,
+    user: firebase.User
+  ) {
     this.app
       .replaceScreen(StateType.AddAthletes, {
-        user: this.getUser().expect(
-          "Attempted to loadAddAthletesScreen when user was not logged in."
-        ),
+        user,
         seasonSummary: state.seasonSummary,
         wereAthletesPasted: state.wereAthletesPasted,
         athletes: [],
@@ -301,10 +329,13 @@ export default class StatePopper {
       });
   }
 
-  private loadEditMeetScreen(state: EditMeetCachedState) {
-    const user = this.getUser().expect(
-      "Attempted to loadEditMeetScreen when user was not on SeasonMeets screen."
-    );
+  private loadEditMeetScreenFallingBackToSignIn(state: EditMeetCachedState) {
+    this.getUserOrLoadSignInScreen(user => {
+      this.loadEditMeetScreen(state, user);
+    });
+  }
+
+  private loadEditMeetScreen(state: EditMeetCachedState, user: firebase.User) {
     const { seasonSummary, meetSummary } = state;
     this.app
       .replaceScreen(StateType.EditMeet, {
