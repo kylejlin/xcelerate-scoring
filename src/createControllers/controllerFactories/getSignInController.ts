@@ -14,7 +14,7 @@ export default function getSignInController(
 ): SignInController {
   return {
     signInWithGoogle() {
-      app.setState({ kind: StateType.WaitForSignInCompletion });
+      app.setState({ kind: StateType.Loading });
       localStorage.setItem(LocalStorageKeys.IsWaitingForSignIn, "true");
       const provider = new firebase.auth.GoogleAuthProvider();
       firebase.auth().signInWithRedirect(provider);

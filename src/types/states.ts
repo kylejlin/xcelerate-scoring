@@ -21,7 +21,7 @@ import { RaceDivision, RaceDivisionsRecipe, RaceAction } from "./race";
 export enum StateType {
   SearchForSeason,
   SignIn,
-  WaitForSignInCompletion,
+  Loading,
   UserProfile,
   UserSeasons,
   CreateSeason,
@@ -38,7 +38,7 @@ export enum StateType {
 export type AppState =
   | SearchForSeasonState
   | SignInState
-  | WaitForSignInCompletionState
+  | LoadingState
   | UserProfileState
   | UserSeasonsState
   | CreateSeasonState
@@ -71,9 +71,11 @@ export interface SignInState {
   screenNumber: number;
 }
 
-export interface WaitForSignInCompletionState {
-  kind: StateType.WaitForSignInCompletion;
+export interface LoadingState {
+  kind: StateType.Loading;
   screenNumber: number;
+
+  isWaitingForSignInCompletion: boolean;
 }
 
 export interface UserProfileState {

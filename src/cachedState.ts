@@ -26,7 +26,7 @@ export interface SignInCachedState {
 }
 
 export interface WaitForSignInCompletionCachedState {
-  kind: StateType.WaitForSignInCompletion;
+  kind: StateType.Loading;
 }
 
 export interface UserProfileCachedState {

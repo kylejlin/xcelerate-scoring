@@ -14,7 +14,7 @@ import LocalStorageKeys from "./types/LocalStorageKeys";
 
 import SearchForSeason from "./components/SearchForSeason";
 import SignIn from "./components/SignIn";
-import WaitForSignInCompletion from "./components/WaitForSignInCompletion";
+import Loading from "./components/Loading";
 import UserSeasons from "./components/UserSeasons";
 import UserProfile from "./components/UserProfile";
 import CreateSeason from "./components/CreateSeason";
@@ -55,18 +55,13 @@ export default class App extends React.Component<{}, AppState> {
     // @ts-ignore
     window.fb = firebase;
 
-    if (localStorage.getItem(LocalStorageKeys.IsWaitingForSignIn) === "true") {
-      this.state = { kind: StateType.WaitForSignInCompletion, screenNumber: 0 };
-    } else {
-      this.state = {
-        kind: StateType.SearchForSeason,
-        screenNumber: 0,
-        user: Option.none(),
-        query: "",
-        isLoading: false,
-        seasons: Option.none(),
-      };
-    }
+    const isWaitingForSignInCompletion =
+      localStorage.getItem(LocalStorageKeys.IsWaitingForSignIn) === "true";
+    this.state = {
+      kind: StateType.Loading,
+      screenNumber: 0,
+      isWaitingForSignInCompletion,
+    };
 
     this.bindMethods();
 
@@ -143,8 +138,8 @@ export default class App extends React.Component<{}, AppState> {
             controller={this.controllers.signInController}
           />
         );
-      case StateType.WaitForSignInCompletion:
-        return <WaitForSignInCompletion />;
+      case StateType.Loading:
+        return <Loading state={this.state} />;
       case StateType.UserSeasons:
         return (
           <UserSeasons
@@ -231,7 +226,7 @@ export default class App extends React.Component<{}, AppState> {
         return this.state.user;
       case StateType.SignIn:
         return Option.none();
-      case StateType.WaitForSignInCompletion:
+      case StateType.Loading:
         return Option.none();
       case StateType.UserSeasons:
         return Option.some(this.state.user);
@@ -389,7 +384,7 @@ export default class App extends React.Component<{}, AppState> {
       case StateType.SignIn:
         window.history.pushState({ kind: StateType.SignIn }, "", "/sign-in");
         break;
-      case StateType.WaitForSignInCompletion:
+      case StateType.Loading:
         break;
       case StateType.UserSeasons:
         window.history.pushState(
@@ -549,7 +544,7 @@ export default class App extends React.Component<{}, AppState> {
       case StateType.SignIn:
         window.history.replaceState({ kind: StateType.SignIn }, "", "/sign-in");
         break;
-      case StateType.WaitForSignInCompletion:
+      case StateType.Loading:
         break;
       case StateType.UserSeasons:
         window.history.replaceState(
