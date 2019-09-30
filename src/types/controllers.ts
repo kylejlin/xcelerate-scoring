@@ -10,6 +10,8 @@ import {
 import Option from "./Option";
 
 export interface ControllerCollection {
+  shared: SharedControllerMethods;
+
   searchForSeasonController: SearchForSeasonController;
   signInController: SignInController;
   userSeasonsController: UserSeasonsController;

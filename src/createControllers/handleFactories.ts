@@ -9,11 +9,11 @@ import Option from "../types/Option";
 
 export function getUnknownScreenHandle(app: App): UnknownScreenHandle {
   return {
-    newScreen<T extends AppState["kind"]>(
+    pushScreen<T extends AppState["kind"]>(
       kind: T,
       state: Omit<StateOf<T>, "kind" | "screenNumber">
     ): Promise<ScreenHandle<T>> {
-      return app.newScreen(kind, state);
+      return app.pushScreen(kind, state);
     },
     getUser(): Option<firebase.User> {
       return app.getUser();

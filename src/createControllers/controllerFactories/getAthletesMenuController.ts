@@ -48,7 +48,7 @@ export default function getAthletesMenuController(
     navigateToPasteAthletesScreen() {
       const screen = getCurrentScreen();
       screen
-        .newScreen(StateType.PasteAthletes, {
+        .pushScreen(StateType.PasteAthletes, {
           user: screen.state.user.expect(
             "Attempted to navigateToPasteAthletesScreen when user was not logged in."
           ),
@@ -66,7 +66,7 @@ export default function getAthletesMenuController(
     navigateToManuallyAddAthletesScreen() {
       const screen = getCurrentScreen();
       screen
-        .newScreen(StateType.AddAthletes, {
+        .pushScreen(StateType.AddAthletes, {
           user: screen.state.user.expect(
             "Attempted to navigateToManuallyAddAthletesScreen when user was not logged in."
           ),

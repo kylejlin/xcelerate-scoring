@@ -30,7 +30,7 @@ export default function getSeasonsMeetsController(
     viewMeet(meetSummary: MeetSummary) {
       const screen = getCurrentScreen();
       screen
-        .newScreen(StateType.ViewMeet, {
+        .pushScreen(StateType.ViewMeet, {
           user: screen.state.user,
           seasonSummary: screen.state.seasonSummary,
           meetSummary,
@@ -81,7 +81,7 @@ export default function getSeasonsMeetsController(
     editMeet(meetSummary: MeetSummary) {
       const screen = getCurrentScreen();
       screen
-        .newScreen(StateType.EditMeet, {
+        .pushScreen(StateType.EditMeet, {
           user: screen.state.user.expect(
             "Attempted to editMeet when user was not on SeasonMeets screen."
           ),

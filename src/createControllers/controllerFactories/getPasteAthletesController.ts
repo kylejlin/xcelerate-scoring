@@ -54,7 +54,7 @@ export default function getPasteAthletesController(
         selectedSchool,
       } = screen.state;
       screen
-        .newScreen(StateType.AddAthletes, {
+        .pushScreen(StateType.AddAthletes, {
           user: user,
           seasonSummary: seasonSummary,
           wereAthletesPasted: true,

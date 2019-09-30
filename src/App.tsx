@@ -27,11 +27,25 @@ import SeasonMeets from "./components/SeasonMeets";
 import EditMeet from "./components/EditMeet";
 import ViewMeet from "./components/ViewMeet";
 import { ScreenHandle } from "./types/handle";
+import StatePopper from "./StatePopper";
+import {
+  CachedState,
+  SeasonMenuCachedState,
+  CreateSeasonCachedState,
+  AthletesMenuCachedState,
+  PasteAthletesCachedState,
+  AddAthletesCachedState,
+  AssistantsMenuCachedState,
+  SeasonMeetsCachedState,
+  EditMeetCachedState,
+  ViewMeetCachedState,
+} from "./cachedState";
 
 export default class App extends React.Component<{}, AppState> {
   private controllers: ControllerCollection;
   private screenExpirationListener: () => void;
   private expiration: Promise<void>;
+  private statePopper: StatePopper;
 
   constructor(props: {}) {
     super(props);
@@ -57,6 +71,7 @@ export default class App extends React.Component<{}, AppState> {
     this.bindMethods();
 
     this.controllers = createControllers(this);
+    this.statePopper = new StatePopper(this);
 
     this.screenExpirationListener = function noOp() {};
     this.expiration = new Promise(resolve => {
@@ -65,59 +80,51 @@ export default class App extends React.Component<{}, AppState> {
   }
 
   private bindMethods() {
-    this.newScreen = this.newScreen.bind(this);
+    this.pushScreen = this.pushScreen.bind(this);
     this.unsafeGetScreenHandle = this.unsafeGetScreenHandle.bind(this);
+    this.onPopState = this.onPopState.bind(this);
   }
 
   componentDidMount() {
+    window.addEventListener("popstate", this.onPopState);
+
     firebase.auth().onAuthStateChanged(user => {
       localStorage.setItem(LocalStorageKeys.IsWaitingForSignIn, "false");
       if (user) {
         doesUserAccountExist(user).then(doesExist => {
           if (doesExist) {
-            this.setState(prevState => {
-              const newScreenNumber = prevState.screenNumber + 1;
+            this.replaceScreen(StateType.UserSeasons, {
+              user,
+              seasons: Option.none(),
+            }).then(screen => {
               getUserSeasons(user).then(seasonSummaries => {
-                if (this.state.screenNumber === newScreenNumber) {
-                  this.setState({
-                    ...this.state,
-                    seasons: Option.some(seasonSummaries),
-                  });
-                }
+                screen.update({ seasons: Option.some(seasonSummaries) });
               });
-              return {
-                kind: StateType.UserSeasons,
-                screenNumber: newScreenNumber,
-                user,
-                seasons: Option.none(),
-              };
             });
           } else {
-            this.setState(prevState => {
-              const newScreeNumber = prevState.screenNumber + 1;
-              return {
-                kind: StateType.UserProfile,
-                screenNumber: newScreeNumber,
-                user,
-                fullName: Option.some(guessFullName(user.displayName || "")),
-              };
+            this.replaceScreen(StateType.UserProfile, {
+              user,
+              fullName: Option.some(guessFullName(user.displayName || "")),
             });
           }
         });
       } else {
-        this.setState(prevState => {
-          const newScreenNumber = prevState.screenNumber + 1;
-          return {
-            kind: StateType.SearchForSeason,
-            screenNumber: newScreenNumber,
-            user: Option.none(),
-            query: "",
-            isLoading: false,
-            seasons: Option.none(),
-          };
+        this.replaceScreen(StateType.SearchForSeason, {
+          user: Option.none(),
+          query: "",
+          isLoading: false,
+          seasons: Option.none(),
         });
       }
     });
+  }
+
+  onPopState(event: PopStateEvent) {
+    this.statePopper.revertTo(event.state as CachedState);
+  }
+
+  componentWillUnmount() {
+    window.removeEventListener("popstate", this.onPopState);
   }
 
   render() {
@@ -313,9 +320,24 @@ export default class App extends React.Component<{}, AppState> {
     };
   }
 
-  newScreen<T extends AppState["kind"]>(
+  pushScreen<T extends AppState["kind"]>(
     kind: T,
     state: Omit<StateOf<T>, "kind" | "screenNumber">
+  ): Promise<ScreenHandle<T>> {
+    return this.newScreen(kind, state, true);
+  }
+
+  replaceScreen<T extends AppState["kind"]>(
+    kind: T,
+    state: Omit<StateOf<T>, "kind" | "screenNumber">
+  ): Promise<ScreenHandle<T>> {
+    return this.newScreen(kind, state, false);
+  }
+
+  private newScreen<T extends AppState["kind"]>(
+    kind: T,
+    state: Omit<StateOf<T>, "kind" | "screenNumber">,
+    shouldPushHistory: boolean
   ): Promise<ScreenHandle<T>> {
     this.screenExpirationListener();
     return new Promise<ScreenHandle<T>>(resolve => {
@@ -326,6 +348,13 @@ export default class App extends React.Component<{}, AppState> {
           screenNumber: newScreenNumber,
           ...state,
         } as StateOf<T>;
+
+        if (shouldPushHistory) {
+          this.pushHistory(newState);
+        } else {
+          this.replaceHistory(newState);
+        }
+
         const expiration = new Promise<void>(resolve => {
           this.screenExpirationListener = resolve;
         });
@@ -340,12 +369,332 @@ export default class App extends React.Component<{}, AppState> {
               this.setState(prevState => ({ ...prevState, ...state }));
             }
           },
-          newScreen: this.newScreen,
+          pushScreen: this.pushScreen,
         };
         resolve(screenHandle);
         return newState;
       });
     });
+  }
+
+  private pushHistory(newState: AppState) {
+    switch (newState.kind) {
+      case StateType.SearchForSeason:
+        window.history.pushState(
+          { kind: StateType.SearchForSeason },
+          "",
+          "/search-for-season"
+        );
+        break;
+      case StateType.SignIn:
+        window.history.pushState({ kind: StateType.SignIn }, "", "/sign-in");
+        break;
+      case StateType.WaitForSignInCompletion:
+        break;
+      case StateType.UserSeasons:
+        window.history.pushState(
+          { kind: StateType.UserSeasons },
+          "",
+          "/my-seasons"
+        );
+        break;
+      case StateType.UserProfile:
+        window.history.pushState(
+          { kind: StateType.UserProfile },
+          "",
+          "/my-profile"
+        );
+        break;
+      case StateType.CreateSeason: {
+        const {
+          seasonName,
+          minGrade,
+          maxGrade,
+          schools,
+          newSchoolName,
+        } = newState;
+        const cachedState: CreateSeasonCachedState = {
+          kind: StateType.CreateSeason,
+          seasonName,
+          minGrade,
+          maxGrade,
+          schools,
+          newSchoolName,
+        };
+        window.history.pushState(cachedState, "", "/create-season");
+        break;
+      }
+      case StateType.SeasonMenu: {
+        const { seasonSummary } = newState;
+        const cachedState: SeasonMenuCachedState = {
+          kind: StateType.SeasonMenu,
+          seasonSummary,
+        };
+        window.history.pushState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}`
+        );
+        break;
+      }
+
+      case StateType.AthletesMenu: {
+        const { seasonSummary } = newState;
+        const cachedState: AthletesMenuCachedState = {
+          kind: StateType.AthletesMenu,
+          seasonSummary,
+        };
+        window.history.pushState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/athletes`
+        );
+        break;
+      }
+      case StateType.PasteAthletes: {
+        const { seasonSummary, spreadsheetData } = newState;
+        const cachedState: PasteAthletesCachedState = {
+          kind: StateType.PasteAthletes,
+          seasonSummary,
+          spreadsheetData,
+        };
+        window.history.pushState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/paste-athletes`
+        );
+        break;
+      }
+      case StateType.AddAthletes: {
+        const { seasonSummary, wereAthletesPasted } = newState;
+        const cachedState: AddAthletesCachedState = {
+          kind: StateType.AddAthletes,
+          seasonSummary,
+          wereAthletesPasted,
+        };
+        window.history.pushState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/add-athletes`
+        );
+        break;
+      }
+      case StateType.AssistantsMenu: {
+        const { seasonSummary } = newState;
+        const cachedState: AssistantsMenuCachedState = {
+          kind: StateType.AssistantsMenu,
+          seasonSummary,
+        };
+        window.history.pushState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/assistants`
+        );
+        break;
+      }
+      case StateType.SeasonMeets: {
+        const { seasonSummary, pendingMeetName } = newState;
+        const cachedState: SeasonMeetsCachedState = {
+          kind: StateType.SeasonMeets,
+          seasonSummary,
+          pendingMeetName,
+        };
+        window.history.pushState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/meets`
+        );
+        break;
+      }
+      case StateType.EditMeet: {
+        const { seasonSummary, meetSummary } = newState;
+        const cachedState: EditMeetCachedState = {
+          kind: StateType.EditMeet,
+          seasonSummary,
+          meetSummary,
+        };
+        window.history.pushState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/meets/${newState.meetSummary.id}/edit`
+        );
+        break;
+      }
+      case StateType.ViewMeet: {
+        const { seasonSummary, meetSummary } = newState;
+        const cachedState: ViewMeetCachedState = {
+          kind: StateType.ViewMeet,
+          seasonSummary,
+          meetSummary,
+        };
+        window.history.pushState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/meets/${newState.meetSummary.id}/view`
+        );
+        break;
+      }
+    }
+  }
+
+  private replaceHistory(newState: AppState) {
+    switch (newState.kind) {
+      case StateType.SearchForSeason:
+        window.history.replaceState(
+          { kind: StateType.SearchForSeason },
+          "",
+          "/search-for-season"
+        );
+        break;
+      case StateType.SignIn:
+        window.history.replaceState({ kind: StateType.SignIn }, "", "/sign-in");
+        break;
+      case StateType.WaitForSignInCompletion:
+        break;
+      case StateType.UserSeasons:
+        window.history.replaceState(
+          { kind: StateType.UserSeasons },
+          "",
+          "/my-seasons"
+        );
+        break;
+      case StateType.UserProfile:
+        window.history.replaceState(
+          { kind: StateType.UserProfile },
+          "",
+          "/my-profile"
+        );
+        break;
+      case StateType.CreateSeason: {
+        const {
+          seasonName,
+          minGrade,
+          maxGrade,
+          schools,
+          newSchoolName,
+        } = newState;
+        const cachedState: CreateSeasonCachedState = {
+          kind: StateType.CreateSeason,
+          seasonName,
+          minGrade,
+          maxGrade,
+          schools,
+          newSchoolName,
+        };
+        window.history.replaceState(cachedState, "", "/create-season");
+        break;
+      }
+      case StateType.SeasonMenu: {
+        const { seasonSummary } = newState;
+        const cachedState: SeasonMenuCachedState = {
+          kind: StateType.SeasonMenu,
+          seasonSummary,
+        };
+        window.history.replaceState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}`
+        );
+        break;
+      }
+
+      case StateType.AthletesMenu: {
+        const { seasonSummary } = newState;
+        const cachedState: AthletesMenuCachedState = {
+          kind: StateType.AthletesMenu,
+          seasonSummary,
+        };
+        window.history.replaceState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/athletes`
+        );
+        break;
+      }
+      case StateType.PasteAthletes: {
+        const { seasonSummary, spreadsheetData } = newState;
+        const cachedState: PasteAthletesCachedState = {
+          kind: StateType.PasteAthletes,
+          seasonSummary,
+          spreadsheetData,
+        };
+        window.history.replaceState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/paste-athletes`
+        );
+        break;
+      }
+      case StateType.AddAthletes: {
+        const { seasonSummary, wereAthletesPasted } = newState;
+        const cachedState: AddAthletesCachedState = {
+          kind: StateType.AddAthletes,
+          seasonSummary,
+          wereAthletesPasted,
+        };
+        window.history.replaceState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/add-athletes`
+        );
+        break;
+      }
+      case StateType.AssistantsMenu: {
+        const { seasonSummary } = newState;
+        const cachedState: AssistantsMenuCachedState = {
+          kind: StateType.AssistantsMenu,
+          seasonSummary,
+        };
+        window.history.replaceState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/assistants`
+        );
+        break;
+      }
+      case StateType.SeasonMeets: {
+        const { seasonSummary, pendingMeetName } = newState;
+        const cachedState: SeasonMeetsCachedState = {
+          kind: StateType.SeasonMeets,
+          seasonSummary,
+          pendingMeetName,
+        };
+        window.history.replaceState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/meets`
+        );
+        break;
+      }
+      case StateType.EditMeet: {
+        const { seasonSummary, meetSummary } = newState;
+        const cachedState: EditMeetCachedState = {
+          kind: StateType.EditMeet,
+          seasonSummary,
+          meetSummary,
+        };
+        window.history.replaceState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/meets/${newState.meetSummary.id}/edit`
+        );
+        break;
+      }
+      case StateType.ViewMeet: {
+        const { seasonSummary, meetSummary } = newState;
+        const cachedState: ViewMeetCachedState = {
+          kind: StateType.ViewMeet,
+          seasonSummary,
+          meetSummary,
+        };
+        window.history.replaceState(
+          cachedState,
+          "",
+          `/seasons/${newState.seasonSummary.id}/meets/${newState.meetSummary.id}/view`
+        );
+        break;
+      }
+    }
   }
 
   unsafeGetScreenHandle<T extends AppState["kind"]>(): ScreenHandle<T> {
@@ -355,9 +704,7 @@ export default class App extends React.Component<{}, AppState> {
       state: this.state as StateOf<T>,
       expiration: this.expiration,
       hasExpired: () => this.state.screenNumber !== currentScreenNumber,
-      newScreen: (kind, state) => {
-        return this.newScreen(kind, state);
-      },
+      pushScreen: this.pushScreen,
       update: state => {
         if (this.state.screenNumber === currentScreenNumber) {
           this.setState(prevState => ({ ...prevState, ...state }));

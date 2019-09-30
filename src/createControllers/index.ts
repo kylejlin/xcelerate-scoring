@@ -58,6 +58,8 @@ export default function createControllers(app: App): ControllerCollection {
   const assistantsMenuController = getAssistantsMenuController(app, shared);
 
   return {
+    shared,
+
     searchForSeasonController,
     signInController,
     userSeasonsController,

@@ -19,7 +19,7 @@ export default function getUserSeasonsController(
     viewSeason,
     navigateToCreateSeasonScreen() {
       const screen = getCurrentScreen();
-      screen.newScreen(StateType.CreateSeason, {
+      screen.pushScreen(StateType.CreateSeason, {
         user: screen.state.user,
         seasonName: "My Awesome Season",
         minGrade: "6",

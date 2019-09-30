@@ -35,7 +35,7 @@ export default function getSeasonMenuController(
       const screen = getCurrentScreen();
       const { user, seasonSummary } = screen.state;
       screen
-        .newScreen(StateType.AssistantsMenu, {
+        .pushScreen(StateType.AssistantsMenu, {
           user,
           doesUserHaveWriteAccess: false,
           isUserOwner: false,

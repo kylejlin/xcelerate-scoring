@@ -18,7 +18,7 @@ export default function getSharedControllerMethods(
 ): SharedControllerMethods {
   return {
     navigateToSearchForSeasonScreen() {
-      app.newScreen(StateType.SearchForSeason, {
+      app.pushScreen(StateType.SearchForSeason, {
         user: app.getUser(),
         query: "",
         isLoading: false,
@@ -26,7 +26,7 @@ export default function getSharedControllerMethods(
       });
     },
     navigateToSignInScreen() {
-      app.newScreen(StateType.SignIn, {});
+      app.pushScreen(StateType.SignIn, {});
     },
     navigateToUserSeasonsScreen() {
       app.getUser().match({
@@ -37,7 +37,7 @@ export default function getSharedControllerMethods(
         },
         some: user => {
           app
-            .newScreen(StateType.UserSeasons, {
+            .pushScreen(StateType.UserSeasons, {
               user,
               seasons: Option.none(),
             })
@@ -51,7 +51,7 @@ export default function getSharedControllerMethods(
     },
     navigateToUserProfileScreen() {
       app
-        .newScreen(StateType.UserProfile, {
+        .pushScreen(StateType.UserProfile, {
           user: app
             .getUser()
             .expect(
@@ -66,7 +66,7 @@ export default function getSharedControllerMethods(
         });
     },
     viewSeason(seasonSummary: SeasonSummary) {
-      app.newScreen(StateType.SeasonMenu, {
+      app.pushScreen(StateType.SeasonMenu, {
         user: app.getUser(),
         seasonSummary,
       });
@@ -77,7 +77,7 @@ export default function getSharedControllerMethods(
       userHasAccessToSeason: Option<boolean>
     ) {
       app
-        .newScreen(StateType.AthletesMenu, {
+        .pushScreen(StateType.AthletesMenu, {
           user,
           doesUserHaveWriteAccess: userHasAccessToSeason.unwrapOr(false),
           seasonSummary: seasonSummary,
@@ -129,7 +129,7 @@ export default function getSharedControllerMethods(
       seasonSummary: SeasonSummary;
     }) {
       app
-        .newScreen(StateType.SeasonMeets, {
+        .pushScreen(StateType.SeasonMeets, {
           user,
           doesUserHaveWriteAccess: false,
           seasonSummary,
