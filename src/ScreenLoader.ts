@@ -405,7 +405,7 @@ export default class ScreenLoader {
 
             meet.onUpdate(meet => {
               screen.update({
-                orderedRaces: Option.some(meet.orderedRaceActions),
+                orderedRaces: Option.some(meet.divisionFinisherIds),
               });
             });
 
@@ -461,7 +461,7 @@ export default class ScreenLoader {
 
             meet.onUpdate(meet => {
               screen.update({
-                orderedRaces: Option.some(meet.orderedRaceActions),
+                orderedRaces: Option.some(meet.divisionFinisherIds),
               });
             });
 

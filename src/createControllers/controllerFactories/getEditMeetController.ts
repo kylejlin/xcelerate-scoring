@@ -5,10 +5,9 @@ import {
 import { StateType } from "../../types/states";
 import {
   RaceAction,
-  RaceActionKind,
+  RaceActionType,
   RaceDivisionUtil,
   Delete as RaceActionDelete,
-  getFinisherIds,
 } from "../../types/race";
 import appendAction from "../../firestore/appendAction";
 import Option from "../../types/Option";
@@ -62,10 +61,9 @@ export default function getEditMeetController(
           ).findIndex(division =>
             RaceDivisionUtil.areDivisionsEqual(division, editedDivision)
           );
-          const editedRace = screen.state.orderedRaces.expect(
+          const finisherIds = screen.state.orderedRaces.expect(
             "Attempted to editPendingAthleteId before races loaded."
           )[divisionIndex];
-          const finisherIds = getFinisherIds(editedRace);
           const athletes = screen.state.athletes.expect(
             "Attempted to editPendingAthleteId before athletes loaded."
           );
@@ -84,11 +82,13 @@ export default function getEditMeetController(
             const { insertionIndex, seasonSummary, meetSummary } = screen.state;
             const action: RaceAction = insertionIndex.match({
               none: () => ({
-                kind: RaceActionKind.InsertAtEnd,
+                kind: RaceActionType.InsertAtBottom,
+                raceIndex: divisionIndex,
                 athleteId: newPendingId,
               }),
               some: insertionIndex => ({
-                kind: RaceActionKind.InsertAbove,
+                kind: RaceActionType.InsertAbove,
+                raceIndex: divisionIndex,
                 insertionIndex,
                 athleteId: newPendingId,
               }),
@@ -109,8 +109,20 @@ export default function getEditMeetController(
     deleteAthlete(athleteId: number) {
       const screen = getCurrentScreen();
       const { seasonSummary, meetSummary } = screen.state;
+      const editedDivision = screen.state.editedDivision.expect(
+        "Attempted to deleteAthlete when user was not editing a division."
+      );
+      const orderedDivisions = RaceDivisionUtil.getOrderedDivisions(
+        screen.state.divisionsRecipe.expect(
+          "Attempted to deleteAthlete when divisions recipe has not yet loaded."
+        )
+      );
+      const raceIndex = orderedDivisions.findIndex(division =>
+        RaceDivisionUtil.areDivisionsEqual(division, editedDivision)
+      );
       const action: RaceActionDelete = {
-        kind: RaceActionKind.Delete,
+        kind: RaceActionType.Delete,
+        raceIndex,
         athleteId,
       };
       appendAction(seasonSummary.id, meetSummary.id, action);

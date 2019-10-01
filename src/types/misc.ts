@@ -1,10 +1,5 @@
 import Option from "./Option";
-import {
-  RaceDivision,
-  RaceDivisionUtil,
-  RaceAction,
-  RaceDivisionsRecipe,
-} from "./race";
+import { RaceDivision, RaceDivisionUtil, RaceDivisionsRecipe } from "./race";
 
 export interface SeasonSummary {
   id: string;
@@ -176,7 +171,7 @@ export interface MeetSummary {
 }
 
 export interface Meet extends MeetSummary, RaceDivisionsRecipe {
-  orderedRaceActions: RaceAction[][];
+  divisionFinisherIds: number[][];
 }
 
 export enum AthleteOrSchool {

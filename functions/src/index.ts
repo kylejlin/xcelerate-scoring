@@ -9,15 +9,16 @@ import getUidOrThrow from "./httpsErrorThrowers/getUidOrThrow";
 import getAggregateOrReject from "./httpsErrorThrowers/getAggregateOrReject";
 import decompressUnidentifiedAthletesOrThrow from "./httpsErrorThrowers/decompressUnidentifiedAthletesOrThrow";
 import getDeleteAthletesDataOrThrow from "./httpsErrorThrowers/getDeleteAthletesDataOrThrow";
-import getUpdateMeetDataOrThrow from "./httpsErrorThrowers/getUpdateMeetDataOrThrow";
 import getMeetOrReject from "./httpsErrorThrowers/getMeetOrReject";
-import applyMeetInstructionsOrThrow from "./httpsErrorThrowers/applyMeetInstructionsOrThrow";
 import buildMeetPayload from "./meet/buildMeetPayload";
 import getInitialMeetPayload from "./meet/getInitialMeetPayload";
 import getCreateMeetDataOrThrow from "./httpsErrorThrowers/getCreateMeetDataOrThrow";
 import { DivisionsRecipe } from "./types/team";
 import getUpdateAthletesDataOrThrow from "./httpsErrorThrowers/getUpdateAthletesDataOrThrow";
 import decompressAthletesOrThrow from "./httpsErrorThrowers/decompressAthletesOrThrow";
+import getApplyRaceActionsDataOrThrow from "./httpsErrorThrowers/getApplyRaceActionsDataOrThrow";
+import applyRaceActionsOrThrow from "./httpsErrorThrowers/applyRaceActionsOrThrow";
+import decompressActionsOrThrow from "./httpsErrorThrowers/decompressActionsOrThrow";
 
 if ("function" !== typeof Array.prototype.flatMap) {
   flatMap.shim();
@@ -163,9 +164,14 @@ exports.createMeet = functions.https.onCall((data, ctx) => {
     .then(() => ({ meetId: meetRef.id, timeCreated: now }));
 });
 
-exports.updateMeet = functions.https.onCall((data, ctx) => {
+exports.applyRaceActions = functions.https.onCall((data, ctx) => {
   const uid = getUidOrThrow(ctx);
-  const { seasonId, meetId, instructions } = getUpdateMeetDataOrThrow(data);
+  const {
+    seasonId,
+    meetId,
+    actions: compressedActions,
+  } = getApplyRaceActionsDataOrThrow(data);
+  const actions = decompressActionsOrThrow(compressedActions);
   return db.runTransaction(transaction => {
     const seasonRef = db.collection("seasons").doc(seasonId);
     return getSeasonDataIfUserHasWriteAccess(seasonRef, uid, transaction).then(
@@ -178,8 +184,8 @@ exports.updateMeet = functions.https.onCall((data, ctx) => {
           getMeetOrReject(transaction, meetRef),
           getAggregateOrReject(transaction, aggregateRef),
         ]).then(([meet, aggregate]) => {
-          const newMeet = applyMeetInstructionsOrThrow(
-            instructions,
+          const newMeet = applyRaceActionsOrThrow(
+            actions,
             meet,
             aggregate.athletes
           );

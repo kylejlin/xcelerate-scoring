@@ -2,8 +2,7 @@ import firebase from "../firebase";
 
 import { Meet } from "../types/misc";
 import Option from "../types/Option";
-import { RaceDivisionsRecipe, RaceAction, RaceActionKind } from "../types/race";
-import { Command } from "./private/instructions";
+import { RaceDivisionsRecipe } from "../types/race";
 
 const db = firebase.firestore();
 
@@ -69,24 +68,22 @@ function parseMeet(
     Array.isArray(payload) &&
     timeCreated instanceof firebase.firestore.Timestamp
   ) {
-    const [minGrade, maxGrade, ...flattenedInstructionsArray] = payload;
+    const [minGrade, maxGrade, ...flattenedDivisionFinisherIds] = payload;
     if (
       isPositiveInt(minGrade) &&
       isPositiveInt(maxGrade) &&
       minGrade <= maxGrade
     ) {
-      return parseFlat2dList(flattenedInstructionsArray)
-        .andThen(instructionsArray =>
-          Option.all(instructionsArray.map(parseInstructions))
-        )
-        .map(actionsArray => ({
+      return parseFlat2dList(flattenedDivisionFinisherIds).map(
+        divisionFinisherIds => ({
           id: meetId,
           name,
           timeCreated: timeCreated.toDate(),
           minGrade,
           maxGrade,
-          orderedRaceActions: actionsArray,
-        }));
+          divisionFinisherIds,
+        })
+      );
     }
   }
 
@@ -121,80 +118,4 @@ function parseFlat2dList(arr: unknown[]): Option<any[][]> {
     cursor += subArrLen;
   }
   return Option.some(parsed);
-}
-
-function parseInstructions(instructions: number[]): Option<RaceAction[]> {
-  const actions: RaceAction[] = [];
-  let i = 0;
-  while (i < instructions.length) {
-    const commandResult = evaluateCommand(instructions.slice(i));
-    // eslint-disable-next-line
-    commandResult.ifSome(({ actions: newActions, instructionsEvaluated }) => {
-      actions.push(...newActions);
-      i += instructionsEvaluated;
-    });
-    if (commandResult.isNone()) {
-      return Option.none();
-    }
-  }
-  return Option.some(actions);
-}
-
-function evaluateCommand(
-  instructions: number[]
-): Option<{ actions: RaceAction[]; instructionsEvaluated: number }> {
-  const command = instructions[0];
-  if (!isNonNegativeInt(command)) {
-    return Option.none();
-  }
-
-  switch (command) {
-    case Command.InsertNAthletesAtBottom: {
-      const numberOfAthletes = instructions[1];
-      if (!isNonNegativeInt(numberOfAthletes)) {
-        return Option.none();
-      }
-      const athleteIds = instructions.slice(2, 2 + numberOfAthletes);
-      if (
-        !(
-          athleteIds.every(isNonNegativeInt) &&
-          athleteIds.length === numberOfAthletes
-        )
-      ) {
-        return Option.none();
-      }
-      return Option.some({
-        actions: athleteIds.map(athleteId => ({
-          kind: RaceActionKind.InsertAtEnd,
-          athleteId,
-        })),
-        instructionsEvaluated: 2 + numberOfAthletes,
-      });
-    }
-    case Command.InsertOneAthleteAbove: {
-      const athleteId = instructions[1];
-      const insertionIndex = instructions[2];
-      if (!(isNonNegativeInt(athleteId) && isNonNegativeInt(insertionIndex))) {
-        return Option.none();
-      }
-      return Option.some({
-        actions: [
-          { kind: RaceActionKind.InsertAbove, athleteId, insertionIndex },
-        ],
-        instructionsEvaluated: 3,
-      });
-    }
-    case Command.DeleteOneAthlete: {
-      const athleteId = instructions[1];
-      if (!isNonNegativeInt(athleteId)) {
-        return Option.none();
-      }
-      return Option.some({
-        actions: [{ kind: RaceActionKind.Delete, athleteId }],
-        instructionsEvaluated: 2,
-      });
-    }
-    default:
-      return Option.none();
-  }
 }

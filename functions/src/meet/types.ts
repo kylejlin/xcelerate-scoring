@@ -1,7 +1,7 @@
 import { DivisionsRecipe } from "../types/team";
 
 export interface Meet extends DivisionsRecipe {
-  orderedRaceActions: Action[][];
+  divisionFinisherIds: number[][];
 }
 
 export type Action = InsertAtBottom | InsertAbove | Delete;
@@ -14,22 +14,19 @@ export enum ActionType {
 
 export interface InsertAtBottom {
   kind: ActionType.InsertAtBottom;
+  raceIndex: number;
   athleteId: number;
 }
 
 export interface InsertAbove {
   kind: ActionType.InsertAbove;
+  raceIndex: number;
   athleteId: number;
   insertionIndex: number;
 }
 
 export interface Delete {
   kind: ActionType.Delete;
+  raceIndex: number;
   athleteId: number;
-}
-
-export enum Command {
-  InsertNAthletesAtBottom = 0,
-  InsertOneAthleteAbove = 1,
-  DeleteOneAthlete = 2,
 }

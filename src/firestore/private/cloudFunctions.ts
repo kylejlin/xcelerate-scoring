@@ -30,8 +30,11 @@ export const createMeet: Callable<{
   meetName: string;
 }> = functions.httpsCallable("createMeet");
 
-export const updateMeet: Callable<{
+export const applyRaceActions: Callable<{
   seasonId: string;
   meetId: string;
-  instructions: number[];
-}> = functions.httpsCallable("updateMeet");
+  actions: number[];
+}> = functions.httpsCallable("applyRaceActions");
+
+// @ts-ignore
+window.applyRaceActions = applyRaceActions;

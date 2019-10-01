@@ -3,7 +3,7 @@ import React from "react";
 import { EditMeetState } from "../types/states";
 import { EditMeetController } from "../types/controllers";
 
-import { RaceDivisionUtil, getFinisherIds } from "../types/race";
+import { RaceDivisionUtil } from "../types/race";
 import Option from "../types/Option";
 import { Athlete } from "../types/misc";
 import {
@@ -54,13 +54,12 @@ export default function EditMeet({
               </div>
             ),
             some: editedDivision => {
-              const race =
+              const finisherIds =
                 races[
                   orderedDivisions.findIndex(division =>
                     RaceDivisionUtil.areDivisionsEqual(division, editedDivision)
                   )
                 ];
-              const finisherIds = getFinisherIds(race);
               const divisionStr = RaceDivisionUtil.stringify(editedDivision);
               const insertionIndex = state.insertionIndex.unwrapOr(
                 finisherIds.length

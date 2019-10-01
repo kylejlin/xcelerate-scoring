@@ -3,7 +3,7 @@ import React from "react";
 import { ViewMeetState } from "../types/states";
 import { ViewMeetController } from "../types/controllers";
 
-import { RaceDivisionUtil, RaceAction, getFinisherIds } from "../types/race";
+import { RaceDivisionUtil } from "../types/race";
 import Option from "../types/Option";
 import { Athlete, AthleteOrSchool } from "../types/misc";
 import scoreRace from "../types/scoring";
@@ -158,13 +158,12 @@ interface Props {
 }
 
 function getFinishingAthletesIfAllCanBeFound(
-  race: RaceAction[],
+  finisherIds: number[],
   athletes: Athlete[]
 ): Option<Athlete[]> {
   const finishers: Athlete[] = [];
-  const ids = getFinisherIds(race);
-  for (let i = 0; i < ids.length; i++) {
-    const id = ids[i];
+  for (let i = 0; i < finisherIds.length; i++) {
+    const id = finisherIds[i];
     const athlete = athletes.find(a => parseInt(a.id, 10) === id);
     if (athlete === undefined) {
       return Option.none();

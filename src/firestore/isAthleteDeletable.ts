@@ -1,6 +1,6 @@
 import firebase from "../firebase";
 import { Athlete } from "../types/misc";
-import { RaceAction, RaceActionKind } from "../types/race";
+import { RaceAction, RaceActionType } from "../types/race";
 
 const db = firebase.firestore();
 
@@ -70,7 +70,7 @@ function didAthleteFinishInRace(
         const mostRecentAction = data.actions[
           data.actions.length - 1
         ] as RaceAction;
-        return mostRecentAction.kind !== RaceActionKind.Delete;
+        return mostRecentAction.kind !== RaceActionType.Delete;
       }
     });
 }

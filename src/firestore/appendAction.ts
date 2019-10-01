@@ -1,30 +1,15 @@
-import { updateMeet } from "./private/cloudFunctions";
-import { RaceAction, RaceActionKind } from "../types/race";
-import { Command } from "./private/instructions";
+import { applyRaceActions } from "./private/cloudFunctions";
+import { RaceAction } from "../types/race";
+import compressActions from "./private/compressActions";
 
 export default function appendAction(
   seasonId: string,
   meetId: string,
   action: RaceAction
 ): Promise<void> {
-  return updateMeet({
+  return applyRaceActions({
     seasonId,
     meetId,
-    instructions: compileInstructions(action),
+    actions: compressActions([action]),
   }).then(() => {});
-}
-
-function compileInstructions(action: RaceAction): number[] {
-  switch (action.kind) {
-    case RaceActionKind.InsertAtEnd:
-      return [Command.InsertNAthletesAtBottom, 1, action.athleteId];
-    case RaceActionKind.InsertAbove:
-      return [
-        Command.InsertOneAthleteAbove,
-        action.athleteId,
-        action.insertionIndex,
-      ];
-    case RaceActionKind.Delete:
-      return [Command.DeleteOneAthlete, action.athleteId];
-  }
 }
