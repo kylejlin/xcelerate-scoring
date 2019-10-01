@@ -1,12 +1,12 @@
 import firebase from "../firebase";
 
-import { SeasonSpec, SeasonSummary } from "../types/misc";
+import { UnidentifiedSeason, SeasonSummary } from "../types/misc";
 
 const db = firebase.firestore();
 
 export default function createSeason(
   user: firebase.User,
-  spec: SeasonSpec
+  spec: UnidentifiedSeason
 ): Promise<SeasonSummary> {
   const season = {
     ...spec,

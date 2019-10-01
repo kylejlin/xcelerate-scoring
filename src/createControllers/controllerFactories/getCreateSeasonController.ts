@@ -8,7 +8,7 @@ import {
 import { StateType, CreateSeasonState } from "../../types/states";
 
 import createSeason from "../../firestore/createSeason";
-import { SeasonSpec } from "../../types/misc";
+import { UnidentifiedSeason } from "../../types/misc";
 
 export default function getCreateSeasonController(
   app: App,
@@ -126,7 +126,7 @@ function validatePendingGrades(min: string, max: string): [number, number] {
   return [minGrade, maxGrade];
 }
 
-function getSeasonSpec(state: CreateSeasonState): SeasonSpec {
+function getSeasonSpec(state: CreateSeasonState): UnidentifiedSeason {
   const [minGrade, maxGrade] = validatePendingGrades(
     state.minGrade,
     state.maxGrade

@@ -16,11 +16,15 @@ export interface FullName {
   lastName: string;
 }
 
-export interface SeasonSpec {
+export interface UnidentifiedSeason {
   name: string;
   minGrade: number;
   maxGrade: number;
   schools: string[];
+}
+
+export interface Season extends UnidentifiedSeason {
+  id: string;
 }
 
 export interface Athlete {

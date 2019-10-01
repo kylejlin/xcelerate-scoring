@@ -7,7 +7,6 @@ import { AppState, StateType, StateOf } from "./types/states";
 import { ControllerCollection } from "./types/controllers";
 import createControllers from "./createControllers";
 import doesUserAccountExist from "./firestore/doesUserAccountExist";
-import getUserSeasons from "./firestore/getUserSeasons";
 import guessFullName from "./guessFullName";
 import Option from "./types/Option";
 import LocalStorageKeys from "./types/LocalStorageKeys";
@@ -40,6 +39,7 @@ import {
   EditMeetCachedState,
   ViewMeetCachedState,
 } from "./cachedState";
+import ScreenLoader from "./ScreenLoader";
 
 export default class App extends React.Component<{}, AppState> {
   private controllers: ControllerCollection;
@@ -88,14 +88,16 @@ export default class App extends React.Component<{}, AppState> {
       if (user) {
         doesUserAccountExist(user).then(doesExist => {
           if (doesExist) {
-            this.replaceScreen(StateType.UserSeasons, {
-              user,
-              seasons: Option.none(),
-            }).then(screen => {
-              getUserSeasons(user).then(seasonSummaries => {
-                screen.update({ seasons: Option.some(seasonSummaries) });
-              });
-            });
+            // this.replaceScreen(StateType.UserSeasons, {
+            //   user,
+            //   seasons: Option.none(),
+            // }).then(screen => {
+            //   getUserSeasons(user).then(seasonSummaries => {
+            //     screen.update({ seasons: Option.some(seasonSummaries) });
+            //   });
+            // });
+            const loader = new ScreenLoader(this, Option.some(user));
+            loader.loadScreen(window.location.pathname);
           } else {
             this.replaceScreen(StateType.UserProfile, {
               user,
@@ -104,12 +106,14 @@ export default class App extends React.Component<{}, AppState> {
           }
         });
       } else {
-        this.replaceScreen(StateType.SearchForSeason, {
-          user: Option.none(),
-          query: "",
-          isLoading: false,
-          seasons: Option.none(),
-        });
+        const loader = new ScreenLoader(this, Option.none());
+        loader.loadScreen(window.location.pathname);
+        // this.replaceScreen(StateType.SearchForSeason, {
+        //   user: Option.none(),
+        //   query: "",
+        //   isLoading: false,
+        //   seasons: Option.none(),
+        // });
       }
     });
   }
