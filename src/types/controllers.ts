@@ -105,6 +105,7 @@ export interface AthletesMenuController {
   viewSeason(seasonSummary: SeasonSummary): void;
   navigateToPasteAthletesScreen(): void;
   navigateToManuallyAddAthletesScreen(): void;
+
   editFilterSchool(event: React.ChangeEvent): void;
   editFilterGrade(event: React.ChangeEvent): void;
   editFilterGender(event: React.ChangeEvent): void;
@@ -115,11 +116,14 @@ export interface AthletesMenuController {
   ): void;
   editSelectedAthleteField(event: React.ChangeEvent): void;
   syncAndUnfocusEditedAthleteField(): void;
-  considerAthleteForDeletion(athlete: Athlete): void;
-  cancelAthleteDeletion(): void;
-  confirmAthleteDeletion(): void;
+
   showSpreadsheetData(): void;
   hideSpreadsheetData(): void;
+
+  openDeleteAthletesSubscreen(): void;
+  toggleAthleteDeletion(event: React.ChangeEvent, athleteId: number): void;
+  submitAthletesForDeletion(): void;
+  closeDeleteAthletesSubscreen(): void;
 }
 
 export interface PasteAthletesController {

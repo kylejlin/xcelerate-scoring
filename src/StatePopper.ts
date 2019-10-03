@@ -174,11 +174,11 @@ export default class StatePopper {
           gender: Option.none<Gender>(),
           school: Option.none<string>(),
         },
-        raceDivisions: Option.none(),
+        teamsRecipe: Option.none(),
         shouldSortByLastName: false,
         pendingAthleteEdit: Option.none(),
         pendingEditsBeingSyncedWithFirestore: [],
-        consideredAthleteDeletion: Option.none(),
+        deleteAthletes: Option.none(),
         isSpreadsheetDataShown: false,
       })
       .then(screen => {
@@ -192,12 +192,12 @@ export default class StatePopper {
           });
         });
 
-        const { raceDivisions, athletes } = openSeasonAthletesHandleUntil(
-          seasonId,
-          screen.expiration
-        );
+        const {
+          teamsRecipe: raceDivisions,
+          athletes,
+        } = openSeasonAthletesHandleUntil(seasonId, screen.expiration);
         raceDivisions.then(raceDivisions => {
-          screen.update({ raceDivisions: Option.some(raceDivisions) });
+          screen.update({ teamsRecipe: Option.some(raceDivisions) });
         });
         athletes.onUpdate(athletes => {
           screen.update({ athletes: Option.some(athletes) });

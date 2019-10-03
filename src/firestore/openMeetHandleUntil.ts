@@ -3,6 +3,7 @@ import firebase from "../firebase";
 import { Meet } from "../types/misc";
 import Option from "../types/Option";
 import { RaceDivisionsRecipe } from "../types/race";
+import parseFlattened2dArray from "../parseFlattened2dArray";
 
 const db = firebase.firestore();
 
@@ -30,7 +31,6 @@ export default function openMeetHandleUntil(
     .doc(meetId)
     .onSnapshot(doc => {
       const data = doc.data();
-      console.log("meet data", data);
       if (data === undefined) {
         stopListening();
         throw new Error(
@@ -74,7 +74,7 @@ function parseMeet(
       isPositiveInt(maxGrade) &&
       minGrade <= maxGrade
     ) {
-      return parseFlat2dList(flattenedDivisionFinisherIds).map(
+      return parseFlattened2dArray(flattenedDivisionFinisherIds).map(
         divisionFinisherIds => ({
           id: meetId,
           name,
@@ -94,28 +94,6 @@ function isPositiveInt(n: unknown): n is number {
   return isInt(n) && n > 0;
 }
 
-function isNonNegativeInt(n: unknown): n is number {
-  return isInt(n) && n >= 0;
-}
-
 function isInt(n: unknown): n is number {
   return n === parseInt("" + n, 10);
-}
-
-function parseFlat2dList(arr: unknown[]): Option<any[][]> {
-  const parsed = [];
-  let cursor = 0;
-  while (cursor < arr.length) {
-    const subArrLen = arr[cursor];
-    if (!isNonNegativeInt(subArrLen)) {
-      return Option.none();
-    }
-    cursor++;
-    if (cursor + subArrLen > arr.length) {
-      return Option.none();
-    }
-    parsed.push(arr.slice(cursor, cursor + subArrLen));
-    cursor += subArrLen;
-  }
-  return Option.some(parsed);
 }

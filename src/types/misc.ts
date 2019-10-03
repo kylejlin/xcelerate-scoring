@@ -46,7 +46,7 @@ export interface AthleteFilter {
   school: Option<string>;
 }
 
-export interface Teams {
+export interface TeamsRecipe {
   schools: string[];
   minGrade: number;
   maxGrade: number;
@@ -60,7 +60,7 @@ export function getOrderedTeams({
   schools,
   minGrade,
   maxGrade,
-}: Teams): Team[] {
+}: TeamsRecipe): Team[] {
   const orderedSchools = schools.slice().sort();
   const orderedDivisions = RaceDivisionUtil.DEPRECATED_getDivisions({
     min: minGrade,
@@ -122,7 +122,7 @@ export type CompressedHypotheticalAthlete = [number, string, string];
 
 export function compressHypotheticalAthlete(
   athlete: HypotheticalAthlete,
-  teams: Teams
+  teams: TeamsRecipe
 ): Option<CompressedHypotheticalAthlete> {
   const orderedTeams = getOrderedTeams(teams);
   const index = orderedTeams.findIndex(team => areTeamsEqual(team, athlete));
@@ -138,7 +138,7 @@ export type CompressedAthlete = [number, number, string, string];
 
 export function compressAthlete(
   athlete: Athlete,
-  teams: Teams
+  teams: TeamsRecipe
 ): Option<CompressedAthlete> {
   const orderedTeams = getOrderedTeams(teams);
   const index = orderedTeams.findIndex(team => areTeamsEqual(team, athlete));

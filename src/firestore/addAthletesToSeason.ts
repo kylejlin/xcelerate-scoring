@@ -2,14 +2,14 @@ import { addAthletes } from "./private/cloudFunctions";
 import {
   HypotheticalAthlete,
   compressHypotheticalAthlete,
-  Teams,
+  TeamsRecipe,
 } from "../types/misc";
 import Option from "../types/Option";
 
 export default function addAthletesToSeason(
   athletes: HypotheticalAthlete[],
   seasonId: string,
-  teams: Teams
+  teams: TeamsRecipe
 ): Promise<void> {
   if (athletes.length > 0) {
     const compressedAthletes = Option.all(

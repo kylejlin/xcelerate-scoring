@@ -1,5 +1,6 @@
 import Option from "./Option";
 import { Athlete } from "./misc";
+import removeDuplicates from "../removeDuplicates";
 
 export interface RaceResults {
   athleteTeamPlaces: { [athleteId: string]: Option<number> };
@@ -51,16 +52,6 @@ export default function scoreRace(athletes: Athlete[]): RaceResults {
   );
   const schoolResults = placeSchools(scoringData);
   return { athleteTeamPlaces, schoolResults };
-}
-
-function removeDuplicates<T>(arr: T[]): T[] {
-  const uniqueItems: T[] = [];
-  arr.forEach(item => {
-    if (!uniqueItems.includes(item)) {
-      uniqueItems.push(item);
-    }
-  });
-  return uniqueItems;
 }
 
 function getDictPopulatedWithZeros(keys: string[]): { [key: string]: number } {

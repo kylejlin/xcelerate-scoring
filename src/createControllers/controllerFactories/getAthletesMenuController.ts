@@ -11,7 +11,6 @@ import {
   Gender,
   EditableAthleteField,
   PendingAthleteEdit,
-  Athlete,
 } from "../../types/misc";
 
 import getAthleteFieldValue from "../../getAthleteFieldValue";
@@ -22,12 +21,11 @@ import areAthletesEqual from "../../areAthletesEqual";
 
 import updateAthletes from "../../firestore/updateAthletes";
 
-import isAthleteDeletable from "../../firestore/isAthleteDeletable";
-
-import deleteAthlete from "../../firestore/deleteAthlete";
+import deleteAthletes from "../../firestore/deleteAthletes";
 import Option from "../../types/Option";
 import getSeasonRaceDivisions from "../../firestore/getSeasonRaceDivisions";
 import { ScreenGuarantee } from "../../types/handle";
+import openUndeletableIdsHandleUntil from "../../firestore/openUndeletableIdsHandleUntil";
 
 export default function getAthletesMenuController(
   { getCurrentScreen }: ScreenGuarantee<StateType.AthletesMenu>,
@@ -181,7 +179,7 @@ export default function getAthletesMenuController(
       });
 
       if (shouldSyncWithFirestore) {
-        const teams = screen.state.raceDivisions.expect(
+        const teams = screen.state.teamsRecipe.expect(
           "Attempted to syncAndUnfocusEditedAthleteField when teams recipe has not yet loaded."
         );
         updateAthletes(
@@ -201,51 +199,6 @@ export default function getAthletesMenuController(
         });
       }
     },
-    considerAthleteForDeletion(athlete: Athlete) {
-      const screen = getCurrentScreen();
-      isAthleteDeletable(screen.state.seasonSummary.id, athlete).then(
-        isDeletable => {
-          screen.update({
-            consideredAthleteDeletion: Option.some({
-              athlete,
-              isDeletable,
-            }),
-          });
-        }
-      );
-    },
-    confirmAthleteDeletion() {
-      const screen = getCurrentScreen();
-
-      const seasonId = screen.state.seasonSummary.id;
-      const deletedAthlete = screen.state.consideredAthleteDeletion.expect(
-        "Attempted to confirmAthleteDeletion when user was not considering an athlete for deletion."
-      ).athlete;
-      const pendingDeletion = { athleteId: deletedAthlete.id };
-      const athletes = screen.state.athletes.expect(
-        "Attempted to confirmAthleteDeletion when athletes have not yet loaded."
-      );
-      screen.update({
-        pendingEditsBeingSyncedWithFirestore: screen.state.pendingEditsBeingSyncedWithFirestore.concat(
-          [pendingDeletion]
-        ),
-        athletes: Option.some(
-          athletes.filter(athlete => athlete.id !== deletedAthlete.id)
-        ),
-        consideredAthleteDeletion: Option.none(),
-      });
-      deleteAthlete(seasonId, deletedAthlete).then(() => {
-        screen.update({
-          pendingEditsBeingSyncedWithFirestore: screen.state.pendingEditsBeingSyncedWithFirestore.filter(
-            change => change !== pendingDeletion
-          ),
-        });
-      });
-    },
-    cancelAthleteDeletion() {
-      const screen = getCurrentScreen();
-      screen.update({ consideredAthleteDeletion: Option.none() });
-    },
     showSpreadsheetData() {
       const screen = getCurrentScreen();
       screen.update({ isSpreadsheetDataShown: true });
@@ -253,6 +206,78 @@ export default function getAthletesMenuController(
     hideSpreadsheetData() {
       const screen = getCurrentScreen();
       screen.update({ isSpreadsheetDataShown: false });
+    },
+    openDeleteAthletesSubscreen() {
+      const screen = getCurrentScreen();
+      let expirationCallback: (() => void) | null = null;
+      const subscreenExpiration: Promise<void> = new Promise(resolve => {
+        expirationCallback = resolve;
+      });
+      screen.update({
+        deleteAthletes: Option.some({
+          undeletableIds: Option.none(),
+          idsConsideredForDeletion: [],
+          expirationCallback: expirationCallback!,
+          areAthletesBeingDeleted: false,
+        }),
+      });
+      const { undeletableIds } = openUndeletableIdsHandleUntil(
+        screen.state.seasonSummary.id,
+        Promise.race([subscreenExpiration, screen.expiration])
+      );
+      undeletableIds.onUpdate(undeletableIds => {
+        screen.update(prevState => ({
+          deleteAthletes: prevState.deleteAthletes.map(deleteAthletes => ({
+            ...deleteAthletes,
+            undeletableIds: Option.some(undeletableIds),
+          })),
+        }));
+      });
+    },
+    toggleAthleteDeletion(event: React.ChangeEvent, athleteId: number) {
+      const isConsideringDeletion = (event.target as HTMLInputElement).checked;
+      const screen = getCurrentScreen();
+      const deleteAthletesState = screen.state.deleteAthletes.expect(
+        "Attempted to toggleAthleteDeletion when subscreen was not open."
+      );
+      screen.update({
+        deleteAthletes: Option.some({
+          ...deleteAthletesState,
+          idsConsideredForDeletion: isConsideringDeletion
+            ? deleteAthletesState.idsConsideredForDeletion.concat([athleteId])
+            : deleteAthletesState.idsConsideredForDeletion.filter(
+                id => id !== athleteId
+              ),
+        }),
+      });
+    },
+    submitAthletesForDeletion() {
+      const screen = getCurrentScreen();
+      const seasonId = screen.state.seasonSummary.id;
+      const {
+        idsConsideredForDeletion: idsToDelete,
+      } = screen.state.deleteAthletes.expect(
+        "Attempted to submitAthletesForDeletion when delete athletes subscreen was not open."
+      );
+      screen.update({
+        deleteAthletes: screen.state.deleteAthletes.map(deleteAthletes => ({
+          ...deleteAthletes,
+          areAthletesBeingDeleted: true,
+        })),
+      });
+      deleteAthletes(seasonId, idsToDelete).then(() => {
+        screen.update({ deleteAthletes: Option.none() });
+      });
+    },
+    closeDeleteAthletesSubscreen() {
+      const screen = getCurrentScreen();
+      const deleteAthletesState = screen.state.deleteAthletes.expect(
+        "Attempted to closeDeleteAthletesSubscreen when subscreen was not open."
+      );
+      deleteAthletesState.expirationCallback();
+      screen.update({
+        deleteAthletes: Option.none(),
+      });
     },
   };
 }

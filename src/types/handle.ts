@@ -19,7 +19,13 @@ export interface ScreenHandle<T extends AppState["kind"]> {
     kind: T,
     state: Omit<StateOf<T>, "kind" | "screenNumber">
   ): Promise<ScreenHandle<T>>;
-  update(state: Partial<Omit<StateOf<T>, "kind" | "screenNumber">>): void;
+  update(
+    state:
+      | (Partial<Omit<StateOf<T>, "kind" | "screenNumber">>)
+      | ((
+          prevState: StateOf<T>
+        ) => Partial<Omit<StateOf<T>, "kind" | "screenNumber">>)
+  ): void;
 }
 
 export interface ScreenGuarantee<T extends AppState["kind"]> {

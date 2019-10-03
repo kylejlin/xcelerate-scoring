@@ -1,6 +1,6 @@
 import firebase from "../firebase";
 
-import { Athlete, Teams } from "../types/misc";
+import { Athlete, TeamsRecipe } from "../types/misc";
 import Option from "../types/Option";
 import { RaceDivisionUtil } from "../types/race";
 
@@ -10,33 +10,32 @@ export default function openSeasonAthletesHandleUntil(
   seasonId: string,
   waitForStopListeningSignal: Promise<void>
 ): {
-  raceDivisions: Promise<Teams>;
+  teamsRecipe: Promise<TeamsRecipe>;
   athletes: {
     onUpdate(listener: (athletes: Athlete[]) => void): void;
   };
 } {
   const listeners: ((athletes: Athlete[]) => void)[] = [];
-  let resolveRaceDivisions: ((divisions: Teams) => void) | null = null;
-  const raceDivisions: Promise<Teams> = new Promise(resolve => {
-    resolveRaceDivisions = resolve;
+  let resolveTeamsRecipe: ((divisions: TeamsRecipe) => void) | null = null;
+  const teamsRecipe: Promise<TeamsRecipe> = new Promise(resolve => {
+    resolveTeamsRecipe = resolve;
   });
   const stopListening = db
     .collection("seasonAthleteAggregates")
     .doc(seasonId)
     .onSnapshot(doc => {
       const data = doc.data();
-      console.log("aggregate data", data);
       if (data === undefined) {
         stopListening();
         throw new Error(
           "Attempted to call observeSeasonAthletesUntil on a season without an athletes aggregate."
         );
       } else {
-        if (resolveRaceDivisions !== null) {
-          resolveRaceDivisions(
+        if (resolveTeamsRecipe !== null) {
+          resolveTeamsRecipe(
             getAggregateRaceDivisions(data).expect("Malformed aggregate.")
           );
-          resolveRaceDivisions = null;
+          resolveTeamsRecipe = null;
         }
         const athletes = parseAggregate(data).expect("Malformed aggregate.");
         listeners.forEach(f => {
@@ -46,7 +45,7 @@ export default function openSeasonAthletesHandleUntil(
     });
   waitForStopListeningSignal.then(stopListening);
   return {
-    raceDivisions,
+    teamsRecipe,
     athletes: {
       onUpdate(listener: (athletes: Athlete[]) => void) {
         listeners.push(listener);
@@ -57,7 +56,7 @@ export default function openSeasonAthletesHandleUntil(
 
 function getAggregateRaceDivisions(
   data: firebase.firestore.DocumentData
-): Option<Teams> {
+): Option<TeamsRecipe> {
   const { payload } = data;
   if (Array.isArray(payload)) {
     const [minGrade, maxGrade, numberOfSchools, ...rest] = payload;
@@ -73,7 +72,6 @@ function getAggregateRaceDivisions(
       }
     }
   }
-  console.log("cannot get race div");
   return Option.none();
 }
 
@@ -133,7 +131,6 @@ function parseAggregate(
             });
             return Option.some(athletes);
           } else {
-            console.log("invalid athleteIdsAndNames", athleteIdsAndNames);
             return Option.none();
           }
         });
@@ -141,7 +138,6 @@ function parseAggregate(
     }
   }
 
-  console.log("something else went wrong");
   return Option.none();
 }
 

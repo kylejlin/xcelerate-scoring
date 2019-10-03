@@ -211,11 +211,11 @@ export default class ScreenLoader {
             gender: Option.none<Gender>(),
             school: Option.none<string>(),
           },
-          raceDivisions: Option.none(),
+          teamsRecipe: Option.none(),
           shouldSortByLastName: false,
           pendingAthleteEdit: Option.none(),
           pendingEditsBeingSyncedWithFirestore: [],
-          consideredAthleteDeletion: Option.none(),
+          deleteAthletes: Option.none(),
           isSpreadsheetDataShown: false,
         })
         .then(screen => {
@@ -229,12 +229,12 @@ export default class ScreenLoader {
             });
           });
 
-          const { raceDivisions, athletes } = openSeasonAthletesHandleUntil(
+          const { teamsRecipe, athletes } = openSeasonAthletesHandleUntil(
             seasonId,
             screen.expiration
           );
-          raceDivisions.then(raceDivisions => {
-            screen.update({ raceDivisions: Option.some(raceDivisions) });
+          teamsRecipe.then(teamsRecipe => {
+            screen.update({ teamsRecipe: Option.some(teamsRecipe) });
           });
           athletes.onUpdate(athletes => {
             screen.update({ athletes: Option.some(athletes) });

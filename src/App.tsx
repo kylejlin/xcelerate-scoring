@@ -339,6 +339,7 @@ export default class App extends React.Component<{}, AppState> {
     shouldPushHistory: boolean
   ): Promise<ScreenHandle<T>> {
     this.screenExpirationListener();
+
     return new Promise<ScreenHandle<T>>(resolve => {
       this.setState(prevState => {
         const newScreenNumber = prevState.screenNumber + 1;
@@ -357,15 +358,24 @@ export default class App extends React.Component<{}, AppState> {
         const expiration = new Promise<void>(resolve => {
           this.screenExpirationListener = resolve;
         });
+        this.expiration = expiration;
         const screenHandle: ScreenHandle<T> = {
           state: newState,
           expiration,
           hasExpired: () => this.state.screenNumber !== newScreenNumber,
-          update: (
-            state: Partial<Omit<StateOf<T>, "kind" | "screenNumber">>
-          ) => {
+          update: stateOrUpdater => {
             if (this.state.screenNumber === newScreenNumber) {
-              this.setState(prevState => ({ ...prevState, ...state }));
+              if ("function" === typeof stateOrUpdater) {
+                this.setState(prevState => ({
+                  ...prevState,
+                  ...stateOrUpdater(prevState as StateOf<T>),
+                }));
+              } else {
+                this.setState(prevState => ({
+                  ...prevState,
+                  ...stateOrUpdater,
+                }));
+              }
             }
           },
           pushScreen: this.pushScreen,
@@ -704,9 +714,16 @@ export default class App extends React.Component<{}, AppState> {
       expiration: this.expiration,
       hasExpired: () => this.state.screenNumber !== currentScreenNumber,
       pushScreen: this.pushScreen,
-      update: state => {
+      update: stateOrUpdater => {
         if (this.state.screenNumber === currentScreenNumber) {
-          this.setState(prevState => ({ ...prevState, ...state }));
+          if ("function" === typeof stateOrUpdater) {
+            this.setState(prevState => ({
+              ...prevState,
+              ...stateOrUpdater(prevState as StateOf<T>),
+            }));
+          } else {
+            this.setState(prevState => ({ ...prevState, ...stateOrUpdater }));
+          }
         }
       },
     };

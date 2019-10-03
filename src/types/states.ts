@@ -4,16 +4,14 @@ import Option from "./Option";
 import {
   Athlete,
   AthleteFilter,
-  Teams,
+  TeamsRecipe,
   TentativeHypotheticalAthlete,
   FullName,
   MeetSummary,
   PendingAthleteEdit,
-  PendingAthleteDeletion,
   PendingHypotheticalAthleteEdit,
   SeasonSummary,
   AthleteOrSchool,
-  AthleteDeletion,
   UserAccount,
 } from "./misc";
 import { RaceDivision, RaceDivisionsRecipe } from "./race";
@@ -123,14 +121,19 @@ export interface AthletesMenuState {
   seasonSummary: SeasonSummary;
   athletes: Option<Athlete[]>;
   athleteFilter: AthleteFilter;
-  raceDivisions: Option<Teams>;
+  teamsRecipe: Option<TeamsRecipe>;
   shouldSortByLastName: boolean;
   pendingAthleteEdit: Option<PendingAthleteEdit>;
-  pendingEditsBeingSyncedWithFirestore: (
-    | PendingAthleteEdit
-    | PendingAthleteDeletion)[];
-  consideredAthleteDeletion: Option<AthleteDeletion>;
+  pendingEditsBeingSyncedWithFirestore: PendingAthleteEdit[];
+  deleteAthletes: Option<DeleteAthletesSubstate>;
   isSpreadsheetDataShown: boolean;
+}
+
+export interface DeleteAthletesSubstate {
+  idsConsideredForDeletion: number[];
+  undeletableIds: Option<number[]>;
+  expirationCallback: () => void;
+  areAthletesBeingDeleted: boolean;
 }
 
 export interface PasteAthletesState {
@@ -153,7 +156,7 @@ export interface AddAthletesState {
   wereAthletesPasted: boolean;
   athletes: TentativeHypotheticalAthlete[];
   pendingAthleteEdit: Option<PendingHypotheticalAthleteEdit>;
-  raceDivisions: Option<Teams>;
+  raceDivisions: Option<TeamsRecipe>;
   areAthletesBeingAdded: boolean;
 }
 
