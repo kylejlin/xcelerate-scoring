@@ -122,7 +122,9 @@ export interface AthletesMenuController {
 
   openDeleteAthletesSubscreen(): void;
   toggleAthleteDeletion(event: React.ChangeEvent, athleteId: number): void;
-  submitAthletesForDeletion(): void;
+  giveUserFinalWarning(): void;
+  abortAthleteDeletion(): void;
+  confirmAthleteDeletion(): void;
   closeDeleteAthletesSubscreen(): void;
 }
 

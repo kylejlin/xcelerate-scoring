@@ -133,6 +133,7 @@ export interface DeleteAthletesSubstate {
   idsConsideredForDeletion: number[];
   undeletableIds: Option<number[]>;
   expirationCallback: () => void;
+  isUserBeingGivenFinalWarning: boolean;
   areAthletesBeingDeleted: boolean;
 }
 

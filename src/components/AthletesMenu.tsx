@@ -171,6 +171,8 @@ export default function AthletesMenu({
                     undeletableIds: deleteAthletesState.undeletableIds,
                     idsConsideredForDeletion:
                       deleteAthletesState.idsConsideredForDeletion,
+                    isUserBeingGivenFinalWarning:
+                      deleteAthletesState.isUserBeingGivenFinalWarning,
                     areAthletesBeingDeleted:
                       deleteAthletesState.areAthletesBeingDeleted,
                   }}
@@ -409,8 +411,10 @@ function DeleteAthletesTable({
       athleteFilter,
       shouldSortByLastName,
       undeletableIds,
+      isUserBeingGivenFinalWarning,
       idsConsideredForDeletion,
     } = state;
+    const numberOfDeletedAthletes = idsConsideredForDeletion.length;
     const orderedAthletes = filterAndSortAthletes(
       athletes,
       athleteFilter,
@@ -474,9 +478,24 @@ function DeleteAthletesTable({
               ))}
             </tbody>
           </table>
-          <button onClick={controller.submitAthletesForDeletion}>
-            Delete athletes
-          </button>
+          {isUserBeingGivenFinalWarning ? (
+            <div>
+              <h3>
+                Are you sure you want to delete {numberOfDeletedAthletes}{" "}
+                athlete
+                {numberOfDeletedAthletes === 1 ? "" : "s"}?
+              </h3>
+              <p>This action is irreversible.</p>
+              <button onClick={controller.abortAthleteDeletion}>Abort</button>
+              <button onClick={controller.confirmAthleteDeletion}>
+                Delete athletes
+              </button>
+            </div>
+          ) : (
+            <button onClick={controller.giveUserFinalWarning}>
+              Delete athlete{numberOfDeletedAthletes === 1 ? "" : "s"}
+            </button>
+          )}
         </>
       ),
     });
@@ -490,6 +509,7 @@ interface DeleteAthletesTableProps {
     shouldSortByLastName: boolean;
     undeletableIds: Option<number[]>;
     idsConsideredForDeletion: number[];
+    isUserBeingGivenFinalWarning: boolean;
     areAthletesBeingDeleted: boolean;
   };
   controller: AthletesMenuController;

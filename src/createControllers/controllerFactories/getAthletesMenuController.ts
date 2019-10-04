@@ -218,6 +218,7 @@ export default function getAthletesMenuController(
           undeletableIds: Option.none(),
           idsConsideredForDeletion: [],
           expirationCallback: expirationCallback!,
+          isUserBeingGivenFinalWarning: false,
           areAthletesBeingDeleted: false,
         }),
       });
@@ -251,7 +252,25 @@ export default function getAthletesMenuController(
         }),
       });
     },
-    submitAthletesForDeletion() {
+    giveUserFinalWarning() {
+      const screen = getCurrentScreen();
+      screen.update({
+        deleteAthletes: screen.state.deleteAthletes.map(deleteAthletes => ({
+          ...deleteAthletes,
+          isUserBeingGivenFinalWarning: true,
+        })),
+      });
+    },
+    abortAthleteDeletion() {
+      const screen = getCurrentScreen();
+      screen.update({
+        deleteAthletes: screen.state.deleteAthletes.map(deleteAthletes => ({
+          ...deleteAthletes,
+          isUserBeingGivenFinalWarning: false,
+        })),
+      });
+    },
+    confirmAthleteDeletion() {
       const screen = getCurrentScreen();
       const seasonId = screen.state.seasonSummary.id;
       const {
