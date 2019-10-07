@@ -12,6 +12,7 @@ import getSeasonMeets from "../../firestore/getSeasonMeets";
 import getSeasonGradeBounds from "../../firestore/getSeasonGradeBounds";
 import openSeasonAthletesHandleUntil from "../../firestore/openSeasonAthletesHandleUntil";
 import { UnknownScreenHandle } from "../../types/handle";
+import guessFullName from "../../guessFullName";
 
 export default function getSharedControllerMethods(
   app: UnknownScreenHandle
@@ -58,10 +59,23 @@ export default function getSharedControllerMethods(
               "Attempted to navigateToUserProfileScreen when user was not signed in."
             ),
           fullName: Option.none(),
+          doesUserExist: true,
         })
         .then(screen => {
           getUserName(screen.state.user).then(profile => {
-            screen.update({ fullName: Option.some(profile) });
+            profile.match({
+              none: () => {
+                screen.update({
+                  fullName: Option.some(
+                    guessFullName(screen.state.user.displayName || "")
+                  ),
+                  doesUserExist: false,
+                });
+              },
+              some: profile => {
+                screen.update({ fullName: Option.some(profile) });
+              },
+            });
           });
         });
     },

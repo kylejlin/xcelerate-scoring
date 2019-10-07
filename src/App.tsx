@@ -102,6 +102,7 @@ export default class App extends React.Component<{}, AppState> {
             this.replaceScreen(StateType.UserProfile, {
               user,
               fullName: Option.some(guessFullName(user.displayName || "")),
+              doesUserExist: false,
             });
           }
         });

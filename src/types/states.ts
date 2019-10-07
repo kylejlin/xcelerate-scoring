@@ -82,6 +82,7 @@ export interface UserProfileState {
 
   user: firebase.User;
   fullName: Option<FullName>;
+  doesUserExist: boolean;
 }
 
 export interface UserSeasonsState {

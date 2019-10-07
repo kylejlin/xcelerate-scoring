@@ -9,14 +9,25 @@ export default function UserProfile({
 }: Props): React.ReactElement {
   return (
     <div className="App">
-      <button onClick={controller.navigateToUserSeasonsScreen}>
-        Your seasons
-      </button>
-      <button onClick={controller.signOut}>Sign out</button>
+      {state.doesUserExist ? (
+        <>
+          <button onClick={controller.navigateToUserSeasonsScreen}>
+            Your seasons
+          </button>
+          <button onClick={controller.signOut}>Sign out</button>
+          <h2>Your profile</h2>
+        </>
+      ) : (
+        <>
+          <h2>Complete account creation</h2>
+          <button onClick={controller.signOut}>Cancel</button>
+        </>
+      )}
+
       {state.fullName.match({
         none: () => <p>Loading profile...</p>,
         some: profile => (
-          <>
+          <div>
             <label>
               First name:{" "}
               <input
@@ -34,7 +45,7 @@ export default function UserProfile({
               />
             </label>
             <button onClick={controller.savePendingName}>Save</button>
-          </>
+          </div>
         ),
       })}
     </div>

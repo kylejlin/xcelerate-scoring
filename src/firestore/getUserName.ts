@@ -1,10 +1,13 @@
 import firebase from "../firebase";
 
+import Option from "../types/Option";
 import { FullName } from "../types/misc";
 
 const db = firebase.firestore();
 
-export default function getUserName(user: firebase.User): Promise<FullName> {
+export default function getUserName(
+  user: firebase.User
+): Promise<Option<FullName>> {
   return db
     .collection("users")
     .doc(user.uid)
@@ -12,12 +15,12 @@ export default function getUserName(user: firebase.User): Promise<FullName> {
     .then(snapshot => {
       const data = snapshot.data();
       if (data === undefined) {
-        throw new Error("Attempted to get user profile of nonexistent user.");
+        return Option.none();
       } else {
-        return {
+        return Option.some({
           firstName: data.firstName,
           lastName: data.lastName,
-        };
+        });
       }
     });
 }

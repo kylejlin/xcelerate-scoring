@@ -25,6 +25,7 @@ import getSeasonMeets from "./firestore/getSeasonMeets";
 import getSeasonGradeBounds from "./firestore/getSeasonGradeBounds";
 import openMeetHandleUntil from "./firestore/openMeetHandleUntil";
 import { RaceDivisionUtil, RaceDivision } from "./types/race";
+import guessFullName from "./guessFullName";
 
 // TODO
 // Instead of calling this.getUser.expect()
@@ -127,10 +128,21 @@ export default class StatePopper {
       .replaceScreen(StateType.UserProfile, {
         user,
         fullName: Option.none(),
+        doesUserExist: true,
       })
       .then(screen => {
-        getUserName(screen.state.user).then(profile => {
-          screen.update({ fullName: Option.some(profile) });
+        getUserName(user).then(profile => {
+          profile.match({
+            none: () => {
+              screen.update({
+                fullName: Option.some(guessFullName(user.displayName || "")),
+                doesUserExist: false,
+              });
+            },
+            some: profile => {
+              screen.update({ fullName: Option.some(profile) });
+            },
+          });
         });
       });
   }
