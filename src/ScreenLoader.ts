@@ -393,6 +393,7 @@ export default class ScreenLoader {
             insertionIndex: Option.none(),
             athletes: Option.none(),
             athleteIdWhichCouldNotBeInserted: Option.none(),
+            pendingActions: [],
           })
           .then(screen => {
             const { state } = screen;

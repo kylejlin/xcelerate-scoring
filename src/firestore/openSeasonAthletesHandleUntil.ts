@@ -3,6 +3,7 @@ import firebase from "../firebase";
 import { Athlete, TeamsRecipe } from "../types/misc";
 import Option from "../types/Option";
 import { RaceDivisionUtil } from "../types/race";
+import zeroPadToFiveDigits from "../zeroPadToFiveDigits";
 
 const db = firebase.firestore();
 
@@ -181,20 +182,4 @@ function isValidAthleteIdsAndNames(x: unknown): x is (number | string)[][] {
         y.every((z, i) => (i % 3 === 0 ? isInt(z) : "string" === typeof z))
     )
   );
-}
-
-// TODO DRY
-// Duplicates function in addAthletesToSeason.ts
-function zeroPadToFiveDigits(number: number): string {
-  const str = number.toString();
-  if (str.length <= 5) {
-    const missingDigits = 5 - str.length;
-    return "0".repeat(missingDigits) + str;
-  } else {
-    throw new Error(
-      "Attempted to zeroPadToFiveDigits a number that was " +
-        str.length +
-        " digits."
-    );
-  }
 }

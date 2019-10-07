@@ -8,6 +8,7 @@ import {
   RaceActionType,
   RaceDivisionUtil,
   Delete as RaceActionDelete,
+  areRaceActionsEqual,
 } from "../../types/race";
 import appendAction from "../../firestore/appendAction";
 import Option from "../../types/Option";
@@ -93,7 +94,25 @@ export default function getEditMeetController(
                 athleteId: newPendingId,
               }),
             });
-            appendAction(seasonSummary.id, meetSummary.id, action);
+            if (
+              !screen.state.pendingActions.some(pendingAction =>
+                areRaceActionsEqual(pendingAction, action)
+              )
+            ) {
+              screen.update({
+                pendingActions: screen.state.pendingActions.concat([action]),
+              });
+              appendAction(seasonSummary.id, meetSummary.id, action).then(
+                () => {
+                  screen.update(prevState => ({
+                    pendingActions: prevState.pendingActions.filter(
+                      pendingAction =>
+                        !areRaceActionsEqual(pendingAction, action)
+                    ),
+                  }));
+                }
+              );
+            }
           } else {
             screen.update({
               athleteIdWhichCouldNotBeInserted: Option.some(newPendingIdStr),
@@ -125,7 +144,22 @@ export default function getEditMeetController(
         raceIndex,
         athleteId,
       };
-      appendAction(seasonSummary.id, meetSummary.id, action);
+      if (
+        !screen.state.pendingActions.some(pendingAction =>
+          areRaceActionsEqual(pendingAction, action)
+        )
+      ) {
+        screen.update({
+          pendingActions: screen.state.pendingActions.concat([action]),
+        });
+        appendAction(seasonSummary.id, meetSummary.id, action).then(() => {
+          screen.update(prevState => ({
+            pendingActions: prevState.pendingActions.filter(
+              pendingAction => !areRaceActionsEqual(pendingAction, action)
+            ),
+          }));
+        });
+      }
     },
     dismissInsertionErrorMessage() {
       const screen = getCurrentScreen();

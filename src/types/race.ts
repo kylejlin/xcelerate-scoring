@@ -76,6 +76,24 @@ export interface Delete {
   athleteId: number;
 }
 
+export function areRaceActionsEqual(a: RaceAction, b: RaceAction): boolean {
+  if (a.kind !== b.kind) {
+    return false;
+  }
+  switch (a.kind) {
+    case RaceActionType.InsertAtBottom:
+      return a.raceIndex === b.raceIndex && a.athleteId === b.athleteId;
+    case RaceActionType.InsertAbove:
+      return (
+        a.raceIndex === b.raceIndex &&
+        a.athleteId === b.athleteId &&
+        a.insertionIndex === (b as typeof a).insertionIndex
+      );
+    case RaceActionType.Delete:
+      return a.raceIndex === b.raceIndex && a.athleteId === b.athleteId;
+  }
+}
+
 export function getFinisherIds(actions: RaceAction[]): number[] {
   let ids: number[] = [];
   actions

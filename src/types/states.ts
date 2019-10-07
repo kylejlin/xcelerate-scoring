@@ -14,7 +14,7 @@ import {
   AthleteOrSchool,
   UserAccount,
 } from "./misc";
-import { RaceDivision, RaceDivisionsRecipe } from "./race";
+import { RaceDivision, RaceDivisionsRecipe, RaceAction } from "./race";
 
 export enum StateType {
   SearchForSeason,
@@ -203,6 +203,7 @@ export interface EditMeetState {
   insertionIndex: Option<number>;
   athletes: Option<Athlete[]>;
   athleteIdWhichCouldNotBeInserted: Option<string>;
+  pendingActions: RaceAction[];
 }
 
 export interface ViewMeetState {

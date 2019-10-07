@@ -3,7 +3,7 @@ import React from "react";
 import { EditMeetState } from "../types/states";
 import { EditMeetController } from "../types/controllers";
 
-import { RaceDivisionUtil } from "../types/race";
+import { RaceDivisionUtil, RaceActionType } from "../types/race";
 import Option from "../types/Option";
 import { Athlete } from "../types/misc";
 import {
@@ -11,6 +11,7 @@ import {
   addAppropriateOrdinalSuffix,
   doesGradeStartWithVowel,
 } from "../english";
+import zeroPadToFiveDigits from "../zeroPadToFiveDigits";
 
 export default function EditMeet({
   state,
@@ -54,12 +55,10 @@ export default function EditMeet({
               </div>
             ),
             some: editedDivision => {
-              const finisherIds =
-                races[
-                  orderedDivisions.findIndex(division =>
-                    RaceDivisionUtil.areDivisionsEqual(division, editedDivision)
-                  )
-                ];
+              const editedRaceIndex = orderedDivisions.findIndex(division =>
+                RaceDivisionUtil.areDivisionsEqual(division, editedDivision)
+              );
+              const finisherIds = races[editedRaceIndex];
               const divisionStr = RaceDivisionUtil.stringify(editedDivision);
               const insertionIndex = state.insertionIndex.unwrapOr(
                 finisherIds.length
@@ -115,6 +114,45 @@ export default function EditMeet({
                           </li>
                         );
                       });
+                      const pendingActions = state.pendingActions
+                        .filter(action => action.raceIndex === editedRaceIndex)
+                        .map(action => {
+                          switch (action.kind) {
+                            case RaceActionType.InsertAtBottom:
+                            case RaceActionType.InsertAbove:
+                              return (
+                                <li
+                                  key={
+                                    action.kind +
+                                    ":" +
+                                    action.raceIndex +
+                                    ":" +
+                                    action.athleteId
+                                  }
+                                  className="TempPendingAction"
+                                >
+                                  Adding #
+                                  {zeroPadToFiveDigits(action.athleteId)}...
+                                </li>
+                              );
+                            case RaceActionType.Delete:
+                              return (
+                                <li
+                                  key={
+                                    action.kind +
+                                    ":" +
+                                    action.raceIndex +
+                                    ":" +
+                                    action.athleteId
+                                  }
+                                  className="TempPendingAction"
+                                >
+                                  Deleting #
+                                  {zeroPadToFiveDigits(action.athleteId)}...
+                                </li>
+                              );
+                          }
+                        });
                       const pendingAthleteId = state.editedDivision.match({
                         none: () => [],
                         some: () => [
@@ -144,6 +182,7 @@ export default function EditMeet({
                       });
                       return athleteNames
                         .slice(0, insertionIndex)
+                        .concat(pendingActions)
                         .concat(pendingAthleteId)
                         .concat(athleteNames.slice(insertionIndex))
                         .concat(insertAtBottom);
