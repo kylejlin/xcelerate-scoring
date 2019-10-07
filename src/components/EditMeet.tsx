@@ -3,7 +3,7 @@ import React from "react";
 import { EditMeetState } from "../types/states";
 import { EditMeetController } from "../types/controllers";
 
-import { RaceDivisionUtil, RaceActionType } from "../types/race";
+import { RaceDivisionUtil, RaceActionType, RaceAction } from "../types/race";
 import Option from "../types/Option";
 import { Athlete } from "../types/misc";
 import {
@@ -12,6 +12,10 @@ import {
   doesGradeStartWithVowel,
 } from "../english";
 import zeroPadToFiveDigits from "../zeroPadToFiveDigits";
+
+const ATHLETE_ID_INPUT_PLACEHOLDER: unique symbol = Symbol(
+  "AthleteIdInputPlaceHolder"
+);
 
 export default function EditMeet({
   state,
@@ -80,112 +84,179 @@ export default function EditMeet({
                   <h3>{divisionStr}</h3>
                   <ul>
                     {(() => {
-                      const athleteNames = finisherIds.map((athleteId, i) => {
-                        const athlete = athletes.find(
-                          athlete => parseInt(athlete.id, 10) === athleteId
-                        );
-                        const place = i + 1;
-                        const firstName =
-                          athlete === undefined ? (
-                            <span>
-                              Athlete not found. Please reload the page.
-                            </span>
-                          ) : (
-                            <span>{athlete.firstName}</span>
-                          );
-                        return (
-                          <li key={athleteId}>
-                            <span>{place}. </span>
-                            {firstName}
-                            <button
-                              onClick={() =>
-                                controller.setInsertionIndex(Option.some(i))
-                              }
-                            >
-                              Insert above
-                            </button>
-                            <button
-                              onClick={() =>
-                                controller.deleteAthlete(athleteId)
-                              }
-                            >
-                              Delete
-                            </button>
-                          </li>
-                        );
-                      });
-                      const pendingActions = state.pendingActions
-                        .filter(action => action.raceIndex === editedRaceIndex)
-                        .map(action => {
-                          switch (action.kind) {
-                            case RaceActionType.InsertAtBottom:
-                            case RaceActionType.InsertAbove:
-                              return (
-                                <li
-                                  key={
-                                    action.kind +
-                                    ":" +
-                                    action.raceIndex +
-                                    ":" +
-                                    action.athleteId
-                                  }
-                                  className="TempPendingAction"
-                                >
-                                  Adding #
-                                  {zeroPadToFiveDigits(action.athleteId)}...
-                                </li>
-                              );
-                            case RaceActionType.Delete:
-                              return (
-                                <li
-                                  key={
-                                    action.kind +
-                                    ":" +
-                                    action.raceIndex +
-                                    ":" +
-                                    action.athleteId
-                                  }
-                                  className="TempPendingAction"
-                                >
-                                  Deleting #
-                                  {zeroPadToFiveDigits(action.athleteId)}...
-                                </li>
-                              );
+                      const pendingActionsAffectingThisRace = state.pendingActions.filter(
+                        pa => pa.raceIndex === editedRaceIndex
+                      );
+                      const indexedFinisherIds = finisherIds.map(
+                        (id, index) => ({ id, index })
+                      );
+                      const idsWithInputPlaceholder = (indexedFinisherIds.slice(
+                        0,
+                        insertionIndex
+                      ) as (
+                        | IndexedFinisherId
+                        | typeof ATHLETE_ID_INPUT_PLACEHOLDER)[])
+                        .concat(ATHLETE_ID_INPUT_PLACEHOLDER)
+                        .concat(indexedFinisherIds.slice(insertionIndex));
+                      const idsWithInputPlaceholderAndAthleteSpecificPendingActions = idsWithInputPlaceholder.flatMap(
+                        (idOrPlaceholder => {
+                          if (
+                            idOrPlaceholder === ATHLETE_ID_INPUT_PLACEHOLDER
+                          ) {
+                            return [ATHLETE_ID_INPUT_PLACEHOLDER];
+                          } else {
+                            const indexedId = idOrPlaceholder;
+                            const insertionsAboveThisAthlete = pendingActionsAffectingThisRace.filter(
+                              pa =>
+                                pa.kind === RaceActionType.InsertAbove &&
+                                pa.insertionIndex === indexedId.index
+                            );
+                            const deletion = state.pendingActions.find(
+                              pa =>
+                                pa.kind === RaceActionType.Delete &&
+                                pa.athleteId === indexedId.id
+                            );
+                            return (insertionsAboveThisAthlete as (
+                              | RaceAction
+                              | IndexedFinisherId)[])
+                              .concat([indexedId])
+                              .concat(deletion === undefined ? [] : [deletion]);
                           }
-                        });
-                      const pendingAthleteId = state.editedDivision.match({
-                        none: () => [],
-                        some: () => [
-                          <li key="pendingAthleteId">
-                            #
-                            <input
-                              type="number"
-                              value={state.pendingAthleteId}
-                              onChange={controller.editPendingAthleteId}
-                            />
-                          </li>,
-                        ],
-                      });
-                      const insertAtBottom = state.insertionIndex.match({
-                        none: () => [],
-                        some: () => [
-                          <li key="insertAtBottom">
-                            <button
-                              onClick={() =>
-                                controller.setInsertionIndex(Option.none())
+                        }) as ((
+                          athleteOrPlaceholder:
+                            | IndexedFinisherId
+                            | typeof ATHLETE_ID_INPUT_PLACEHOLDER
+                        ) => (
+                          | IndexedFinisherId
+                          | typeof ATHLETE_ID_INPUT_PLACEHOLDER
+                          | RaceAction)[])
+                      );
+                      const bottomInsertions = state.pendingActions.filter(
+                        pa => pa.kind === RaceActionType.InsertAtBottom
+                      );
+                      const idsWithInputPlaceholderAndPendingActions = idsWithInputPlaceholderAndAthleteSpecificPendingActions.concat(
+                        bottomInsertions
+                      );
+
+                      const insertAtBottomButton = (
+                        <li key="insertAtBottom">
+                          <button
+                            onClick={() =>
+                              controller.setInsertionIndex(Option.none())
+                            }
+                          >
+                            Insert at bottom
+                          </button>
+                        </li>
+                      );
+
+                      return (
+                        idsWithInputPlaceholderAndPendingActions
+                          // Suppress extraneous warning about expecting
+                          // arrow function return value.
+
+                          // eslint-disable-next-line
+                          .map(idOrPlaceholderOrAction => {
+                            if (
+                              idOrPlaceholderOrAction ===
+                              ATHLETE_ID_INPUT_PLACEHOLDER
+                            ) {
+                              return (
+                                <li key="pendingAthleteId">
+                                  #
+                                  <input
+                                    type="number"
+                                    value={state.pendingAthleteId}
+                                    onChange={controller.editPendingAthleteId}
+                                  />
+                                </li>
+                              );
+                            } else if ("kind" in idOrPlaceholderOrAction) {
+                              const action = idOrPlaceholderOrAction;
+                              switch (action.kind) {
+                                case RaceActionType.InsertAtBottom:
+                                case RaceActionType.InsertAbove:
+                                  return (
+                                    <li
+                                      key={
+                                        action.kind +
+                                        ":" +
+                                        action.raceIndex +
+                                        ":" +
+                                        action.athleteId
+                                      }
+                                      className="TempPendingAction"
+                                    >
+                                      Adding #
+                                      {zeroPadToFiveDigits(action.athleteId)}...
+                                    </li>
+                                  );
+                                case RaceActionType.Delete:
+                                  return (
+                                    <li
+                                      key={
+                                        action.kind +
+                                        ":" +
+                                        action.raceIndex +
+                                        ":" +
+                                        action.athleteId
+                                      }
+                                      className="TempPendingAction"
+                                    >
+                                      Deleting #
+                                      {zeroPadToFiveDigits(action.athleteId)}...
+                                    </li>
+                                  );
                               }
-                            >
-                              Insert at bottom
-                            </button>
-                          </li>,
-                        ],
-                      });
-                      return athleteNames
-                        .slice(0, insertionIndex)
-                        .concat(pendingActions)
-                        .concat(pendingAthleteId)
-                        .concat(athleteNames.slice(insertionIndex))
-                        .concat(insertAtBottom);
+                            } else {
+                              const {
+                                index,
+                                id: finisherId,
+                              } = idOrPlaceholderOrAction;
+                              const athlete = athletes.find(
+                                athlete =>
+                                  parseInt(athlete.id, 10) === finisherId
+                              );
+                              const place = index + 1;
+                              const firstName =
+                                athlete === undefined ? (
+                                  <span>
+                                    Athlete not found. Please reload the page.
+                                  </span>
+                                ) : (
+                                  <span>{athlete.firstName}</span>
+                                );
+                              return (
+                                <li key={finisherId}>
+                                  <span>{place}. </span>
+                                  {firstName}
+                                  <button
+                                    onClick={() =>
+                                      controller.setInsertionIndex(
+                                        Option.some(index)
+                                      )
+                                    }
+                                  >
+                                    Insert above
+                                  </button>
+                                  <button
+                                    onClick={() =>
+                                      controller.deleteAthlete(finisherId)
+                                    }
+                                  >
+                                    Delete
+                                  </button>
+                                </li>
+                              );
+                            }
+                          })
+                          .concat(
+                            state.insertionIndex.match({
+                              none: () => [],
+                              some: () => insertAtBottomButton,
+                            })
+                          )
+                      );
                     })()}
                   </ul>
 
@@ -260,6 +331,15 @@ export default function EditMeet({
       })}
     </div>
   );
+}
+
+interface IndexedFinisherId {
+  index: number;
+  id: number;
+}
+
+interface IndexedAthlete extends Athlete {
+  index: number;
 }
 
 interface Props {
