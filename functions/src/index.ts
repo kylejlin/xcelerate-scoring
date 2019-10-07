@@ -1,5 +1,6 @@
 import * as functions from "firebase-functions";
 import * as admin from "firebase-admin";
+import * as flat from "array.prototype.flat";
 import * as flatMap from "array.prototype.flatmap";
 
 import buildAggregatePayload from "./athlete/buildAggregatePayload";
@@ -19,7 +20,11 @@ import decompressAthletesOrThrow from "./httpsErrorThrowers/decompressAthletesOr
 import getApplyRaceActionsDataOrThrow from "./httpsErrorThrowers/getApplyRaceActionsDataOrThrow";
 import applyRaceActionsOrThrow from "./httpsErrorThrowers/applyRaceActionsOrThrow";
 import decompressActionsOrThrow from "./httpsErrorThrowers/decompressActionsOrThrow";
+import getUndeletableIdsOrThrow from "./httpsErrorThrowers/getUndeletableIdsOrThrow";
 
+if ("function" !== typeof Array.prototype.flat) {
+  flat.shim();
+}
 if ("function" !== typeof Array.prototype.flatMap) {
   flatMap.shim();
 }
@@ -27,6 +32,7 @@ if ("function" !== typeof Array.prototype.flatMap) {
 admin.initializeApp();
 
 const db = admin.firestore();
+const { HttpsError } = functions.https;
 
 exports.addAthletes = functions.https.onCall((data, ctx) => {
   const uid = getUidOrThrow(ctx);
@@ -107,7 +113,6 @@ exports.updateAthletes = functions.https.onCall((data, ctx) => {
   });
 });
 
-// TODO Check if athletes finished any meets
 exports.deleteAthletes = functions.https.onCall((data, ctx) => {
   const uid = getUidOrThrow(ctx);
   const {
@@ -116,24 +121,35 @@ exports.deleteAthletes = functions.https.onCall((data, ctx) => {
   } = getDeleteAthletesDataOrThrow(data);
   return db.runTransaction(transaction => {
     const seasonRef = db.collection("seasons").doc(seasonId);
+    const meetsRef = seasonRef.collection("meets");
     return getSeasonDataIfUserHasWriteAccess(seasonRef, uid, transaction).then(
       () => {
-        const aggregateRef = db
-          .collection("seasonAthleteAggregates")
-          .doc(seasonId);
-        return getAggregateOrReject(transaction, aggregateRef).then(
-          ({ teams, athletes }) => {
-            const newAthletes = athletes.filter(
-              athlete => !deletedAthleteIds.includes(athlete.id)
+        return meetsRef.get().then(meetsCollection => {
+          const undeletableIds = getUndeletableIdsOrThrow(meetsCollection.docs);
+          if (deletedAthleteIds.some(id => undeletableIds.includes(id))) {
+            throw new HttpsError(
+              "invalid-argument",
+              "Attempted to delete an athlete who finished one or more meets."
             );
+          } else {
             const aggregateRef = db
               .collection("seasonAthleteAggregates")
               .doc(seasonId);
-            transaction.update(aggregateRef, {
-              payload: buildAggregatePayload(newAthletes, teams),
-            });
+            return getAggregateOrReject(transaction, aggregateRef).then(
+              ({ teams, athletes }) => {
+                const newAthletes = athletes.filter(
+                  athlete => !deletedAthleteIds.includes(athlete.id)
+                );
+                const aggregateRef = db
+                  .collection("seasonAthleteAggregates")
+                  .doc(seasonId);
+                transaction.update(aggregateRef, {
+                  payload: buildAggregatePayload(newAthletes, teams),
+                });
+              }
+            );
           }
-        );
+        });
       }
     );
   });
