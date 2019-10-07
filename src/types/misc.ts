@@ -62,9 +62,9 @@ export function getOrderedTeams({
   maxGrade,
 }: TeamsRecipe): Team[] {
   const orderedSchools = schools.slice().sort();
-  const orderedDivisions = RaceDivisionUtil.DEPRECATED_getDivisions({
-    min: minGrade,
-    max: maxGrade,
+  const orderedDivisions = RaceDivisionUtil.getOrderedDivisions({
+    minGrade,
+    maxGrade,
   });
   return orderedSchools.flatMap(school =>
     orderedDivisions.map(division => ({ school, ...division }))

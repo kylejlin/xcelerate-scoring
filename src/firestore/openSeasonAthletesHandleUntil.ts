@@ -96,9 +96,9 @@ function parseAggregate(
         return athleteIdsAndNames.andThen(athleteIdsAndNames => {
           if (isValidAthleteIdsAndNames(athleteIdsAndNames)) {
             const orderedSchools = schools.sort();
-            const divisions = RaceDivisionUtil.DEPRECATED_getDivisions({
-              min: minGrade,
-              max: maxGrade,
+            const divisions = RaceDivisionUtil.getOrderedDivisions({
+              minGrade,
+              maxGrade,
             });
             const athletes: Athlete[] = [];
             orderedSchools.forEach((school, schoolIndex) => {

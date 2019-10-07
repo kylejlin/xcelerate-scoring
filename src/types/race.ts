@@ -37,19 +37,6 @@ export const RaceDivisionUtil = {
     ]);
   },
 
-  /** @deprecated Use getOrderedDivisions() instead. */
-  // TODO Replace all uses with getOrderedDivisions().
-  DEPRECATED_getDivisions(gradeBounds: {
-    min: number;
-    max: number;
-  }): RaceDivision[] {
-    const { min, max } = gradeBounds;
-    return inclusiveIntRange(min, max).flatMap(grade => [
-      { grade, gender: Gender.Male },
-      { grade, gender: Gender.Female },
-    ]);
-  },
-
   getAthleteDivision(athlete: Athlete): RaceDivision {
     return { grade: athlete.grade, gender: athlete.gender };
   },
