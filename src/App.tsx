@@ -88,14 +88,6 @@ export default class App extends React.Component<{}, AppState> {
       if (user) {
         doesUserAccountExist(user).then(doesExist => {
           if (doesExist) {
-            // this.replaceScreen(StateType.UserSeasons, {
-            //   user,
-            //   seasons: Option.none(),
-            // }).then(screen => {
-            //   getUserSeasons(user).then(seasonSummaries => {
-            //     screen.update({ seasons: Option.some(seasonSummaries) });
-            //   });
-            // });
             const loader = new ScreenLoader(this, Option.some(user));
             loader.loadScreen(window.location.pathname);
           } else {
@@ -109,12 +101,6 @@ export default class App extends React.Component<{}, AppState> {
       } else {
         const loader = new ScreenLoader(this, Option.none());
         loader.loadScreen(window.location.pathname);
-        // this.replaceScreen(StateType.SearchForSeason, {
-        //   user: Option.none(),
-        //   query: "",
-        //   isLoading: false,
-        //   seasons: Option.none(),
-        // });
       }
     });
   }

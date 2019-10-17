@@ -28,9 +28,6 @@ import { RaceDivisionUtil, RaceDivision } from "./types/race";
 import guessFullName from "./guessFullName";
 
 // TODO
-// Instead of calling this.getUser.expect()
-// If user is Option::None, navigate to SignIn screen.
-// TODO
 // DRY
 // Code  in load*Screen() duplicated from numerous controllers
 export default class StatePopper {

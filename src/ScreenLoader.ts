@@ -19,9 +19,6 @@ import getMeet from "./firestore/getMeet";
 import guessFullName from "./guessFullName";
 
 // TODO
-// Instead of calling this.getUser.expect()
-// If user is Option::None, navigate to SignIn screen.
-// TODO
 // DRY
 // Code  in load*Screen() duplicated from numerous controllers
 export default class ScreenLoader {
@@ -124,10 +121,6 @@ export default class ScreenLoader {
       seasons: Option.none(),
     });
   }
-
-  //   private getUser(): Option<firebase.User> {
-  //     return this.app.getUser();
-  //   }
 
   private loadUserSeasonsScreenFallingBackToSignIn() {
     this.getUserOrLoadSignInScreen(this.loadUserSeasonsScreen);
