@@ -16,6 +16,7 @@
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "firebase deploy",
+    "deploy-frontend": "npm run build && firebase deploy --only hosting",
     "lint-functions": "cd functions && npm run lint"
   },
   "eslintConfig": {
