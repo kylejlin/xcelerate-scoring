@@ -24,8 +24,8 @@ export default function getViewMeetController(
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
     back() {
-      const { user, seasonSummary } = getCurrentScreen().state;
-      navigateToSeasonMeetsScreen({ user, seasonSummary });
+      const { user, season } = getCurrentScreen().state;
+      navigateToSeasonMeetsScreen({ user, season });
     },
     selectDivision(event: React.ChangeEvent<HTMLSelectElement>) {
       const screen = getCurrentScreen();

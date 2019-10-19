@@ -159,10 +159,10 @@ export default class StatePopper {
   }
 
   private loadSeasonMenu(state: SeasonMenuCachedState) {
-    const { seasonSummary } = state;
+    const { season } = state;
     this.app.replaceScreen(StateType.SeasonMenu, {
       user: this.getUser(),
-      seasonSummary,
+      season,
     });
   }
 
@@ -170,12 +170,12 @@ export default class StatePopper {
     // TODO DRY
     // Duplicates getSharedControllerMethods.navigateToAthletesMenu
     const user = this.getUser();
-    const { seasonSummary } = state;
+    const { season } = state;
     this.app
       .replaceScreen(StateType.AthletesMenu, {
         user,
         doesUserHaveWriteAccess: false,
-        seasonSummary: seasonSummary,
+        season: season,
         athletes: Option.none(),
         athleteFilter: {
           grade: Option.none<number>(),
@@ -190,7 +190,7 @@ export default class StatePopper {
         isSpreadsheetDataShown: false,
       })
       .then(screen => {
-        const seasonId = seasonSummary.id;
+        const seasonId = season.id;
 
         user.ifSome(user => {
           doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
@@ -228,13 +228,13 @@ export default class StatePopper {
     this.app
       .replaceScreen(StateType.PasteAthletes, {
         user,
-        seasonSummary: state.seasonSummary,
+        season: state.season,
         spreadsheetData: "",
         schools: Option.none(),
         selectedSchool: Option.none(),
       })
       .then(screen => {
-        getSeason(screen.state.seasonSummary.id).then(season => {
+        getSeason(screen.state.season.id).then(season => {
           screen.update({ schools: Option.some(season.schools) });
         });
       });
@@ -255,7 +255,7 @@ export default class StatePopper {
     this.app
       .replaceScreen(StateType.AddAthletes, {
         user,
-        seasonSummary: state.seasonSummary,
+        season: state.season,
         wereAthletesPasted: state.wereAthletesPasted,
         athletes: [],
         pendingAthleteEdit: Option.none(),
@@ -263,7 +263,7 @@ export default class StatePopper {
         areAthletesBeingAdded: false,
       })
       .then(screen => {
-        getSeason(screen.state.seasonSummary.id).then(season => {
+        getSeason(screen.state.season.id).then(season => {
           screen.update({ raceDivisions: Option.some(season) });
         });
       });
@@ -271,13 +271,13 @@ export default class StatePopper {
 
   private loadAssistantsMenu(state: AssistantsMenuCachedState) {
     const user = this.getUser();
-    const { seasonSummary } = state;
+    const { season } = state;
     this.app
       .replaceScreen(StateType.AssistantsMenu, {
         user,
         doesUserHaveWriteAccess: false,
         isUserOwner: false,
-        seasonSummary,
+        season,
         owner: Option.none(),
         assistants: Option.none(),
         assistantQuery: "",
@@ -285,17 +285,15 @@ export default class StatePopper {
         areQueryResultsLoading: false,
       })
       .then(screen => {
-        const { seasonSummary, user } = screen.state;
-        getSeasonOwnerAndAssistants(seasonSummary.id).then(
-          ([owner, assistants]) => {
-            screen.update({
-              owner: Option.some(owner),
-              assistants: Option.some(assistants),
-            });
-          }
-        );
+        const { season, user } = screen.state;
+        getSeasonOwnerAndAssistants(season.id).then(([owner, assistants]) => {
+          screen.update({
+            owner: Option.some(owner),
+            assistants: Option.some(assistants),
+          });
+        });
         user.ifSome(user => {
-          getUserSeasonPermissions(user, seasonSummary.id).then(permissions => {
+          getUserSeasonPermissions(user, season.id).then(permissions => {
             screen.update({
               isUserOwner: permissions.isOwner,
               doesUserHaveWriteAccess: permissions.hasWriteAccess,
@@ -307,18 +305,18 @@ export default class StatePopper {
 
   private loadSeasonMeetsScreen(state: SeasonMeetsCachedState) {
     const user = this.getUser();
-    const { seasonSummary } = state;
+    const { season } = state;
     this.app
       .replaceScreen(StateType.SeasonMeets, {
         user,
         doesUserHaveWriteAccess: false,
-        seasonSummary,
+        season,
         meets: Option.none(),
         gradeBounds: Option.none(),
         pendingMeetName: "",
       })
       .then(screen => {
-        const seasonId = seasonSummary.id;
+        const seasonId = season.id;
         user.ifSome(user => {
           doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
             if (hasAccess) {
@@ -329,7 +327,7 @@ export default class StatePopper {
         getSeasonMeets(seasonId).then(meets => {
           screen.update({ meets: Option.some(meets) });
         });
-        getSeason(screen.state.seasonSummary.id).then(season => {
+        getSeason(screen.state.season.id).then(season => {
           screen.update({
             gradeBounds: Option.some({
               min: season.minGrade,
@@ -347,11 +345,11 @@ export default class StatePopper {
   }
 
   private loadEditMeetScreen(state: EditMeetCachedState, user: firebase.User) {
-    const { seasonSummary, meetSummary } = state;
+    const { season, meetSummary } = state;
     this.app
       .replaceScreen(StateType.EditMeet, {
         user,
-        seasonSummary,
+        season,
         meetSummary,
         divisionsRecipe: Option.none(),
         orderedRaces: Option.none(),
@@ -366,7 +364,7 @@ export default class StatePopper {
         const { state } = screen;
 
         const { meet, raceDivisions } = openMeetHandleUntil(
-          state.seasonSummary.id,
+          state.season.id,
           state.meetSummary.id,
           screen.expiration
         );
@@ -392,7 +390,7 @@ export default class StatePopper {
         });
 
         const { athletes } = openSeasonAthletesHandleUntil(
-          state.seasonSummary.id,
+          state.season.id,
           screen.expiration
         );
         athletes.onUpdate(athletes => {
@@ -403,11 +401,11 @@ export default class StatePopper {
 
   private loadViewMeetScreen(state: ViewMeetCachedState) {
     const user = this.getUser();
-    const { seasonSummary, meetSummary } = state;
+    const { season, meetSummary } = state;
     this.app
       .replaceScreen(StateType.ViewMeet, {
         user,
-        seasonSummary,
+        season,
         meetSummary,
         divisionsRecipe: Option.none(),
         orderedRaces: Option.none(),
@@ -419,7 +417,7 @@ export default class StatePopper {
         const { state } = screen;
 
         const { meet, raceDivisions } = openMeetHandleUntil(
-          state.seasonSummary.id,
+          state.season.id,
           state.meetSummary.id,
           screen.expiration
         );
@@ -445,7 +443,7 @@ export default class StatePopper {
         });
 
         const { athletes } = openSeasonAthletesHandleUntil(
-          state.seasonSummary.id,
+          state.season.id,
           screen.expiration
         );
         athletes.onUpdate(athletes => {

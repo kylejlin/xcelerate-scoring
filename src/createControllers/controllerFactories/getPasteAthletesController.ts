@@ -28,7 +28,7 @@ export default function getPasteAthletesController(
       const { state } = getCurrentScreen();
       navigateToAthletesMenu(
         Option.some(state.user),
-        state.seasonSummary,
+        state.season,
         Option.some(true)
       );
     },
@@ -48,14 +48,14 @@ export default function getPasteAthletesController(
       const screen = getCurrentScreen();
       const {
         user,
-        seasonSummary,
+        season,
         spreadsheetData,
         selectedSchool,
       } = screen.state;
       screen
         .pushScreen(StateType.AddAthletes, {
           user: user,
-          seasonSummary: seasonSummary,
+          season: season,
           wereAthletesPasted: true,
           athletes: parseSpreadsheetData(spreadsheetData, selectedSchool),
           pendingAthleteEdit: Option.none(),
@@ -63,7 +63,7 @@ export default function getPasteAthletesController(
           areAthletesBeingAdded: false,
         })
         .then(screen => {
-          getSeason(screen.state.seasonSummary.id).then(season => {
+          getSeason(screen.state.season.id).then(season => {
             screen.update({ raceDivisions: Option.some(season) });
           });
         });

@@ -23,7 +23,7 @@ export default function AddAthletes({
       <button onClick={controller.navigateToUserProfileScreen}>Profile</button>
       <button onClick={controller.navigateToAthletesMenu}>Back</button>
       <h2>
-        {state.seasonSummary.name} -{" "}
+        {state.season.name} -{" "}
         {state.wereAthletesPasted ? "Correct pasted athletes" : "Add athletes"}
       </h2>
       {state.areAthletesBeingAdded ? (

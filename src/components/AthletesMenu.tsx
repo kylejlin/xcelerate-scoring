@@ -37,10 +37,8 @@ export default function AthletesMenu({
           </>
         ),
       })}
-      <button onClick={() => controller.viewSeason(state.seasonSummary)}>
-        Back
-      </button>
-      <h2>{state.seasonSummary.name} - Athletes</h2>
+      <button onClick={() => controller.viewSeason(state.season)}>Back</button>
+      <h2>{state.season.name} - Athletes</h2>
       {state.doesUserHaveWriteAccess &&
         state.deleteAthletes.match({
           none: () => (

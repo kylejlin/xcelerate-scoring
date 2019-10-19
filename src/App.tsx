@@ -359,112 +359,112 @@ export default class App extends React.Component<{}, AppState> {
         break;
       }
       case StateType.SeasonMenu: {
-        const { seasonSummary } = newState;
+        const { season } = newState;
         const cachedState: SeasonMenuCachedState = {
           kind: StateType.SeasonMenu,
-          seasonSummary,
+          season,
         };
         window.history.pushState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}`
+          `/seasons/${newState.season.id}`
         );
         break;
       }
 
       case StateType.AthletesMenu: {
-        const { seasonSummary } = newState;
+        const { season } = newState;
         const cachedState: AthletesMenuCachedState = {
           kind: StateType.AthletesMenu,
-          seasonSummary,
+          season,
         };
         window.history.pushState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/athletes`
+          `/seasons/${newState.season.id}/athletes`
         );
         break;
       }
       case StateType.PasteAthletes: {
-        const { seasonSummary, spreadsheetData } = newState;
+        const { season, spreadsheetData } = newState;
         const cachedState: PasteAthletesCachedState = {
           kind: StateType.PasteAthletes,
-          seasonSummary,
+          season,
           spreadsheetData,
         };
         window.history.pushState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/paste-athletes`
+          `/seasons/${newState.season.id}/paste-athletes`
         );
         break;
       }
       case StateType.AddAthletes: {
-        const { seasonSummary, wereAthletesPasted } = newState;
+        const { season, wereAthletesPasted } = newState;
         const cachedState: AddAthletesCachedState = {
           kind: StateType.AddAthletes,
-          seasonSummary,
+          season,
           wereAthletesPasted,
         };
         window.history.pushState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/add-athletes`
+          `/seasons/${newState.season.id}/add-athletes`
         );
         break;
       }
       case StateType.AssistantsMenu: {
-        const { seasonSummary } = newState;
+        const { season } = newState;
         const cachedState: AssistantsMenuCachedState = {
           kind: StateType.AssistantsMenu,
-          seasonSummary,
+          season,
         };
         window.history.pushState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/assistants`
+          `/seasons/${newState.season.id}/assistants`
         );
         break;
       }
       case StateType.SeasonMeets: {
-        const { seasonSummary, pendingMeetName } = newState;
+        const { season, pendingMeetName } = newState;
         const cachedState: SeasonMeetsCachedState = {
           kind: StateType.SeasonMeets,
-          seasonSummary,
+          season,
           pendingMeetName,
         };
         window.history.pushState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/meets`
+          `/seasons/${newState.season.id}/meets`
         );
         break;
       }
       case StateType.EditMeet: {
-        const { seasonSummary, meetSummary } = newState;
+        const { season, meetSummary } = newState;
         const cachedState: EditMeetCachedState = {
           kind: StateType.EditMeet,
-          seasonSummary,
+          season,
           meetSummary,
         };
         window.history.pushState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/meets/${newState.meetSummary.id}/edit`
+          `/seasons/${newState.season.id}/meets/${newState.meetSummary.id}/edit`
         );
         break;
       }
       case StateType.ViewMeet: {
-        const { seasonSummary, meetSummary } = newState;
+        const { season, meetSummary } = newState;
         const cachedState: ViewMeetCachedState = {
           kind: StateType.ViewMeet,
-          seasonSummary,
+          season,
           meetSummary,
         };
         window.history.pushState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/meets/${newState.meetSummary.id}/view`
+          `/seasons/${newState.season.id}/meets/${newState.meetSummary.id}/view`
         );
         break;
       }
@@ -519,112 +519,112 @@ export default class App extends React.Component<{}, AppState> {
         break;
       }
       case StateType.SeasonMenu: {
-        const { seasonSummary } = newState;
+        const { season } = newState;
         const cachedState: SeasonMenuCachedState = {
           kind: StateType.SeasonMenu,
-          seasonSummary,
+          season,
         };
         window.history.replaceState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}`
+          `/seasons/${newState.season.id}`
         );
         break;
       }
 
       case StateType.AthletesMenu: {
-        const { seasonSummary } = newState;
+        const { season } = newState;
         const cachedState: AthletesMenuCachedState = {
           kind: StateType.AthletesMenu,
-          seasonSummary,
+          season,
         };
         window.history.replaceState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/athletes`
+          `/seasons/${newState.season.id}/athletes`
         );
         break;
       }
       case StateType.PasteAthletes: {
-        const { seasonSummary, spreadsheetData } = newState;
+        const { season, spreadsheetData } = newState;
         const cachedState: PasteAthletesCachedState = {
           kind: StateType.PasteAthletes,
-          seasonSummary,
+          season,
           spreadsheetData,
         };
         window.history.replaceState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/paste-athletes`
+          `/seasons/${newState.season.id}/paste-athletes`
         );
         break;
       }
       case StateType.AddAthletes: {
-        const { seasonSummary, wereAthletesPasted } = newState;
+        const { season, wereAthletesPasted } = newState;
         const cachedState: AddAthletesCachedState = {
           kind: StateType.AddAthletes,
-          seasonSummary,
+          season,
           wereAthletesPasted,
         };
         window.history.replaceState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/add-athletes`
+          `/seasons/${newState.season.id}/add-athletes`
         );
         break;
       }
       case StateType.AssistantsMenu: {
-        const { seasonSummary } = newState;
+        const { season } = newState;
         const cachedState: AssistantsMenuCachedState = {
           kind: StateType.AssistantsMenu,
-          seasonSummary,
+          season,
         };
         window.history.replaceState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/assistants`
+          `/seasons/${newState.season.id}/assistants`
         );
         break;
       }
       case StateType.SeasonMeets: {
-        const { seasonSummary, pendingMeetName } = newState;
+        const { season, pendingMeetName } = newState;
         const cachedState: SeasonMeetsCachedState = {
           kind: StateType.SeasonMeets,
-          seasonSummary,
+          season,
           pendingMeetName,
         };
         window.history.replaceState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/meets`
+          `/seasons/${newState.season.id}/meets`
         );
         break;
       }
       case StateType.EditMeet: {
-        const { seasonSummary, meetSummary } = newState;
+        const { season, meetSummary } = newState;
         const cachedState: EditMeetCachedState = {
           kind: StateType.EditMeet,
-          seasonSummary,
+          season,
           meetSummary,
         };
         window.history.replaceState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/meets/${newState.meetSummary.id}/edit`
+          `/seasons/${newState.season.id}/meets/${newState.meetSummary.id}/edit`
         );
         break;
       }
       case StateType.ViewMeet: {
-        const { seasonSummary, meetSummary } = newState;
+        const { season, meetSummary } = newState;
         const cachedState: ViewMeetCachedState = {
           kind: StateType.ViewMeet,
-          seasonSummary,
+          season,
           meetSummary,
         };
         window.history.replaceState(
           cachedState,
           "",
-          `/seasons/${newState.seasonSummary.id}/meets/${newState.meetSummary.id}/view`
+          `/seasons/${newState.season.id}/meets/${newState.meetSummary.id}/view`
         );
         break;
       }

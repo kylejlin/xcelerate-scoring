@@ -28,18 +28,18 @@ export default function getSeasonMenuController(
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
     navigateToAthletesMenu() {
-      const { user, seasonSummary } = getCurrentScreen().state;
-      navigateToAthletesMenu(user, seasonSummary, Option.none());
+      const { user, season } = getCurrentScreen().state;
+      navigateToAthletesMenu(user, season, Option.none());
     },
     navigateToAssistantsMenu() {
       const screen = getCurrentScreen();
-      const { user, seasonSummary } = screen.state;
+      const { user, season } = screen.state;
       screen
         .pushScreen(StateType.AssistantsMenu, {
           user,
           doesUserHaveWriteAccess: false,
           isUserOwner: false,
-          seasonSummary,
+          season,
           owner: Option.none(),
           assistants: Option.none(),
           assistantQuery: "",
@@ -47,8 +47,8 @@ export default function getSeasonMenuController(
           areQueryResultsLoading: false,
         })
         .then(screen => {
-          const { seasonSummary, user } = screen.state;
-          getSeasonOwnerAndAssistants(seasonSummary.id).then(
+          const { season, user } = screen.state;
+          getSeasonOwnerAndAssistants(season.id).then(
             ([owner, assistants]) => {
               screen.update({
                 owner: Option.some(owner),
@@ -57,7 +57,7 @@ export default function getSeasonMenuController(
             }
           );
           user.ifSome(user => {
-            getUserSeasonPermissions(user, seasonSummary.id).then(
+            getUserSeasonPermissions(user, season.id).then(
               permissions => {
                 screen.update({
                   isUserOwner: permissions.isOwner,
@@ -69,10 +69,10 @@ export default function getSeasonMenuController(
         });
     },
     navigateToSeasonMeetsScreen() {
-      const { user, seasonSummary } = getCurrentScreen().state;
+      const { user, season } = getCurrentScreen().state;
       navigateToSeasonMeetsScreen({
         user,
-        seasonSummary,
+        season,
       });
     },
   };

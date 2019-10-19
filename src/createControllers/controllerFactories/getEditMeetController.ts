@@ -31,7 +31,7 @@ export default function getEditMeetController(
       const { state } = getCurrentScreen();
       navigateToSeasonMeetsScreen({
         user: Option.some(state.user),
-        seasonSummary: state.seasonSummary,
+        season: state.season,
       });
     },
     selectDivision(event: React.ChangeEvent) {
@@ -80,7 +80,7 @@ export default function getEditMeetController(
             ) &&
             !finisherIds.includes(newPendingId)
           ) {
-            const { insertionIndex, seasonSummary, meetSummary } = screen.state;
+            const { insertionIndex, season, meetSummary } = screen.state;
             const action: RaceAction = insertionIndex.match({
               none: () => ({
                 kind: RaceActionType.InsertAtBottom,
@@ -102,7 +102,7 @@ export default function getEditMeetController(
               screen.update({
                 pendingActions: screen.state.pendingActions.concat([action]),
               });
-              appendAction(seasonSummary.id, meetSummary.id, action).then(
+              appendAction(season.id, meetSummary.id, action).then(
                 () => {
                   screen.update(prevState => ({
                     pendingActions: prevState.pendingActions.filter(
@@ -127,7 +127,7 @@ export default function getEditMeetController(
     },
     deleteAthlete(athleteId: number) {
       const screen = getCurrentScreen();
-      const { seasonSummary, meetSummary } = screen.state;
+      const { season, meetSummary } = screen.state;
       const editedDivision = screen.state.editedDivision.expect(
         "Attempted to deleteAthlete when user was not editing a division."
       );
@@ -152,7 +152,7 @@ export default function getEditMeetController(
         screen.update({
           pendingActions: screen.state.pendingActions.concat([action]),
         });
-        appendAction(seasonSummary.id, meetSummary.id, action).then(() => {
+        appendAction(season.id, meetSummary.id, action).then(() => {
           screen.update(prevState => ({
             pendingActions: prevState.pendingActions.filter(
               pendingAction => !areRaceActionsEqual(pendingAction, action)

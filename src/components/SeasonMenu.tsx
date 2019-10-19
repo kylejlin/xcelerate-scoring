@@ -27,7 +27,7 @@ export default function SeasonMenu({
           </>
         ),
       })}
-      <h2>{state.seasonSummary.name}</h2>
+      <h2>{state.season.name}</h2>
       <button onClick={controller.navigateToAthletesMenu}>Athletes</button>
       <button onClick={controller.navigateToAssistantsMenu}>Assistants</button>
       <button onClick={controller.navigateToSeasonMeetsScreen}>Meets</button>

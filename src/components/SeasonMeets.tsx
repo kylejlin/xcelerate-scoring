@@ -27,10 +27,8 @@ export default function SeasonMeets({
           </>
         ),
       })}
-      <button onClick={() => controller.viewSeason(state.seasonSummary)}>
-        Back
-      </button>
-      <h2>{state.seasonSummary.name} - Meets</h2>
+      <button onClick={() => controller.viewSeason(state.season)}>Back</button>
+      <h2>{state.season.name} - Meets</h2>
 
       {state.meets.match({
         none: () => <p>Loading meets...</p>,

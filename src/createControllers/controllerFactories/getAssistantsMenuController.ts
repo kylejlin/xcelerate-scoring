@@ -27,13 +27,13 @@ export default function getAssistantsMenuController(
     navigateToUserProfileScreen,
     back() {
       const screen = getCurrentScreen();
-      viewSeason(screen.state.seasonSummary);
+      viewSeason(screen.state.season);
     },
     deleteAssistant(assistantId: string) {
       const screen = getCurrentScreen();
       deleteAssistantFromSeason(
         assistantId,
-        screen.state.seasonSummary.id
+        screen.state.season.id
       ).then(() => {
         screen.update(prevState => ({
           assistants: prevState.assistants.map(assistants =>
@@ -70,7 +70,7 @@ export default function getAssistantsMenuController(
     },
     addAssistant(assistant: UserAccount) {
       const screen = getCurrentScreen();
-      addAssistantToSeason(assistant.id, screen.state.seasonSummary.id).then(
+      addAssistantToSeason(assistant.id, screen.state.season.id).then(
         () => {
           screen.update(prevState => ({
             assistants: prevState.assistants.map(assistants =>

@@ -5,7 +5,7 @@ import getUserSeasons from "../../firestore/getUserSeasons";
 
 import getUserName from "../../firestore/getUserName";
 
-import { SeasonSummary, Gender } from "../../types/misc";
+import { Season, Gender } from "../../types/misc";
 import { SharedControllerMethods } from "../../types/controllers";
 import getUserSeasonPermissions from "../../firestore/getUserSeasonPermissions";
 import getSeasonMeets from "../../firestore/getSeasonMeets";
@@ -79,22 +79,22 @@ export default function getSharedControllerMethods(
           });
         });
     },
-    viewSeason(seasonSummary: SeasonSummary) {
+    viewSeason(season: Season) {
       app.pushScreen(StateType.SeasonMenu, {
         user: app.getUser(),
-        seasonSummary,
+        season,
       });
     },
     navigateToAthletesMenu(
       user: Option<firebase.User>,
-      seasonSummary: SeasonSummary,
+      season: Season,
       userHasAccessToSeason: Option<boolean>
     ) {
       app
         .pushScreen(StateType.AthletesMenu, {
           user,
           doesUserHaveWriteAccess: userHasAccessToSeason.unwrapOr(false),
-          seasonSummary: seasonSummary,
+          season: season,
           athletes: Option.none(),
           athleteFilter: {
             grade: Option.none<number>(),
@@ -109,7 +109,7 @@ export default function getSharedControllerMethods(
           isSpreadsheetDataShown: false,
         })
         .then(screen => {
-          const seasonId = seasonSummary.id;
+          const seasonId = season.id;
 
           userHasAccessToSeason.ifNone(() => {
             user.ifSome(user => {
@@ -135,22 +135,22 @@ export default function getSharedControllerMethods(
     },
     navigateToSeasonMeetsScreen({
       user,
-      seasonSummary,
+      season,
     }: {
       user: Option<firebase.User>;
-      seasonSummary: SeasonSummary;
+      season: Season;
     }) {
       app
         .pushScreen(StateType.SeasonMeets, {
           user,
           doesUserHaveWriteAccess: false,
-          seasonSummary,
+          season,
           meets: Option.none(),
           gradeBounds: Option.none(),
           pendingMeetName: "",
         })
         .then(screen => {
-          const seasonId = seasonSummary.id;
+          const seasonId = season.id;
           user.ifSome(user => {
             getUserSeasonPermissions(user, seasonId).then(permissions => {
               screen.update({

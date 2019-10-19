@@ -1,12 +1,10 @@
 import firebase from "../firebase";
 
-import { SeasonSummary } from "../types/misc";
+import { Season } from "../types/misc";
 
 const db = firebase.firestore();
 
-export default function getUserSeasons(
-  user: firebase.User
-): Promise<SeasonSummary[]> {
+export default function getUserSeasons(user: firebase.User): Promise<Season[]> {
   const ownedSeasons = db
     .collection("seasons")
     .where("ownerId", "==", user.uid)
@@ -17,15 +15,26 @@ export default function getUserSeasons(
     .get();
   return Promise.all([ownedSeasons, assistedSeasons]).then(
     ([ownedSeasons, assistedSeasons]) =>
-      ownedSeasons.docs.concat(assistedSeasons.docs).map(getSeasonSummary)
+      ownedSeasons.docs.concat(assistedSeasons.docs).map(getSeason)
   );
 }
 
-function getSeasonSummary(
-  doc: firebase.firestore.QueryDocumentSnapshot
-): SeasonSummary {
+function getSeason(doc: firebase.firestore.QueryDocumentSnapshot): Season {
+  const {
+    name,
+    ownerId,
+    assistantIds,
+    minGrade,
+    maxGrade,
+    schools,
+  } = doc.data();
   return {
     id: doc.id,
-    name: doc.data().name,
+    name,
+    ownerId,
+    assistantIds,
+    minGrade,
+    maxGrade,
+    schools,
   };
 }

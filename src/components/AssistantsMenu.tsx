@@ -30,7 +30,7 @@ export default function AssistantsMenu({
         ),
       })}
       <button onClick={controller.back}>Back</button>
-      <h2>{state.seasonSummary.name} - Assistants</h2>
+      <h2>{state.season.name} - Assistants</h2>
       {Option.all([state.owner, state.assistants]).match({
         none: () => <p>Loading</p>,
         some: ([owner, assistants]) => {

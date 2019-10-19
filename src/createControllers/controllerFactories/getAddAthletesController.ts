@@ -32,7 +32,7 @@ export default function getAddAthletesController(
       const { state } = getCurrentScreen();
       navigateToAthletesMenu(
         Option.some(state.user),
-        state.seasonSummary,
+        state.season,
         Option.some(true)
       );
     },
@@ -121,12 +121,12 @@ export default function getAddAthletesController(
 
       screen.update({ areAthletesBeingAdded: true });
 
-      const { athletes, seasonSummary, raceDivisions } = screen.state;
+      const { athletes, season, raceDivisions } = screen.state;
       addAthletesToSeason(
         Option.all(athletes.map(finalizeTentativeAthlete)).expect(
           "Attempted to addAthletes when one or more athletes was missing a field."
         ),
-        seasonSummary.id,
+        season.id,
         raceDivisions.expect(
           "Attempted to addAthletes before state.raceDivisions has loaded."
         )

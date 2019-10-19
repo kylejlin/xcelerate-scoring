@@ -32,7 +32,7 @@ export default function getSeasonsMeetsController(
       screen
         .pushScreen(StateType.ViewMeet, {
           user: screen.state.user,
-          seasonSummary: screen.state.seasonSummary,
+          season: screen.state.season,
           meetSummary,
           divisionsRecipe: Option.none(),
           orderedRaces: Option.none(),
@@ -44,7 +44,7 @@ export default function getSeasonsMeetsController(
           const { state } = screen;
 
           const { meet, raceDivisions } = openMeetHandleUntil(
-            state.seasonSummary.id,
+            state.season.id,
             state.meetSummary.id,
             screen.expiration
           );
@@ -70,7 +70,7 @@ export default function getSeasonsMeetsController(
           });
 
           const { athletes } = openSeasonAthletesHandleUntil(
-            state.seasonSummary.id,
+            state.season.id,
             screen.expiration
           );
           athletes.onUpdate(athletes => {
@@ -85,7 +85,7 @@ export default function getSeasonsMeetsController(
           user: screen.state.user.expect(
             "Attempted to editMeet when user was not on SeasonMeets screen."
           ),
-          seasonSummary: screen.state.seasonSummary,
+          season: screen.state.season,
           meetSummary,
           divisionsRecipe: Option.none(),
           orderedRaces: Option.none(),
@@ -100,7 +100,7 @@ export default function getSeasonsMeetsController(
           const { state } = screen;
 
           const { meet, raceDivisions } = openMeetHandleUntil(
-            state.seasonSummary.id,
+            state.season.id,
             state.meetSummary.id,
             screen.expiration
           );
@@ -126,7 +126,7 @@ export default function getSeasonsMeetsController(
           });
 
           const { athletes } = openSeasonAthletesHandleUntil(
-            state.seasonSummary.id,
+            state.season.id,
             screen.expiration
           );
           athletes.onUpdate(athletes => {
@@ -144,7 +144,7 @@ export default function getSeasonsMeetsController(
       const { pendingMeetName } = screen.state;
       if (pendingMeetName !== "") {
         screen.update({ pendingMeetName: "" });
-        addMeetToSeason(pendingMeetName, screen.state.seasonSummary.id).then(
+        addMeetToSeason(pendingMeetName, screen.state.season.id).then(
           meetSummary => {
             screen.update({
               meets: screen.state.meets.map(meets =>

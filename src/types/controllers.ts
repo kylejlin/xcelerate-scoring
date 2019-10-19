@@ -4,7 +4,7 @@ import {
   Athlete,
   EditableAthleteField,
   MeetSummary,
-  SeasonSummary,
+  Season,
   UserAccount,
 } from "./misc";
 import Option from "./Option";
@@ -32,18 +32,18 @@ export interface SharedControllerMethods {
   navigateToSignInScreen(): void;
   navigateToUserSeasonsScreen(): void;
   navigateToUserProfileScreen(): void;
-  viewSeason(seasonSummary: SeasonSummary): void;
+  viewSeason(season: Season): void;
   navigateToAthletesMenu(
     user: Option<firebase.User>,
-    seasonSummary: SeasonSummary,
+    season: Season,
     userHasAccessToSeason: Option<boolean>
   ): void;
   navigateToSeasonMeetsScreen({
     user,
-    seasonSummary,
+    season,
   }: {
     user: Option<firebase.User>;
-    seasonSummary: SeasonSummary;
+    season: Season;
   }): void;
 }
 
@@ -53,7 +53,7 @@ export interface SearchForSeasonController {
   navigateToUserProfileScreen(): void;
   editQuery(event: React.ChangeEvent<HTMLInputElement>): void;
   search(): void;
-  viewSeason(seasonSummary: SeasonSummary): void;
+  viewSeason(season: Season): void;
 }
 
 export interface SignInController {
@@ -63,7 +63,7 @@ export interface SignInController {
 export interface UserSeasonsController {
   navigateToSearchForSeasonScreen(): void;
   navigateToUserProfileScreen(): void;
-  viewSeason(seasonSummary: SeasonSummary): void;
+  viewSeason(season: Season): void;
   navigateToCreateSeasonScreen(): void;
 }
 
@@ -102,7 +102,7 @@ export interface AthletesMenuController {
   navigateToSignInScreen(): void;
   navigateToUserSeasonsScreen(): void;
   navigateToUserProfileScreen(): void;
-  viewSeason(seasonSummary: SeasonSummary): void;
+  viewSeason(season: Season): void;
   navigateToPasteAthletesScreen(): void;
   navigateToManuallyAddAthletesScreen(): void;
 
@@ -172,7 +172,7 @@ export interface SeasonMeetsController {
   navigateToSignInScreen(): void;
   navigateToUserSeasonsScreen(): void;
   navigateToUserProfileScreen(): void;
-  viewSeason(seasonSummary: SeasonSummary): void;
+  viewSeason(season: Season): void;
   viewMeet(meetSummary: MeetSummary): void;
   editMeet(meetSummary: MeetSummary): void;
   editPendingMeetName(event: React.ChangeEvent): void;

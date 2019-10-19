@@ -17,7 +17,7 @@ export default function PasteAthletes({
       </button>
       <button onClick={controller.navigateToUserProfileScreen}>Profile</button>
       <button onClick={controller.navigateToAthletesMenu}>Back</button>
-      <h2>{state.seasonSummary.name} - Paste athletes</h2>
+      <h2>{state.season.name} - Paste athletes</h2>
       <p>Copy your roster from a Google Sheet and paste it below.</p>
       <textarea
         value={state.spreadsheetData}

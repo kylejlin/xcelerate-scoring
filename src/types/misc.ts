@@ -1,14 +1,13 @@
 import Option from "./Option";
 import { RaceDivision, RaceDivisionUtil, RaceDivisionsRecipe } from "./race";
 
-export interface SeasonSummary {
-  id: string;
-  name: string;
-}
-
 export interface FullName {
   firstName: string;
   lastName: string;
+}
+
+export interface UserAccount extends FullName {
+  id: string;
 }
 
 export interface SeasonSpec {
@@ -46,35 +45,6 @@ export interface AthleteFilter {
   grade: Option<number>;
   gender: Option<Gender>;
   school: Option<string>;
-}
-
-export interface TeamsRecipe {
-  schools: string[];
-  minGrade: number;
-  maxGrade: number;
-}
-
-export interface Team extends RaceDivision {
-  school: string;
-}
-
-export function getOrderedTeams({
-  schools,
-  minGrade,
-  maxGrade,
-}: TeamsRecipe): Team[] {
-  const orderedSchools = schools.slice().sort();
-  const orderedDivisions = RaceDivisionUtil.getOrderedDivisions({
-    minGrade,
-    maxGrade,
-  });
-  return orderedSchools.flatMap(school =>
-    orderedDivisions.map(division => ({ school, ...division }))
-  );
-}
-
-export function areTeamsEqual(a: Team, b: Team): boolean {
-  return a.grade === b.grade && a.gender === b.gender && a.school === b.school;
 }
 
 export interface PendingAthleteEdit {
@@ -166,6 +136,35 @@ export interface PendingAthleteDeletion {
   athleteId: string;
 }
 
+export interface TeamsRecipe {
+  schools: string[];
+  minGrade: number;
+  maxGrade: number;
+}
+
+export interface Team extends RaceDivision {
+  school: string;
+}
+
+export function getOrderedTeams({
+  schools,
+  minGrade,
+  maxGrade,
+}: TeamsRecipe): Team[] {
+  const orderedSchools = schools.slice().sort();
+  const orderedDivisions = RaceDivisionUtil.getOrderedDivisions({
+    minGrade,
+    maxGrade,
+  });
+  return orderedSchools.flatMap(school =>
+    orderedDivisions.map(division => ({ school, ...division }))
+  );
+}
+
+export function areTeamsEqual(a: Team, b: Team): boolean {
+  return a.grade === b.grade && a.gender === b.gender && a.school === b.school;
+}
+
 export interface MeetSummary {
   name: string;
   id: string;
@@ -184,8 +183,4 @@ export enum AthleteOrSchool {
 export interface AthleteDeletion {
   athlete: Athlete;
   isDeletable: boolean;
-}
-
-export interface UserAccount extends FullName {
-  id: string;
 }

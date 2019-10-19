@@ -10,7 +10,7 @@ import {
   MeetSummary,
   PendingAthleteEdit,
   PendingHypotheticalAthleteEdit,
-  SeasonSummary,
+  Season,
   AthleteOrSchool,
   UserAccount,
 } from "./misc";
@@ -61,7 +61,7 @@ export interface SearchForSeasonState {
   user: Option<firebase.User>;
   query: string;
   isLoading: boolean;
-  seasons: Option<SeasonSummary[]>;
+  seasons: Option<Season[]>;
 }
 
 export interface SignInState {
@@ -90,7 +90,7 @@ export interface UserSeasonsState {
   screenNumber: number;
 
   user: firebase.User;
-  seasons: Option<SeasonSummary[]>;
+  seasons: Option<Season[]>;
 }
 
 export interface CreateSeasonState {
@@ -111,7 +111,7 @@ export interface SeasonMenuState {
   screenNumber: number;
 
   user: Option<firebase.User>;
-  seasonSummary: SeasonSummary;
+  season: Season;
 }
 
 export interface AthletesMenuState {
@@ -120,7 +120,7 @@ export interface AthletesMenuState {
 
   user: Option<firebase.User>;
   doesUserHaveWriteAccess: boolean;
-  seasonSummary: SeasonSummary;
+  season: Season;
   athletes: Option<Athlete[]>;
   athleteFilter: AthleteFilter;
   teamsRecipe: Option<TeamsRecipe>;
@@ -144,7 +144,7 @@ export interface PasteAthletesState {
   screenNumber: number;
 
   user: firebase.User;
-  seasonSummary: SeasonSummary;
+  season: Season;
   spreadsheetData: string;
   schools: Option<string[]>;
   selectedSchool: Option<string>;
@@ -155,7 +155,7 @@ export interface AddAthletesState {
   screenNumber: number;
 
   user: firebase.User;
-  seasonSummary: SeasonSummary;
+  season: Season;
   wereAthletesPasted: boolean;
   athletes: TentativeHypotheticalAthlete[];
   pendingAthleteEdit: Option<PendingHypotheticalAthleteEdit>;
@@ -170,7 +170,7 @@ export interface AssistantsMenuState {
   user: Option<firebase.User>;
   doesUserHaveWriteAccess: boolean;
   isUserOwner: boolean;
-  seasonSummary: SeasonSummary;
+  season: Season;
   owner: Option<UserAccount>;
   assistants: Option<UserAccount[]>;
   assistantQuery: string;
@@ -184,7 +184,7 @@ export interface SeasonMeetsState {
 
   user: Option<firebase.User>;
   doesUserHaveWriteAccess: boolean;
-  seasonSummary: SeasonSummary;
+  season: Season;
   meets: Option<MeetSummary[]>;
   gradeBounds: Option<{ min: number; max: number }>;
   pendingMeetName: string;
@@ -195,7 +195,7 @@ export interface EditMeetState {
   screenNumber: number;
 
   user: firebase.User;
-  seasonSummary: SeasonSummary;
+  season: Season;
   meetSummary: MeetSummary;
 
   divisionsRecipe: Option<RaceDivisionsRecipe>;
@@ -213,7 +213,7 @@ export interface ViewMeetState {
   screenNumber: number;
 
   user: Option<firebase.User>;
-  seasonSummary: SeasonSummary;
+  season: Season;
   meetSummary: MeetSummary;
 
   divisionsRecipe: Option<RaceDivisionsRecipe>;

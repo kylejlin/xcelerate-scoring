@@ -1,5 +1,5 @@
 import { StateType } from "./types/states";
-import { SeasonSummary, MeetSummary } from "./types/misc";
+import { Season, MeetSummary } from "./types/misc";
 
 export type CachedState =
   | SearchForSeasonCachedState
@@ -50,52 +50,52 @@ export interface CreateSeasonCachedState {
 export interface SeasonMenuCachedState {
   kind: StateType.SeasonMenu;
 
-  seasonSummary: SeasonSummary;
+  season: Season;
 }
 
 export interface AthletesMenuCachedState {
   kind: StateType.AthletesMenu;
 
-  seasonSummary: SeasonSummary;
+  season: Season;
 }
 
 export interface PasteAthletesCachedState {
   kind: StateType.PasteAthletes;
 
-  seasonSummary: SeasonSummary;
+  season: Season;
   spreadsheetData: string;
 }
 
 export interface AddAthletesCachedState {
   kind: StateType.AddAthletes;
 
-  seasonSummary: SeasonSummary;
+  season: Season;
   wereAthletesPasted: boolean;
 }
 
 export interface AssistantsMenuCachedState {
   kind: StateType.AssistantsMenu;
 
-  seasonSummary: SeasonSummary;
+  season: Season;
 }
 
 export interface SeasonMeetsCachedState {
   kind: StateType.SeasonMeets;
 
-  seasonSummary: SeasonSummary;
+  season: Season;
   pendingMeetName: string;
 }
 
 export interface EditMeetCachedState {
   kind: StateType.EditMeet;
 
-  seasonSummary: SeasonSummary;
+  season: Season;
   meetSummary: MeetSummary;
 }
 
 export interface ViewMeetCachedState {
   kind: StateType.ViewMeet;
 
-  seasonSummary: SeasonSummary;
+  season: Season;
   meetSummary: MeetSummary;
 }

@@ -28,7 +28,7 @@ export default function getSearchForSeasonController(
       const screen = getCurrentScreen();
       screen.update({ isLoading: true });
       const originalQuery = screen.state.query;
-      searchForSeason(originalQuery).then(seasonSummaries => {
+      searchForSeason(originalQuery).then(seasons => {
         if (!screen.hasExpired()) {
           const possiblyUpdatedState = getCurrentScreen().state;
           if (
@@ -37,7 +37,7 @@ export default function getSearchForSeasonController(
           ) {
             screen.update({
               isLoading: false,
-              seasons: Option.some(seasonSummaries),
+              seasons: Option.some(seasons),
             });
           }
         }

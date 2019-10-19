@@ -48,13 +48,13 @@ export default function getAthletesMenuController(
           user: screen.state.user.expect(
             "Attempted to navigateToPasteAthletesScreen when user was not logged in."
           ),
-          seasonSummary: screen.state.seasonSummary,
+          season: screen.state.season,
           spreadsheetData: "",
           schools: Option.none(),
           selectedSchool: Option.none(),
         })
         .then(screen => {
-          getSeason(screen.state.seasonSummary.id).then(season => {
+          getSeason(screen.state.season.id).then(season => {
             screen.update({ schools: Option.some(season.schools) });
           });
         });
@@ -66,7 +66,7 @@ export default function getAthletesMenuController(
           user: screen.state.user.expect(
             "Attempted to navigateToManuallyAddAthletesScreen when user was not logged in."
           ),
-          seasonSummary: screen.state.seasonSummary,
+          season: screen.state.season,
           wereAthletesPasted: false,
           athletes: [],
           pendingAthleteEdit: Option.none(),
@@ -74,7 +74,7 @@ export default function getAthletesMenuController(
           areAthletesBeingAdded: false,
         })
         .then(screen => {
-          getSeason(screen.state.seasonSummary.id).then(season => {
+          getSeason(screen.state.season.id).then(season => {
             screen.update({ raceDivisions: Option.some(season) });
           });
         });
@@ -179,7 +179,7 @@ export default function getAthletesMenuController(
           "Attempted to syncAndUnfocusEditedAthleteField when teams recipe has not yet loaded."
         );
         updateAthletes(
-          screen.state.seasonSummary.id,
+          screen.state.season.id,
           [
             updatedAthletes.find(
               athlete => athlete.id === pendingEdit.athleteId
@@ -219,7 +219,7 @@ export default function getAthletesMenuController(
         }),
       });
       const { undeletableIds } = openUndeletableIdsHandleUntil(
-        screen.state.seasonSummary.id,
+        screen.state.season.id,
         Promise.race([subscreenExpiration, screen.expiration])
       );
       undeletableIds.onUpdate(undeletableIds => {
@@ -268,7 +268,7 @@ export default function getAthletesMenuController(
     },
     confirmAthleteDeletion() {
       const screen = getCurrentScreen();
-      const seasonId = screen.state.seasonSummary.id;
+      const seasonId = screen.state.season.id;
       const {
         idsConsideredForDeletion: idsToDelete,
       } = screen.state.deleteAthletes.expect(
