@@ -26,6 +26,7 @@ export default function getUserSeasonsController(
         maxGrade: "8",
         schools: [],
         newSchoolName: "",
+        isCreatingSeason: false,
       });
     },
   };

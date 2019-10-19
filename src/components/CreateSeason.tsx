@@ -55,7 +55,11 @@ export default function CreateSeason({
         />
         <button onClick={controller.addNewSchool}>Add</button>
       </label>
-      <button onClick={controller.createSeason}>Create season</button>
+      {state.isCreatingSeason ? (
+        <p>Creating season...</p>
+      ) : (
+        <button onClick={controller.createSeason}>Create season</button>
+      )}
     </div>
   );
 }

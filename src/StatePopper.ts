@@ -154,6 +154,7 @@ export default class StatePopper {
       maxGrade: "8",
       schools: [],
       newSchoolName: "",
+      isCreatingSeason: false,
     });
   }
 

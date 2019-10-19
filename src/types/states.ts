@@ -103,6 +103,7 @@ export interface CreateSeasonState {
   maxGrade: string;
   schools: string[];
   newSchoolName: string;
+  isCreatingSeason: boolean;
 }
 
 export interface SeasonMenuState {

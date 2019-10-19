@@ -67,6 +67,7 @@ export default function getCreateSeasonController(
     },
     createSeason() {
       const screen = getCurrentScreen();
+      screen.update({ isCreatingSeason: true });
       const spec = getSeasonSpec(screen.state);
       createSeason(spec).then(navigateToUserSeasonsScreen);
     },

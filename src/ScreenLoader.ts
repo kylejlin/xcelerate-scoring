@@ -185,6 +185,7 @@ export default class ScreenLoader {
       maxGrade: "8",
       schools: [],
       newSchoolName: "",
+      isCreatingSeason: false,
     });
   }
 
