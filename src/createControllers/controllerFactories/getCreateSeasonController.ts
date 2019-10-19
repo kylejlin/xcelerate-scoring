@@ -79,8 +79,10 @@ function validatePendingGrades(min: string, max: string): [number, number] {
   const maxOrNaN = parseInt(max, 10);
   const bound1 = isNaN(minOrNaN) ? DEFAULT_MIN_GRADE : minOrNaN;
   const bound2 = isNaN(maxOrNaN) ? DEFAULT_MAX_GRADE : maxOrNaN;
-  const minGrade = Math.min(bound1, bound2);
-  const maxGrade = Math.max(bound1, bound2);
+  const clampedBound1 = Math.max(1, bound1);
+  const clampedBound2 = Math.max(1, bound2);
+  const minGrade = Math.min(clampedBound1, clampedBound2);
+  const maxGrade = Math.max(clampedBound1, clampedBound2);
   return [minGrade, maxGrade];
 }
 
