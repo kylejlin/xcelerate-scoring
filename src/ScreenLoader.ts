@@ -6,12 +6,9 @@ import getUserName from "./firestore/getUserName";
 import { Gender, AthleteOrSchool } from "./types/misc";
 import doesUserHaveWriteAccessToSeason from "./firestore/getUserSeasonPermissions";
 import openSeasonAthletesHandleUntil from "./firestore/openSeasonAthletesHandleUntil";
-import getSeasonSchools from "./firestore/getSeasonSchools";
-import getSeasonRaceDivisions from "./firestore/getSeasonRaceDivisions";
 import getSeasonOwnerAndAssistants from "./firestore/getSeasonOwnerAndAssistants";
 import getUserSeasonPermissions from "./firestore/getUserSeasonPermissions";
 import getSeasonMeets from "./firestore/getSeasonMeets";
-import getSeasonGradeBounds from "./firestore/getSeasonGradeBounds";
 import openMeetHandleUntil from "./firestore/openMeetHandleUntil";
 import { RaceDivisionUtil, RaceDivision } from "./types/race";
 import getSeason from "./firestore/getSeason";
@@ -265,8 +262,8 @@ export default class ScreenLoader {
           selectedSchool: Option.none(),
         })
         .then(screen => {
-          getSeasonSchools(screen.state.seasonSummary.id).then(schools => {
-            screen.update({ schools: Option.some(schools) });
+          getSeason(screen.state.seasonSummary.id).then(season => {
+            screen.update({ schools: Option.some(season.schools) });
           });
         });
     });
@@ -291,11 +288,9 @@ export default class ScreenLoader {
           areAthletesBeingAdded: false,
         })
         .then(screen => {
-          getSeasonRaceDivisions(screen.state.seasonSummary.id).then(
-            raceDivisions => {
-              screen.update({ raceDivisions: Option.some(raceDivisions) });
-            }
-          );
+          getSeason(screen.state.seasonSummary.id).then(season => {
+            screen.update({ raceDivisions: Option.some(season) });
+          });
         });
     });
   }
@@ -363,8 +358,13 @@ export default class ScreenLoader {
           getSeasonMeets(seasonId).then(meets => {
             screen.update({ meets: Option.some(meets) });
           });
-          getSeasonGradeBounds(seasonId).then(gradeBounds => {
-            screen.update({ gradeBounds: Option.some(gradeBounds) });
+          getSeason(screen.state.seasonSummary.id).then(season => {
+            screen.update({
+              gradeBounds: Option.some({
+                min: season.minGrade,
+                max: season.maxGrade,
+              }),
+            });
           });
         });
     });

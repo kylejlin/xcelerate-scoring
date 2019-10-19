@@ -244,68 +244,6 @@ export default class App extends React.Component<{}, AppState> {
     }
   }
 
-  updateScreen<Kind extends AppState["kind"]>(
-    kind: Kind,
-    getNewScreen: (
-      prevState: Extract<AppState, { kind: Kind }>
-    ) => Partial<Extract<AppState, { kind: Kind }>>
-  ): ScreenUpdater<Extract<AppState, { kind: Kind }>> {
-    type State = Extract<AppState, { kind: Kind }>;
-    const callbacks: ScreenUpdaterCallback<State>[] = [];
-    let updatedState = Option.none<UpdatedState<State>>();
-    this.setState(
-      prevState => {
-        if (prevState.kind === kind) {
-          const newScreen = getNewScreen(prevState as State);
-          const { screenNumber } = prevState;
-          const newState = {
-            ...prevState,
-            ...newScreen,
-          } as State;
-          const updateScreen = (
-            newStateOrUpdater:
-              | Partial<State>
-              | ((prevState: State) => Partial<State>)
-          ) => {
-            if (this.state.screenNumber === screenNumber) {
-              this.setState(newStateOrUpdater as (
-                | AppState
-                | ((prevState: AppState) => AppState)));
-            }
-          };
-          updatedState = Option.some({
-            state: newState,
-            updateScreen,
-          });
-          return newState;
-        } else {
-          return prevState;
-        }
-      },
-      () => {
-        callbacks.forEach(callback => {
-          const { state, updateScreen } = updatedState.expect(
-            "updatedState should be set to Option::Some by the time the setState() callback is being called."
-          );
-          callback(state, updateScreen);
-        });
-      }
-    );
-
-    return {
-      update(callback) {
-        updatedState.match({
-          none: () => {
-            callbacks.push(callback);
-          },
-          some: updatedState => {
-            callback(updatedState.state, updatedState.updateScreen);
-          },
-        });
-      },
-    };
-  }
-
   pushScreen<T extends AppState["kind"]>(
     kind: T,
     state: Omit<StateOf<T>, "kind" | "screenNumber">

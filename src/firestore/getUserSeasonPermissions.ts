@@ -2,7 +2,7 @@ import firebase from "../firebase";
 
 const db = firebase.firestore();
 
-export default function doesUserHaveWriteAccessToSeason(
+export default function getUserSeasonPermissions(
   user: firebase.User,
   seasonId: string
 ): Promise<{ isOwner: boolean; hasWriteAccess: boolean }> {
@@ -14,7 +14,7 @@ export default function doesUserHaveWriteAccessToSeason(
       const data = doc.data();
       if (data === undefined) {
         throw new Error(
-          "Attempted to call doesUserHaveWriteAccessToSeason on a nonexistent season."
+          "Attempted to call getUserSeasonPermissions on a nonexistent season."
         );
       } else {
         const isOwner = data.ownerId === user.uid;

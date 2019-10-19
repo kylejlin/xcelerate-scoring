@@ -21,6 +21,8 @@ import getApplyRaceActionsDataOrThrow from "./httpsErrorThrowers/getApplyRaceAct
 import applyRaceActionsOrThrow from "./httpsErrorThrowers/applyRaceActionsOrThrow";
 import decompressActionsOrThrow from "./httpsErrorThrowers/decompressActionsOrThrow";
 import getUndeletableIdsOrThrow from "./httpsErrorThrowers/getUndeletableIdsOrThrow";
+import getCreateSeasonDataOrThrow from "./httpsErrorThrowers/getCreateSeasonDataOrThrow";
+import { Season } from "./types/misc";
 
 if ("function" !== typeof Array.prototype.flat) {
   flat.shim();
@@ -33,6 +35,34 @@ admin.initializeApp();
 
 const db = admin.firestore();
 const { HttpsError } = functions.https;
+
+exports.createSeason = functions.https.onCall(
+  (data, ctx): Promise<Season> => {
+    const uid = getUidOrThrow(ctx);
+    const { name, minGrade, maxGrade, schools } = getCreateSeasonDataOrThrow(
+      data
+    );
+    const seasonData: Omit<Season, "id"> = {
+      ownerId: uid,
+      assistantIds: [],
+      name,
+      minGrade,
+      maxGrade,
+      schools,
+    };
+    const seasonRef = db.collection("seasons").doc();
+    const aggregateRef = db
+      .collection("seasonAthleteAggregates")
+      .doc(seasonRef.id);
+    const batch = db.batch();
+    batch.create(seasonRef, seasonData);
+    batch.create(aggregateRef, {
+      lowestAvailableAthleteId: 0,
+      payload: buildAggregatePayload([], seasonData),
+    });
+    return batch.commit().then(() => ({ ...seasonData, id: seasonRef.id }));
+  }
+);
 
 exports.addAthletes = functions.https.onCall((data, ctx) => {
   const uid = getUidOrThrow(ctx);

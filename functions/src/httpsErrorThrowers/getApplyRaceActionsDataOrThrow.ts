@@ -1,4 +1,3 @@
-import * as admin from "firebase-admin";
 import * as functions from "firebase-functions";
 
 import { isObject, isInt } from "../types/misc";
@@ -6,7 +5,7 @@ import { isObject, isInt } from "../types/misc";
 const { HttpsError } = functions.https;
 
 export default function getApplyRaceActionsDataOrThrow(
-  data: admin.firestore.DocumentData
+  data: unknown
 ): { seasonId: string; meetId: string; actions: number[] } {
   if (isObject(data)) {
     const { seasonId, meetId, actions } = data;

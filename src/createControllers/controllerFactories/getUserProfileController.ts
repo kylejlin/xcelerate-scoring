@@ -1,4 +1,3 @@
-import App from "../../App";
 import {
   SharedControllerMethods,
   UserProfileController,
@@ -7,9 +6,10 @@ import firebase from "../../firebase";
 import { StateType } from "../../types/states";
 import updateUserName from "../../firestore/updateUserName";
 import createUserAccount from "../../firestore/createUserAccount";
+import { ScreenGuarantee } from "../../types/handle";
 
 export default function getUserProfileController(
-  app: App,
+  { getCurrentScreen }: ScreenGuarantee<StateType.UserProfile>,
   {
     navigateToUserSeasonsScreen,
     navigateToSearchForSeasonScreen,
@@ -23,51 +23,34 @@ export default function getUserProfileController(
         .signOut()
         .then(navigateToSearchForSeasonScreen);
     },
-    editPendingFirstName(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.UserProfile) {
-        const newFirstName = (event.target as HTMLInputElement).value;
-        app.setState({
-          ...app.state,
-          fullName: app.state.fullName.map(prevName => ({
-            firstName: newFirstName,
-            lastName: prevName.lastName,
-          })),
-        });
-      } else {
-        throw new Error(
-          "Attempted to editPendingFirstName when user was not on UserProfile screen."
-        );
-      }
+    editPendingFirstName(event: React.ChangeEvent<HTMLInputElement>) {
+      const screen = getCurrentScreen();
+      const newFirstName = event.target.value;
+      screen.update({
+        fullName: screen.state.fullName.map(prevName => ({
+          firstName: newFirstName,
+          lastName: prevName.lastName,
+        })),
+      });
     },
-    editPendingLastName(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.UserProfile) {
-        const newLastName = (event.target as HTMLInputElement).value;
-        app.setState({
-          ...app.state,
-          fullName: app.state.fullName.map(prevName => ({
-            firstName: prevName.firstName,
-            lastName: newLastName,
-          })),
-        });
-      } else {
-        throw new Error(
-          "Attempted to editPendingLastName when user was not on UserProfile screen."
-        );
-      }
+    editPendingLastName(event: React.ChangeEvent<HTMLInputElement>) {
+      const screen = getCurrentScreen();
+      const newLastName = event.target.value;
+      screen.update({
+        fullName: screen.state.fullName.map(prevName => ({
+          firstName: prevName.firstName,
+          lastName: newLastName,
+        })),
+      });
     },
     savePendingName() {
-      if (app.state.kind === StateType.UserProfile) {
-        const { user } = app.state;
-        app.state.fullName.ifSome(fullName => {
-          updateUserName(user, fullName).catch(() =>
-            createUserAccount(user, fullName)
-          );
-        });
-      } else {
-        throw new Error(
-          "Attempted to savePendingName when user was not on UserProfile screen."
+      const screen = getCurrentScreen();
+      const { user, fullName } = screen.state;
+      fullName.ifSome(fullName => {
+        updateUserName(user, fullName).catch(() =>
+          createUserAccount(user, fullName)
         );
-      }
+      });
     },
   };
 }

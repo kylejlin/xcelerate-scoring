@@ -2,14 +2,14 @@ import {
   SharedControllerMethods,
   ViewMeetController,
 } from "../../types/controllers";
-import App from "../../App";
-import { StateType, ViewMeetState } from "../../types/states";
+import { StateType } from "../../types/states";
 import { RaceDivisionUtil } from "../../types/race";
 import Option from "../../types/Option";
 import { AthleteOrSchool } from "../../types/misc";
+import { ScreenGuarantee } from "../../types/handle";
 
 export default function getViewMeetController(
-  app: App,
+  { getCurrentScreen }: ScreenGuarantee<StateType.ViewMeet>,
   {
     navigateToSignInScreen,
     navigateToSearchForSeasonScreen,
@@ -24,23 +24,18 @@ export default function getViewMeetController(
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
     back() {
-      const state = app.state as ViewMeetState;
-      navigateToSeasonMeetsScreen({
-        user: state.user,
-        seasonSummary: state.seasonSummary,
-      });
+      const { user, seasonSummary } = getCurrentScreen().state;
+      navigateToSeasonMeetsScreen({ user, seasonSummary });
     },
-    selectDivision(event: React.ChangeEvent) {
-      const { value } = event.target as HTMLInputElement;
-      const division = RaceDivisionUtil.parse(value);
-      app.updateScreen(StateType.ViewMeet, () => ({
-        viewedDivision: Option.some(division),
-      }));
+    selectDivision(event: React.ChangeEvent<HTMLSelectElement>) {
+      const screen = getCurrentScreen();
+      const division = RaceDivisionUtil.parse(event.target.value);
+      screen.update({ viewedDivision: Option.some(division) });
     },
-    selectResultType(event: React.ChangeEvent) {
-      const { value } = event.target as HTMLInputElement;
-      const viewedResultType = value as AthleteOrSchool;
-      app.updateScreen(StateType.ViewMeet, () => ({ viewedResultType }));
+    selectResultType(event: React.ChangeEvent<HTMLSelectElement>) {
+      const screen = getCurrentScreen();
+      const viewedResultType = event.target.value as AthleteOrSchool;
+      screen.update({ viewedResultType });
     },
   };
 }

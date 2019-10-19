@@ -17,6 +17,8 @@ export default function getSeason(seasonId: string): Promise<Season> {
       } else {
         return {
           id: doc.id,
+          ownerId: data.ownerId,
+          assistantIds: data.assistantIds,
           name: data.name,
           minGrade: data.minGrade,
           maxGrade: data.maxGrade,

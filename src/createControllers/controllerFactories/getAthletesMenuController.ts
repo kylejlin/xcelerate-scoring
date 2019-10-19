@@ -5,8 +5,6 @@ import {
 
 import { StateType } from "../../types/states";
 
-import getSeasonSchools from "../../firestore/getSeasonSchools";
-
 import {
   Gender,
   EditableAthleteField,
@@ -23,9 +21,9 @@ import updateAthletes from "../../firestore/updateAthletes";
 
 import deleteAthletes from "../../firestore/deleteAthletes";
 import Option from "../../types/Option";
-import getSeasonRaceDivisions from "../../firestore/getSeasonRaceDivisions";
 import { ScreenGuarantee } from "../../types/handle";
 import openUndeletableIdsHandleUntil from "../../firestore/openUndeletableIdsHandleUntil";
+import getSeason from "../../firestore/getSeason";
 
 export default function getAthletesMenuController(
   { getCurrentScreen }: ScreenGuarantee<StateType.AthletesMenu>,
@@ -56,8 +54,8 @@ export default function getAthletesMenuController(
           selectedSchool: Option.none(),
         })
         .then(screen => {
-          getSeasonSchools(screen.state.seasonSummary.id).then(schools => {
-            screen.update({ schools: Option.some(schools) });
+          getSeason(screen.state.seasonSummary.id).then(season => {
+            screen.update({ schools: Option.some(season.schools) });
           });
         });
     },
@@ -76,11 +74,9 @@ export default function getAthletesMenuController(
           areAthletesBeingAdded: false,
         })
         .then(screen => {
-          getSeasonRaceDivisions(screen.state.seasonSummary.id).then(
-            raceDivisions => {
-              screen.update({ raceDivisions: Option.some(raceDivisions) });
-            }
-          );
+          getSeason(screen.state.seasonSummary.id).then(season => {
+            screen.update({ raceDivisions: Option.some(season) });
+          });
         });
     },
     editFilterSchool(event: React.ChangeEvent) {

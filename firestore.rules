@@ -1,67 +1,30 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    function isSuperUser() {
-      // Kyle J Lin
-      return request.auth.uid == "gxb4vyWSmVRyRu3ODcf51xUhCts2";
+    match /users/{userId} {
+    	allow read: if true;
+      allow create, update: if userId == request.auth.uid && isValidUserShape();
     }
 
     function isValidUserShape() {
       return request.resource.data.firstName is string
         && request.resource.data.lastName is string
-        && request.resource.data.seasons is list;
-    }
-    
-    function isValidSeasonShape() {
-    	return request.resource.data.ownerId != null
-        && request.resource.data.assistantIds is list
-        && request.resource.data.name is string
-        && request.resource.data.minGrade is int
-        && request.resource.data.maxGrade is int
-        && request.resource.data.minGrade <= request.resource.data.maxGrade
-        && request.resource.data.schools is list
-        && !("" in request.resource.data.schools)
-        && request.resource.data.meets is list;
-    }
-    
-    function isAthleteIdCounterZero() {
-    	return request.resource.data.athleteIdCounter == 0;
-    }
-    
-    function isAthleteIdCounterGreaterThanOrEqualToPrev() {
-    	return request.resource.data.athleteIdCounter >= resource.data.athleteIdCounter
-    		&& request.resource.data.athleteIdCounter is int;
-    }
-    
-    function isValidAthleteShape(season) {
-      return isValidHumanName(request.resource.data.firstName)
-        && isValidHumanName(request.resource.data.lastName)
-        && request.resource.data.grade is int
-        && season.minGrade <= request.resource.data.grade
-        && request.resource.data.grade <= season.maxGrade
-        && (
-          request.resource.data.gender == 'M'
-          || request.resource.data.gender == 'F'
-        )
-        && (request.resource.data.school in season.schools);
-    }
-    
-    function isValidHumanName(name) {
-    	return name is string
-      	&& name.matches('[[:alpha:]](\\S| )*');
-    }
-    
-    match /users/{userId} {
-    	allow read: if true;
-      allow create, update: if userId == request.auth.uid && isValidUserShape();
+        && request.resource.data.size() == 2;
     }
     
     match /seasons/{seasonId} {
     	allow read: if true;
-      allow create: if request.resource.data.ownerId == request.auth.uid && isValidSeasonShape() && isAthleteIdCounterZero();
       allow update: if userHasWriteAccess()
-        && isValidSeasonShape()
-        && isAthleteIdCounterGreaterThanOrEqualToPrev()
+        && (
+          isUnchanged('ownerId')
+          && request.resource.data.assistantIds is list
+          && !(resource.data.ownerId in request.resource.data.assistantIds)
+          && isUnchanged('name')
+          && isUnchanged('minGrade')
+          && isUnchanged('maxGrade')
+          && isUnchanged('schools')
+          && request.resource.data.size() == resource.data.size()
+        )
         && (
           resource.data.ownerId == request.auth.uid
           || (
@@ -77,22 +40,18 @@ service cloud.firestore {
         return season().ownerId == request.auth.uid
           || (request.auth.uid in season().assistantIds);
       }
-      
-      match /athletes/{athleteId} {
-      	allow read: if isSuperUser();
-        allow create, update: if isSuperUser() && isValidAthleteShape(season());
-        allow delete: if isSuperUser();
+
+      function isUnchanged(key) {
+        return request.resource.data[key] == resource.data[key];
       }
       
       match /meets/{meetId} {
       	allow read: if true; 
-        allow write: if isSuperUser();
       }
     }
 
     match /seasonAthleteAggregates/{seasonId} {
       allow read: if true;
-      allow write: if isSuperUser();
     }
   }
 }

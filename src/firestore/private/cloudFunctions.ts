@@ -2,13 +2,20 @@ import firebase from "../../firebase";
 import {
   CompressedHypotheticalAthlete,
   CompressedAthlete,
+  SeasonSpec,
+  Season,
 } from "../../types/misc";
 
 const functions = firebase.functions();
 
-type Callable<Data> = (
-  data: Data
-) => Promise<firebase.functions.HttpsCallableResult>;
+type Callable<Args, ReturnType = any> = (
+  data: Args
+) => Promise<{ data: ReturnType }>;
+
+export const createSeason: Callable<
+  SeasonSpec,
+  { season: Season }
+> = functions.httpsCallable("createSeason");
 
 export const addAthletes: Callable<{
   athletes: CompressedHypotheticalAthlete[];

@@ -1,22 +1,7 @@
-import firebase from "../firebase";
+import { createSeason as createSeasonInFirestore } from "./private/cloudFunctions";
 
-import { UnidentifiedSeason, SeasonSummary } from "../types/misc";
+import { SeasonSpec, Season } from "../types/misc";
 
-const db = firebase.firestore();
-
-export default function createSeason(
-  user: firebase.User,
-  spec: UnidentifiedSeason
-): Promise<SeasonSummary> {
-  const season = {
-    ...spec,
-    ownerId: user.uid,
-    assistantIds: [],
-    meets: [],
-    athleteIdCounter: 0,
-  };
-  return db
-    .collection("seasons")
-    .add(season)
-    .then(doc => ({ id: doc.id, name: spec.name }));
+export default function createSeason(season: SeasonSpec): Promise<Season> {
+  return createSeasonInFirestore(season).then(res => res.data.season);
 }

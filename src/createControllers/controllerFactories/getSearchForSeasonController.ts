@@ -1,15 +1,14 @@
-import App from "../../App";
-
-import { SearchForSeasonState, StateType } from "../../types/states";
+import { StateType } from "../../types/states";
 import {
   SearchForSeasonController,
   SharedControllerMethods,
 } from "../../types/controllers";
 import Option from "../../types/Option";
 import searchForSeason from "../../firestore/searchForSeason";
+import { ScreenGuarantee } from "../../types/handle";
 
 export default function getSearchForSeasonController(
-  app: App,
+  { getCurrentScreen }: ScreenGuarantee<StateType.SearchForSeason>,
   {
     navigateToSignInScreen,
     navigateToUserSeasonsScreen,
@@ -21,27 +20,26 @@ export default function getSearchForSeasonController(
     navigateToSignInScreen,
     navigateToUserSeasonsScreen,
     navigateToUserProfileScreen,
-    editQuery(event: React.ChangeEvent) {
-      app.setState({
-        ...app.state,
-        query: (event.target as HTMLInputElement).value,
-      });
+    editQuery(event: React.ChangeEvent<HTMLInputElement>) {
+      const screen = getCurrentScreen();
+      screen.update({ query: event.target.value });
     },
     search() {
-      const state = app.state as SearchForSeasonState;
-      app.setState({ ...state, isLoading: true });
-      const originalQuery = state.query;
+      const screen = getCurrentScreen();
+      screen.update({ isLoading: true });
+      const originalQuery = screen.state.query;
       searchForSeason(originalQuery).then(seasonSummaries => {
-        if (
-          app.state.kind === StateType.SearchForSeason &&
-          app.state.isLoading &&
-          app.state.query === originalQuery
-        ) {
-          app.setState({
-            ...state,
-            isLoading: false,
-            seasons: Option.some(seasonSummaries),
-          });
+        if (!screen.hasExpired()) {
+          const possiblyUpdatedState = getCurrentScreen().state;
+          if (
+            possiblyUpdatedState.isLoading &&
+            possiblyUpdatedState.query === originalQuery
+          ) {
+            screen.update({
+              isLoading: false,
+              seasons: Option.some(seasonSummaries),
+            });
+          }
         }
       });
     },

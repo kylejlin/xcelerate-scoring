@@ -15,3 +15,33 @@ export function isNonNegativeInt(n: unknown): n is number {
 export function isInt(n: unknown): n is number {
   return n === parseInt("" + n, 10);
 }
+
+export interface SeasonSpec {
+  name: string;
+  minGrade: number;
+  maxGrade: number;
+  schools: string[];
+}
+
+export interface Season extends SeasonSpec {
+  id: string;
+  ownerId: string;
+  assistantIds: string[];
+}
+
+export function isSeasonSpec(data: unknown): data is SeasonSpec {
+  if (isObject(data)) {
+    const { name, minGrade, maxGrade, schools } = data;
+    return (
+      "string" === typeof name &&
+      !/^\s*$/.test(name) &&
+      isPositiveInt(minGrade) &&
+      isPositiveInt(maxGrade) &&
+      minGrade <= maxGrade &&
+      Array.isArray(schools) &&
+      schools.every(s => "string" === typeof s && s != "") &&
+      schools.length === new Set(schools).size
+    );
+  }
+  return false;
+}

@@ -1,5 +1,3 @@
-import App from "../../App";
-
 import {
   SharedControllerMethods,
   CreateSeasonController,
@@ -8,110 +6,69 @@ import {
 import { StateType, CreateSeasonState } from "../../types/states";
 
 import createSeason from "../../firestore/createSeason";
-import { UnidentifiedSeason } from "../../types/misc";
+import { SeasonSpec } from "../../types/misc";
+import { ScreenGuarantee } from "../../types/handle";
 
 export default function getCreateSeasonController(
-  app: App,
+  { getCurrentScreen }: ScreenGuarantee<StateType.CreateSeason>,
   { navigateToUserSeasonsScreen }: SharedControllerMethods
 ): CreateSeasonController {
   return {
     navigateToUserSeasonsScreen,
-    editSeasonName(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.CreateSeason) {
-        const seasonName = (event.target as HTMLInputElement).value;
-        app.setState({ ...app.state, seasonName });
-      } else {
-        throw new Error(
-          "Attempted to editSeasonName when user was not on CreateSeason screen."
-        );
-      }
+    editSeasonName(event: React.ChangeEvent<HTMLInputElement>) {
+      const screen = getCurrentScreen();
+      const seasonName = event.target.value;
+      screen.update({ seasonName });
     },
-    editPendingMinGrade(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.CreateSeason) {
-        const minGrade = (event.target as HTMLInputElement).value;
-        app.setState({ ...app.state, minGrade });
-      } else {
-        throw new Error(
-          "Attempted to editPendingMinGrade when user was not on CreateSeason screen."
-        );
-      }
+    editPendingMinGrade(event: React.ChangeEvent<HTMLInputElement>) {
+      const screen = getCurrentScreen();
+      const minGrade = event.target.value;
+      screen.update({ minGrade });
     },
-    editPendingMaxGrade(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.CreateSeason) {
-        const maxGrade = (event.target as HTMLInputElement).value;
-        app.setState({ ...app.state, maxGrade });
-      } else {
-        throw new Error(
-          "Attempted to editPendingMaxGrade when user was not on CreateSeason screen."
-        );
-      }
+    editPendingMaxGrade(event: React.ChangeEvent<HTMLInputElement>) {
+      const screen = getCurrentScreen();
+      const maxGrade = (event.target as HTMLInputElement).value;
+      screen.update({ maxGrade });
     },
     validatePendingGrades() {
-      if (app.state.kind === StateType.CreateSeason) {
-        const [minGrade, maxGrade] = validatePendingGrades(
-          app.state.minGrade,
-          app.state.maxGrade
-        );
-        app.setState({
-          ...app.state,
-          minGrade: "" + minGrade,
-          maxGrade: "" + maxGrade,
-        });
-      } else {
-        throw new Error(
-          "Attempted to validatePendingGrades when user was not on CreateSeason screen."
-        );
-      }
+      const screen = getCurrentScreen();
+      const [minGrade, maxGrade] = validatePendingGrades(
+        screen.state.minGrade,
+        screen.state.maxGrade
+      );
+      screen.update({
+        minGrade: "" + minGrade,
+        maxGrade: "" + maxGrade,
+      });
     },
-    editNewSchoolName(event: React.ChangeEvent) {
-      if (app.state.kind === StateType.CreateSeason) {
-        const newSchoolName = (event.target as HTMLInputElement).value;
-        app.setState({ ...app.state, newSchoolName });
-      } else {
-        throw new Error(
-          "Attempted to editNewSchoolName when user was not on CreateSeason screen."
-        );
-      }
+    editNewSchoolName(event: React.ChangeEvent<HTMLInputElement>) {
+      const screen = getCurrentScreen();
+      const newSchoolName = event.target.value;
+      screen.update({ newSchoolName });
     },
     addNewSchool() {
-      if (app.state.kind === StateType.CreateSeason) {
-        const { schools, newSchoolName } = app.state;
-        if (schools.includes(newSchoolName)) {
-          app.setState({ ...app.state, newSchoolName: "" });
-        } else {
-          app.setState({
-            ...app.state,
-            schools: schools.concat([newSchoolName]),
-            newSchoolName: "",
-          });
-        }
+      const screen = getCurrentScreen();
+      const { schools, newSchoolName } = screen.state;
+      if (schools.includes(newSchoolName)) {
+        screen.update({ newSchoolName: "" });
       } else {
-        throw new Error(
-          "Attempted to addNewSchool when user was not on CreateSeason screen."
-        );
+        screen.update({
+          schools: schools.concat([newSchoolName]),
+          newSchoolName: "",
+        });
       }
     },
     deleteSchool(deletedSchool: string) {
-      if (app.state.kind === StateType.CreateSeason) {
-        const schools = app.state.schools.filter(
-          school => school !== deletedSchool
-        );
-        app.setState({ ...app.state, schools });
-      } else {
-        throw new Error(
-          "Attempted to deleteSchool when user was not on CreateSeason screen."
-        );
-      }
+      const screen = getCurrentScreen();
+      const schools = screen.state.schools.filter(
+        school => school !== deletedSchool
+      );
+      screen.update({ schools });
     },
     createSeason() {
-      if (app.state.kind === StateType.CreateSeason) {
-        const spec = getSeasonSpec(app.state);
-        createSeason(app.state.user, spec).then(navigateToUserSeasonsScreen);
-      } else {
-        throw new Error(
-          "Attempted to createSeason when user was not on CreateSeason screen."
-        );
-      }
+      const screen = getCurrentScreen();
+      const spec = getSeasonSpec(screen.state);
+      createSeason(spec).then(navigateToUserSeasonsScreen);
     },
   };
 }
@@ -126,12 +83,17 @@ function validatePendingGrades(min: string, max: string): [number, number] {
   return [minGrade, maxGrade];
 }
 
-function getSeasonSpec(state: CreateSeasonState): UnidentifiedSeason {
+function getSeasonSpec(state: CreateSeasonState): SeasonSpec {
   const [minGrade, maxGrade] = validatePendingGrades(
     state.minGrade,
     state.maxGrade
   );
-  return { name: state.seasonName, minGrade, maxGrade, schools: state.schools };
+  return {
+    name: state.seasonName,
+    minGrade,
+    maxGrade,
+    schools: state.schools,
+  };
 }
 
 const DEFAULT_MIN_GRADE = 6;

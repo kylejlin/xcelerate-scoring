@@ -1,6 +1,5 @@
 import firebase from "../firebase";
 
-import getSeasonSummary from "./private/getSeasonSummary";
 import { SeasonSummary } from "../types/misc";
 
 const db = firebase.firestore();
@@ -20,4 +19,13 @@ export default function getUserSeasons(
     ([ownedSeasons, assistedSeasons]) =>
       ownedSeasons.docs.concat(assistedSeasons.docs).map(getSeasonSummary)
   );
+}
+
+function getSeasonSummary(
+  doc: firebase.firestore.QueryDocumentSnapshot
+): SeasonSummary {
+  return {
+    id: doc.id,
+    name: doc.data().name,
+  };
 }

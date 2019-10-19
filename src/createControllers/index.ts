@@ -22,14 +22,23 @@ import { getUnknownScreenHandle, getScreenGuarantee } from "./handleFactories";
 export default function createControllers(app: App): ControllerCollection {
   const shared = getSharedControllerMethods(getUnknownScreenHandle(app));
 
-  const searchForSeasonController = getSearchForSeasonController(app, shared);
-  const signInController = getSignInController(app, shared);
+  const searchForSeasonController = getSearchForSeasonController(
+    getScreenGuarantee(app),
+    shared
+  );
+  const signInController = getSignInController(getScreenGuarantee(app));
   const userSeasonsController = getUserSeasonsController(
     getScreenGuarantee(app),
     shared
   );
-  const userProfileController = getUserProfileController(app, shared);
-  const createSeasonController = getCreateSeasonController(app, shared);
+  const userProfileController = getUserProfileController(
+    getScreenGuarantee(app),
+    shared
+  );
+  const createSeasonController = getCreateSeasonController(
+    getScreenGuarantee(app),
+    shared
+  );
   const seasonMenuController = getSeasonMenuController(
     getScreenGuarantee(app),
     shared
@@ -54,8 +63,14 @@ export default function createControllers(app: App): ControllerCollection {
     getScreenGuarantee(app),
     shared
   );
-  const viewMeetController = getViewMeetController(app, shared);
-  const assistantsMenuController = getAssistantsMenuController(app, shared);
+  const viewMeetController = getViewMeetController(
+    getScreenGuarantee(app),
+    shared
+  );
+  const assistantsMenuController = getAssistantsMenuController(
+    getScreenGuarantee(app),
+    shared
+  );
 
   return {
     shared,

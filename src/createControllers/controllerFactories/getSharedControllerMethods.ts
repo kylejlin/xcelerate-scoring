@@ -7,12 +7,12 @@ import getUserName from "../../firestore/getUserName";
 
 import { SeasonSummary, Gender } from "../../types/misc";
 import { SharedControllerMethods } from "../../types/controllers";
-import doesUserHaveWriteAccessToSeason from "../../firestore/doesUserHaveWriteAccessToSeason";
+import getUserSeasonPermissions from "../../firestore/getUserSeasonPermissions";
 import getSeasonMeets from "../../firestore/getSeasonMeets";
-import getSeasonGradeBounds from "../../firestore/getSeasonGradeBounds";
 import openSeasonAthletesHandleUntil from "../../firestore/openSeasonAthletesHandleUntil";
 import { UnknownScreenHandle } from "../../types/handle";
 import guessFullName from "../../guessFullName";
+import getSeason from "../../firestore/getSeason";
 
 export default function getSharedControllerMethods(
   app: UnknownScreenHandle
@@ -113,13 +113,11 @@ export default function getSharedControllerMethods(
 
           userHasAccessToSeason.ifNone(() => {
             user.ifSome(user => {
-              doesUserHaveWriteAccessToSeason(user, seasonId).then(
-                hasAccess => {
-                  if (hasAccess) {
-                    screen.update({ doesUserHaveWriteAccess: true });
-                  }
-                }
-              );
+              getUserSeasonPermissions(user, seasonId).then(permissions => {
+                screen.update({
+                  doesUserHaveWriteAccess: permissions.hasWriteAccess,
+                });
+              });
             });
           });
 
@@ -154,17 +152,22 @@ export default function getSharedControllerMethods(
         .then(screen => {
           const seasonId = seasonSummary.id;
           user.ifSome(user => {
-            doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
-              if (hasAccess) {
-                screen.update({ doesUserHaveWriteAccess: true });
-              }
+            getUserSeasonPermissions(user, seasonId).then(permissions => {
+              screen.update({
+                doesUserHaveWriteAccess: permissions.hasWriteAccess,
+              });
             });
           });
           getSeasonMeets(seasonId).then(meets => {
             screen.update({ meets: Option.some(meets) });
           });
-          getSeasonGradeBounds(seasonId).then(gradeBounds => {
-            screen.update({ gradeBounds: Option.some(gradeBounds) });
+          getSeason(seasonId).then(season => {
+            screen.update({
+              gradeBounds: Option.some({
+                min: season.minGrade,
+                max: season.maxGrade,
+              }),
+            });
           });
         });
     },

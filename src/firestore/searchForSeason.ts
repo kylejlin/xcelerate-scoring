@@ -1,7 +1,9 @@
+import firebase from "../firebase";
 import stringSimilarity from "string-similarity";
 
-import getAllSeasonSummaries from "./private/getAllSeasonSummaries";
 import { SeasonSummary } from "../types/misc";
+
+const db = firebase.firestore();
 
 const { compareTwoStrings } = stringSimilarity;
 
@@ -11,6 +13,22 @@ export default function searchForSeason(
   return getAllSeasonSummaries().then(summaries =>
     sortAndFilterSummaries(query, summaries)
   );
+}
+
+function getAllSeasonSummaries(): Promise<SeasonSummary[]> {
+  return db
+    .collection("seasons")
+    .get()
+    .then(snapshot => snapshot.docs.map(getSeasonSummary));
+}
+
+function getSeasonSummary(
+  doc: firebase.firestore.QueryDocumentSnapshot
+): SeasonSummary {
+  return {
+    id: doc.id,
+    name: doc.data().name,
+  };
 }
 
 function sortAndFilterSummaries(

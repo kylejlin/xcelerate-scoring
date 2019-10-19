@@ -11,5 +11,5 @@ export default function createUserAccount(
   return db
     .collection("users")
     .doc(user.uid)
-    .set({ ...fullName, seasons: [] });
+    .set(fullName);
 }

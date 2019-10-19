@@ -5,12 +5,11 @@ import {
 
 import { StateType } from "../../types/states";
 
-import getSeasonRaceDivisions from "../../firestore/getSeasonRaceDivisions";
-
 import parseSpreadsheetData from "../../parseSpreadsheetData";
 
 import Option from "../../types/Option";
 import { ScreenGuarantee } from "../../types/handle";
+import getSeason from "../../firestore/getSeason";
 
 export default function getPasteAthletesController(
   { getCurrentScreen }: ScreenGuarantee<StateType.PasteAthletes>,
@@ -64,11 +63,9 @@ export default function getPasteAthletesController(
           areAthletesBeingAdded: false,
         })
         .then(screen => {
-          getSeasonRaceDivisions(screen.state.seasonSummary.id).then(
-            raceDivisions => {
-              screen.update({ raceDivisions: Option.some(raceDivisions) });
-            }
-          );
+          getSeason(screen.state.seasonSummary.id).then(season => {
+            screen.update({ raceDivisions: Option.some(season) });
+          });
         });
     },
   };
