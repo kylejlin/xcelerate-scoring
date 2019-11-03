@@ -4,6 +4,7 @@
   "private": true,
   "dependencies": {
     "firebase": "^6.4.2",
+    "firebase-admin": "^8.7.0",
     "react": "^16.9.0",
     "react-dom": "^16.9.0",
     "react-scripts": "3.1.1",
@@ -13,6 +14,7 @@
     "start": "react-scripts start",
     "build": "react-scripts build",
     "test": "react-scripts test",
+    "open-cypress": "cypress open",
     "eject": "react-scripts eject",
     "predeploy": "npm run build",
     "deploy": "firebase deploy",
@@ -40,6 +42,7 @@
     "@types/react": "^16.9.2",
     "@types/react-dom": "^16.9.0",
     "@types/string-similarity": "^3.0.0",
+    "cypress": "^3.6.0",
     "prettier": "^1.18.2",
     "typescript": "^3.5.3"
   }
