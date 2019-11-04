@@ -29,7 +29,7 @@ export interface Season extends SeasonSpec {
   assistantIds: string[];
 }
 
-export function isSeasonSpec(data: unknown): data is SeasonSpec {
+export function isValidSeasonSpec(data: unknown): data is SeasonSpec {
   if (isObject(data)) {
     const { name, minGrade, maxGrade, schools } = data;
     return (
@@ -40,7 +40,8 @@ export function isSeasonSpec(data: unknown): data is SeasonSpec {
       minGrade <= maxGrade &&
       Array.isArray(schools) &&
       schools.every(s => "string" === typeof s && s != "") &&
-      schools.length === new Set(schools).size
+      schools.length === new Set(schools).size &&
+      schools.length > 0
     );
   }
   return false;
