@@ -13,6 +13,8 @@
 
 require("dotenv").config();
 
+const wp = require("@cypress/webpack-preprocessor");
+
 const admin = require("firebase-admin");
 
 admin.initializeApp({
@@ -21,7 +23,24 @@ admin.initializeApp({
 });
 
 module.exports = (on, config) => {
-  config.env.TEST_ACCOUNT_UID = process.env.TEST_ACCOUNT_UID;
+  const options = {
+    webpackOptions: {
+      resolve: {
+        extensions: [".ts", ".tsx", ".js"],
+      },
+      module: {
+        rules: [
+          {
+            test: /\.tsx?$/,
+            loader: "ts-loader",
+            options: { transpileOnly: false },
+          },
+        ],
+      },
+    },
+  };
+
+  on("file:preprocessor", wp(options));
 
   on("task", {
     getToken(uid) {
@@ -29,5 +48,6 @@ module.exports = (on, config) => {
     },
   });
 
+  config.env.TEST_ACCOUNT_UID = process.env.TEST_ACCOUNT_UID;
   return config;
 };

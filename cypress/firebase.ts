@@ -1,7 +1,7 @@
-const firebase_ = require("firebase/app");
-require("firebase/auth");
-require("firebase/firestore");
-require("firebase/functions");
+import firebase from "firebase/app";
+import "firebase/auth";
+import "firebase/firestore";
+import "firebase/functions";
 
 const firebaseConfig = {
   apiKey: "AIzaSyAd079564PqCy3RsC-LjPvVStGqx4mETuw",
@@ -13,6 +13,6 @@ const firebaseConfig = {
   appId: "1:182712439706:web:a017f66dfd021a64",
 };
 
-firebase_.initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 
-module.exports = firebase_;
+export default firebase;

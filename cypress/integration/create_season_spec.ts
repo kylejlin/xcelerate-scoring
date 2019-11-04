@@ -1,5 +1,4 @@
-// @ts-ignore
-const firebase = require("../firebase.ts");
+import firebase from "../firebase";
 
 describe("The Create Season Screen when user is signed in", function() {
   beforeEach(() => {
