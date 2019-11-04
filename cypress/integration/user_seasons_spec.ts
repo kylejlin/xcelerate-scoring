@@ -1,4 +1,4 @@
-/// <reference types="Cypress" />
+// @ts-ignore
 const firebase = require("../firebase.ts");
 
 describe("The Season List Page when user is signed in", function() {

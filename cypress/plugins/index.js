@@ -21,7 +21,6 @@ admin.initializeApp({
 });
 
 module.exports = (on, config) => {
-  console.log("process test uid", process.env.TEST_ACCOUNT_UID);
   config.env.TEST_ACCOUNT_UID = process.env.TEST_ACCOUNT_UID;
 
   on("task", {

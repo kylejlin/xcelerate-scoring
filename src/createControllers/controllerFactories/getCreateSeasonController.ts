@@ -49,13 +49,13 @@ export default function getCreateSeasonController(
     addNewSchool() {
       const screen = getCurrentScreen();
       const { schools, newSchoolName } = screen.state;
-      if (schools.includes(newSchoolName)) {
-        screen.update({ newSchoolName: "" });
-      } else {
+      if (!schools.includes(newSchoolName) && /\S/.test(newSchoolName)) {
         screen.update({
           schools: schools.concat([newSchoolName]),
           newSchoolName: "",
         });
+      } else {
+        screen.update({ newSchoolName: "" });
       }
     },
     deleteSchool(deletedSchool: string) {
