@@ -39,7 +39,7 @@ export function isValidSeasonSpec(data: unknown): data is SeasonSpec {
       isPositiveInt(maxGrade) &&
       minGrade <= maxGrade &&
       Array.isArray(schools) &&
-      schools.every(s => "string" === typeof s && s != "") &&
+      schools.every(s => "string" === typeof s && s !== "") &&
       schools.length === new Set(schools).size &&
       schools.length > 0
     );

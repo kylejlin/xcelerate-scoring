@@ -9,7 +9,8 @@
     "strict": true,
     "target": "es2017",
     "lib": ["es2019"],
-    "isolatedModules": true
+    "isolatedModules": true,
+    "typeRoots": ["node_modules/@types"]
   },
   "compileOnSave": true,
   "include": ["src"]
