@@ -1,7 +1,4 @@
 import firebase from "../../src/firebase";
-import deleteSeason from "../deleteSeason";
-import { Season } from "../../src/types/misc";
-import Option from "../../src/types/Option";
 
 describe("The Create Season Screen when user is signed in", function() {
   before(() => {
@@ -185,25 +182,6 @@ describe("The Create Season Screen when user is signed in", function() {
     // createSeason() cloud function may be dormant, so give it time to awaken.
     cy.contains("Your seasons", { timeout: 20e3 });
     cy.contains(seasonName);
-
-    cy.window().then(win => {
-      const seasons: Option<Season[]> = (win as any).app.state.seasons;
-
-      cy.wrap(seasons).should("satisfy", seasons => seasons.isSome());
-
-      const season = seasons
-        .unwrap()
-        .find((season: Season) => season.name === seasonName);
-
-      cy.wrap(season).should("be.not.be.undefined");
-
-      cy.wrap(season!.id).as("seasonId");
-    });
-
-    // deleteTestSeason() cloud function may be dormant, so give it time to awaken.
-    cy.wrap(null).then({ timeout: 20e3 }, () => {
-      return deleteSeason(this.seasonId);
-    });
   });
 });
 
