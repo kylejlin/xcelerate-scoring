@@ -1,7 +1,7 @@
 import firebase from "../../src/firebase";
 
 describe("The Season List Page when user is signed in", function() {
-  beforeEach(() => {
+  before(() => {
     cy.task("getToken", Cypress.env("TEST_ACCOUNT_UID")).then(token => {
       return firebase.auth().signInWithCustomToken(token);
     });
@@ -39,7 +39,7 @@ describe("The Season List Page when user is signed in", function() {
 });
 
 describe("The Season List Page when user is not signed in", function() {
-  beforeEach(() => {
+  before(() => {
     return firebase.auth().signOut();
   });
 

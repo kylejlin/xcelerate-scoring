@@ -4,7 +4,7 @@ import { Season } from "../../src/types/misc";
 import Option from "../../src/types/Option";
 
 describe("The Create Season Screen when user is signed in", function() {
-  beforeEach(() => {
+  before(() => {
     cy.task("getToken", Cypress.env("TEST_ACCOUNT_UID")).then(token => {
       return firebase.auth().signInWithCustomToken(token);
     });
@@ -208,7 +208,7 @@ describe("The Create Season Screen when user is signed in", function() {
 });
 
 describe("The Create Season Page when user is not signed in", function() {
-  beforeEach(() => {
+  before(() => {
     return firebase.auth().signOut();
   });
 
