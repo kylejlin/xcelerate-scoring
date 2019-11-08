@@ -8,13 +8,13 @@ describe("The Season List Page when user is signed in", function() {
   });
 
   it("renders the user's seasons", function() {
-    cy.visit("http://localhost:3000/my-seasons");
+    cy.visit("/my-seasons");
 
     cy.contains("Your seasons");
   });
 
   it("lets the user navigate to the Create Season Screen", function() {
-    cy.visit("http://localhost:3000/my-seasons");
+    cy.visit("/my-seasons");
 
     cy.contains("Create season").click();
 
@@ -22,7 +22,7 @@ describe("The Season List Page when user is signed in", function() {
   });
 
   it("lets the user navigate to the Search For Season Screen", function() {
-    cy.visit("http://localhost:3000/my-seasons");
+    cy.visit("/my-seasons");
 
     cy.contains("Search for season").click();
 
@@ -30,7 +30,7 @@ describe("The Season List Page when user is signed in", function() {
   });
 
   it("lets the user navigate to their Profile", function() {
-    cy.visit("http://localhost:3000/my-seasons");
+    cy.visit("/my-seasons");
 
     cy.contains("Profile").click();
 
@@ -44,7 +44,7 @@ describe("The Season List Page when user is not signed in", function() {
   });
 
   it("redirects to Sign In Screen", function() {
-    cy.visit("http://localhost:3000/my-seasons");
+    cy.visit("/my-seasons");
 
     cy.location("pathname").should("equal", "/sign-in");
   });

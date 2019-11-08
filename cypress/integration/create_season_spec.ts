@@ -11,7 +11,7 @@ describe("The Create Season Screen when user is signed in", function() {
   });
 
   it("lets user navigate back", function() {
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     cy.contains("Cancel").click();
 
@@ -19,7 +19,7 @@ describe("The Create Season Screen when user is signed in", function() {
   });
 
   it("lets user edit season name", function() {
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     cy.contains("Name")
       .find("input")
@@ -32,7 +32,7 @@ describe("The Create Season Screen when user is signed in", function() {
     const DEFAULT_MIN_GRADE = 6;
     const DEFAULT_MAX_GRADE = 8;
 
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     cy.contains("Minimum grade")
       .find("input")
@@ -56,7 +56,7 @@ describe("The Create Season Screen when user is signed in", function() {
   });
 
   it("truncates grade bound if user types a float", function() {
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     cy.contains("Minimum grade")
       .find("input")
@@ -74,7 +74,7 @@ describe("The Create Season Screen when user is signed in", function() {
   });
 
   it("reorders grade bounds if min > max", function() {
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     cy.contains("Minimum grade")
       .find("input")
@@ -98,7 +98,7 @@ describe("The Create Season Screen when user is signed in", function() {
   });
 
   it("forces grade bounds to be >= 1", function() {
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     cy.contains("Minimum grade")
       .find("input")
@@ -116,7 +116,7 @@ describe("The Create Season Screen when user is signed in", function() {
   });
 
   it("lets users to add unique schools", function() {
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     cy.contains("Add school")
       .find("input")
@@ -140,7 +140,7 @@ describe("The Create Season Screen when user is signed in", function() {
   });
 
   it("doesn't let user add invalid schools", function() {
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     cy.contains("Add school")
       .find("input")
@@ -159,7 +159,7 @@ describe("The Create Season Screen when user is signed in", function() {
   });
 
   it("lets user create season if name and schools are valid", function() {
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     const seasonName = "My Amazing Season " + generateRandomAlphaNumStr(6);
 
@@ -213,7 +213,7 @@ describe("The Create Season Page when user is not signed in", function() {
   });
 
   it("redirects to Sign In Screen", function() {
-    cy.visit("http://localhost:3000/create-season");
+    cy.visit("/create-season");
 
     cy.location("pathname").should("equal", "/sign-in");
   });
