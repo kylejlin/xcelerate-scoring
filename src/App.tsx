@@ -53,7 +53,7 @@ export default class App extends React.Component<{}, AppState> {
     // @ts-ignore
     window.app = this;
     // @ts-ignore
-    window.fb = firebase;
+    window.firebase = firebase;
 
     const isWaitingForSignInCompletion =
       localStorage.getItem(LocalStorageKeys.IsWaitingForSignIn) === "true";

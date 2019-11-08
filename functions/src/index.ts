@@ -22,6 +22,8 @@ import applyRaceActionsOrThrow from "./httpsErrorThrowers/applyRaceActionsOrThro
 import decompressActionsOrThrow from "./httpsErrorThrowers/decompressActionsOrThrow";
 import getUndeletableIdsOrThrow from "./httpsErrorThrowers/getUndeletableIdsOrThrow";
 import getCreateSeasonDataOrThrow from "./httpsErrorThrowers/getCreateSeasonDataOrThrow";
+import getDeleteTestSeasonDataOrThrow from "./httpsErrorThrowers/getDeleteTestSeasonDataOrThrow";
+import getSeasonDataIfUserIsOwner from "./getSeasonDataIfUserIsOwner";
 import { Season } from "./types/misc";
 
 if ("function" !== typeof Array.prototype.flat) {
@@ -35,6 +37,9 @@ admin.initializeApp();
 
 const db = admin.firestore();
 const { HttpsError } = functions.https;
+
+// xceleratetesting@gmail.com
+const TEST_ACCOUNT_UID = "DCWja0eXZiNBP3WKukvDQ73A2GU2";
 
 exports.createSeason = functions.https.onCall(
   (data, ctx): Promise<Season> => {
@@ -61,6 +66,29 @@ exports.createSeason = functions.https.onCall(
       payload: buildAggregatePayload([], seasonData),
     });
     return batch.commit().then(() => ({ ...seasonData, id: seasonRef.id }));
+  }
+);
+
+exports.deleteTestSeason = functions.https.onCall(
+  (data, ctx): Promise<void> => {
+    const uid = getUidOrThrow(ctx);
+    if (uid !== TEST_ACCOUNT_UID) {
+      throw new HttpsError(
+        "permission-denied",
+        "Only the test user (xceleratetesting@gmail.com) can delete their seasons."
+      );
+    }
+    const { seasonId } = getDeleteTestSeasonDataOrThrow(data);
+    const seasonRef = db.collection("seasons").doc(seasonId);
+    const aggregateRef = db.collection("seasonAthleteAggregates").doc(seasonId);
+    return db.runTransaction(transaction => {
+      return getSeasonDataIfUserIsOwner(seasonRef, uid, transaction).then(
+        () => {
+          transaction.delete(seasonRef);
+          transaction.delete(aggregateRef);
+        }
+      );
+    });
   }
 );
 

@@ -1,4 +1,7 @@
 import firebase from "../../src/firebase";
+import deleteSeason from "../deleteSeason";
+import { Season } from "../../src/types/misc";
+import Option from "../../src/types/Option";
 
 describe("The Create Season Screen when user is signed in", function() {
   beforeEach(() => {
@@ -155,15 +158,53 @@ describe("The Create Season Screen when user is signed in", function() {
     cy.get("ul li").should("have.length", 0);
   });
 
-  //   describe("", function() {
-  //     afterAll(function() {
-  //       console.log("TODO Cleanup test seasons");
-  //     });
+  it("lets user create season if name and schools are valid", function() {
+    cy.visit("http://localhost:3000/create-season");
 
-  //     it("creates a season", function() {
+    const seasonName = "My Amazing Season " + generateRandomAlphaNumStr(6);
 
-  //     })
-  //   });
+    cy.contains("Name")
+      .find("input")
+      .clear()
+      .type(seasonName);
+
+    cy.contains("Add school")
+      .find("input")
+      .type("School 1");
+
+    cy.contains("Add").click();
+
+    cy.contains("Add school")
+      .find("input")
+      .type("School 2");
+
+    cy.contains("Add").click();
+
+    cy.contains("Create season").click();
+
+    // createSeason() cloud function may be dormant, so give it time to awaken.
+    cy.contains("Your seasons", { timeout: 20e3 });
+    cy.contains(seasonName);
+
+    cy.window().then(win => {
+      const seasons: Option<Season[]> = (win as any).app.state.seasons;
+
+      cy.wrap(seasons).should("satisfy", seasons => seasons.isSome());
+
+      const season = seasons
+        .unwrap()
+        .find((season: Season) => season.name === seasonName);
+
+      cy.wrap(season).should("be.not.be.undefined");
+
+      cy.wrap(season!.id).as("seasonId");
+    });
+
+    // deleteTestSeason() cloud function may be dormant, so give it time to awaken.
+    cy.wrap(null).then({ timeout: 20e3 }, () => {
+      return deleteSeason(this.seasonId);
+    });
+  });
 });
 
 describe("The Create Season Page when user is not signed in", function() {
@@ -177,3 +218,11 @@ describe("The Create Season Page when user is not signed in", function() {
     cy.location("pathname").should("equal", "/sign-in");
   });
 });
+
+function generateRandomAlphaNumStr(len: number): string {
+  let out = "";
+  while (out.length < len) {
+    out += Math.floor(36 * Math.random()).toString(36);
+  }
+  return out;
+}
