@@ -1,4 +1,4 @@
-import firebase from "../../src/firebase";
+import firebase from "../../../src/firebase";
 
 describe("The Season List Page when user is signed in", function() {
   before(() => {

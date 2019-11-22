@@ -1,4 +1,4 @@
-import firebase from "../../src/firebase";
+import firebase from "../../../src/firebase";
 
 describe("The Create Season Screen when user is signed in", function() {
   before(() => {

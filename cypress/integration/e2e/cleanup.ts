@@ -1,7 +1,7 @@
-import firebase from "../../src/firebase";
-import deleteSeason from "../deleteSeason";
-import Option from "../../src/types/Option";
-import { Season } from "../../src/types/misc";
+import firebase from "../../../src/firebase";
+import deleteSeason from "../../deleteSeason";
+import Option from "../../../src/types/Option";
+import { Season } from "../../../src/types/misc";
 
 const TEST_SEASON_REGEX = /My Amazing Season [a-z0-9]{6}/;
 
