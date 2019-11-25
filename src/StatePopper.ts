@@ -1,8 +1,7 @@
 import App from "./App";
 import { StateType } from "./types/states";
 import Option from "./types/Option";
-import getUserSeasons from "./firestore/getUserSeasons";
-import getUserName from "./firestore/getUserName";
+import { api } from "./api";
 import {
   CachedState,
   SeasonMenuCachedState,
@@ -15,15 +14,8 @@ import {
   ViewMeetCachedState,
 } from "./cachedState";
 import { Gender, AthleteOrSchool } from "./types/misc";
-import doesUserHaveWriteAccessToSeason from "./firestore/getUserSeasonPermissions";
-import openSeasonAthletesHandleUntil from "./firestore/openSeasonAthletesHandleUntil";
-import getSeasonOwnerAndAssistants from "./firestore/getSeasonOwnerAndAssistants";
-import getUserSeasonPermissions from "./firestore/getUserSeasonPermissions";
-import getSeasonMeets from "./firestore/getSeasonMeets";
-import openMeetHandleUntil from "./firestore/openMeetHandleUntil";
 import { RaceDivisionUtil, RaceDivision } from "./types/race";
 import guessFullName from "./guessFullName";
-import getSeason from "./firestore/getSeason";
 
 // TODO
 // DRY
@@ -108,7 +100,7 @@ export default class StatePopper {
         seasons: Option.none(),
       })
       .then(screen => {
-        getUserSeasons(user).then(seasonSummaries => {
+        api.getUserSeasons(user).then(seasonSummaries => {
           screen.update({ seasons: Option.some(seasonSummaries) });
         });
       });
@@ -126,7 +118,7 @@ export default class StatePopper {
         doesUserExist: true,
       })
       .then(screen => {
-        getUserName(user).then(profile => {
+        api.getUserName(user).then(profile => {
           profile.match({
             none: () => {
               screen.update({
@@ -193,8 +185,8 @@ export default class StatePopper {
         const seasonId = season.id;
 
         user.ifSome(user => {
-          doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
-            if (hasAccess) {
+          api.getUserSeasonPermissions(user, seasonId).then(permissions => {
+            if (permissions.hasWriteAccess) {
               screen.update({ doesUserHaveWriteAccess: true });
             }
           });
@@ -203,7 +195,7 @@ export default class StatePopper {
         const {
           teamsRecipe: raceDivisions,
           athletes,
-        } = openSeasonAthletesHandleUntil(seasonId, screen.expiration);
+        } = api.openSeasonAthletesHandleUntil(seasonId, screen.expiration);
         raceDivisions.then(raceDivisions => {
           screen.update({ teamsRecipe: Option.some(raceDivisions) });
         });
@@ -234,7 +226,7 @@ export default class StatePopper {
         selectedSchool: Option.none(),
       })
       .then(screen => {
-        getSeason(screen.state.season.id).then(season => {
+        api.getSeason(screen.state.season.id).then(season => {
           screen.update({ schools: Option.some(season.schools) });
         });
       });
@@ -263,7 +255,7 @@ export default class StatePopper {
         areAthletesBeingAdded: false,
       })
       .then(screen => {
-        getSeason(screen.state.season.id).then(season => {
+        api.getSeason(screen.state.season.id).then(season => {
           screen.update({ raceDivisions: Option.some(season) });
         });
       });
@@ -286,14 +278,16 @@ export default class StatePopper {
       })
       .then(screen => {
         const { season, user } = screen.state;
-        getSeasonOwnerAndAssistants(season.id).then(([owner, assistants]) => {
-          screen.update({
-            owner: Option.some(owner),
-            assistants: Option.some(assistants),
+        api
+          .getSeasonOwnerAndAssistants(season.id)
+          .then(([owner, assistants]) => {
+            screen.update({
+              owner: Option.some(owner),
+              assistants: Option.some(assistants),
+            });
           });
-        });
         user.ifSome(user => {
-          getUserSeasonPermissions(user, season.id).then(permissions => {
+          api.getUserSeasonPermissions(user, season.id).then(permissions => {
             screen.update({
               isUserOwner: permissions.isOwner,
               doesUserHaveWriteAccess: permissions.hasWriteAccess,
@@ -318,16 +312,16 @@ export default class StatePopper {
       .then(screen => {
         const seasonId = season.id;
         user.ifSome(user => {
-          doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
-            if (hasAccess) {
+          api.getUserSeasonPermissions(user, seasonId).then(permissions => {
+            if (permissions.hasWriteAccess) {
               screen.update({ doesUserHaveWriteAccess: true });
             }
           });
         });
-        getSeasonMeets(seasonId).then(meets => {
+        api.getSeasonMeets(seasonId).then(meets => {
           screen.update({ meets: Option.some(meets) });
         });
-        getSeason(screen.state.season.id).then(season => {
+        api.getSeason(screen.state.season.id).then(season => {
           screen.update({
             gradeBounds: Option.some({
               min: season.minGrade,
@@ -363,7 +357,7 @@ export default class StatePopper {
       .then(screen => {
         const { state } = screen;
 
-        const { meet, raceDivisions } = openMeetHandleUntil(
+        const { meet, raceDivisions } = api.openMeetHandleUntil(
           state.season.id,
           state.meetSummary.id,
           screen.expiration
@@ -389,7 +383,7 @@ export default class StatePopper {
           });
         });
 
-        const { athletes } = openSeasonAthletesHandleUntil(
+        const { athletes } = api.openSeasonAthletesHandleUntil(
           state.season.id,
           screen.expiration
         );
@@ -416,7 +410,7 @@ export default class StatePopper {
       .then(screen => {
         const { state } = screen;
 
-        const { meet, raceDivisions } = openMeetHandleUntil(
+        const { meet, raceDivisions } = api.openMeetHandleUntil(
           state.season.id,
           state.meetSummary.id,
           screen.expiration
@@ -442,7 +436,7 @@ export default class StatePopper {
           });
         });
 
-        const { athletes } = openSeasonAthletesHandleUntil(
+        const { athletes } = api.openSeasonAthletesHandleUntil(
           state.season.id,
           screen.expiration
         );

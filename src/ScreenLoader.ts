@@ -1,18 +1,9 @@
 import App from "./App";
 import { StateType } from "./types/states";
 import Option from "./types/Option";
-import getUserSeasons from "./firestore/getUserSeasons";
-import getUserName from "./firestore/getUserName";
+import { api } from "./api";
 import { Gender, AthleteOrSchool } from "./types/misc";
-import doesUserHaveWriteAccessToSeason from "./firestore/getUserSeasonPermissions";
-import openSeasonAthletesHandleUntil from "./firestore/openSeasonAthletesHandleUntil";
-import getSeasonOwnerAndAssistants from "./firestore/getSeasonOwnerAndAssistants";
-import getUserSeasonPermissions from "./firestore/getUserSeasonPermissions";
-import getSeasonMeets from "./firestore/getSeasonMeets";
-import openMeetHandleUntil from "./firestore/openMeetHandleUntil";
 import { RaceDivisionUtil, RaceDivision } from "./types/race";
-import getSeason from "./firestore/getSeason";
-import getMeet from "./firestore/getMeet";
 import guessFullName from "./guessFullName";
 
 // TODO
@@ -139,7 +130,7 @@ export default class ScreenLoader {
         seasons: Option.none(),
       })
       .then(screen => {
-        getUserSeasons(user).then(seasons => {
+        api.getUserSeasons(user).then(seasons => {
           screen.update({ seasons: Option.some(seasons) });
         });
       });
@@ -157,7 +148,7 @@ export default class ScreenLoader {
         doesUserExist: true,
       })
       .then(screen => {
-        getUserName(user).then(profile => {
+        api.getUserName(user).then(profile => {
           profile.match({
             none: () => {
               screen.update({
@@ -190,7 +181,7 @@ export default class ScreenLoader {
   }
 
   private loadSeasonMenu(seasonId: string) {
-    getSeason(seasonId).then(season => {
+    api.getSeason(seasonId).then(season => {
       this.app.replaceScreen(StateType.SeasonMenu, {
         user: this.user,
         season: season,
@@ -201,7 +192,7 @@ export default class ScreenLoader {
   private loadAthletesMenu(seasonId: string) {
     // TODO DRY
     // Duplicates getSharedControllerMethods.navigateToAthletesMenu
-    getSeason(seasonId).then(season => {
+    api.getSeason(seasonId).then(season => {
       const user = this.user;
       this.app
         .replaceScreen(StateType.AthletesMenu, {
@@ -225,14 +216,14 @@ export default class ScreenLoader {
           const seasonId = season.id;
 
           user.ifSome(user => {
-            doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
-              if (hasAccess) {
+            api.getUserSeasonPermissions(user, seasonId).then(permissions => {
+              if (permissions.hasWriteAccess) {
                 screen.update({ doesUserHaveWriteAccess: true });
               }
             });
           });
 
-          const { teamsRecipe, athletes } = openSeasonAthletesHandleUntil(
+          const { teamsRecipe, athletes } = api.openSeasonAthletesHandleUntil(
             seasonId,
             screen.expiration
           );
@@ -253,7 +244,7 @@ export default class ScreenLoader {
   }
 
   private loadPasteAthletesScreen(seasonId: string, user: firebase.User) {
-    getSeason(seasonId).then(season => {
+    api.getSeason(seasonId).then(season => {
       this.app
         .replaceScreen(StateType.PasteAthletes, {
           user,
@@ -263,7 +254,7 @@ export default class ScreenLoader {
           selectedSchool: Option.none(),
         })
         .then(screen => {
-          getSeason(screen.state.season.id).then(season => {
+          api.getSeason(screen.state.season.id).then(season => {
             screen.update({ schools: Option.some(season.schools) });
           });
         });
@@ -277,7 +268,7 @@ export default class ScreenLoader {
   }
 
   private loadAddAthletesScreen(seasonId: string, user: firebase.User) {
-    getSeason(seasonId).then(season => {
+    api.getSeason(seasonId).then(season => {
       this.app
         .replaceScreen(StateType.AddAthletes, {
           user,
@@ -289,7 +280,7 @@ export default class ScreenLoader {
           areAthletesBeingAdded: false,
         })
         .then(screen => {
-          getSeason(screen.state.season.id).then(season => {
+          api.getSeason(screen.state.season.id).then(season => {
             screen.update({ raceDivisions: Option.some(season) });
           });
         });
@@ -297,7 +288,7 @@ export default class ScreenLoader {
   }
 
   private loadAssistantsMenu(seasonId: string) {
-    getSeason(seasonId).then(season => {
+    api.getSeason(seasonId).then(season => {
       const user = this.user;
       this.app
         .replaceScreen(StateType.AssistantsMenu, {
@@ -313,14 +304,16 @@ export default class ScreenLoader {
         })
         .then(screen => {
           const { season, user } = screen.state;
-          getSeasonOwnerAndAssistants(season.id).then(([owner, assistants]) => {
-            screen.update({
-              owner: Option.some(owner),
-              assistants: Option.some(assistants),
+          api
+            .getSeasonOwnerAndAssistants(season.id)
+            .then(([owner, assistants]) => {
+              screen.update({
+                owner: Option.some(owner),
+                assistants: Option.some(assistants),
+              });
             });
-          });
           user.ifSome(user => {
-            getUserSeasonPermissions(user, season.id).then(permissions => {
+            api.getUserSeasonPermissions(user, season.id).then(permissions => {
               screen.update({
                 isUserOwner: permissions.isOwner,
                 doesUserHaveWriteAccess: permissions.hasWriteAccess,
@@ -332,7 +325,7 @@ export default class ScreenLoader {
   }
 
   private loadSeasonMeetsScreen(seasonId: string) {
-    getSeason(seasonId).then(season => {
+    api.getSeason(seasonId).then(season => {
       const user = this.user;
       this.app
         .replaceScreen(StateType.SeasonMeets, {
@@ -346,16 +339,16 @@ export default class ScreenLoader {
         .then(screen => {
           const seasonId = season.id;
           user.ifSome(user => {
-            doesUserHaveWriteAccessToSeason(user, seasonId).then(hasAccess => {
-              if (hasAccess) {
+            api.getUserSeasonPermissions(user, seasonId).then(permissions => {
+              if (permissions.hasWriteAccess) {
                 screen.update({ doesUserHaveWriteAccess: true });
               }
             });
           });
-          getSeasonMeets(seasonId).then(meets => {
+          api.getSeasonMeets(seasonId).then(meets => {
             screen.update({ meets: Option.some(meets) });
           });
-          getSeason(screen.state.season.id).then(season => {
+          api.getSeason(screen.state.season.id).then(season => {
             screen.update({
               gradeBounds: Option.some({
                 min: season.minGrade,
@@ -381,7 +374,7 @@ export default class ScreenLoader {
     meetId: string,
     user: firebase.User
   ) {
-    Promise.all([getSeason(seasonId), getMeet(seasonId, meetId)]).then(
+    Promise.all([api.getSeason(seasonId), api.getMeet(seasonId, meetId)]).then(
       ([season, meet]) => {
         this.app
           .replaceScreen(StateType.EditMeet, {
@@ -400,7 +393,7 @@ export default class ScreenLoader {
           .then(screen => {
             const { state } = screen;
 
-            const { meet, raceDivisions } = openMeetHandleUntil(
+            const { meet, raceDivisions } = api.openMeetHandleUntil(
               state.season.id,
               state.meetSummary.id,
               screen.expiration
@@ -426,7 +419,7 @@ export default class ScreenLoader {
               });
             });
 
-            const { athletes } = openSeasonAthletesHandleUntil(
+            const { athletes } = api.openSeasonAthletesHandleUntil(
               state.season.id,
               screen.expiration
             );
@@ -439,7 +432,7 @@ export default class ScreenLoader {
   }
 
   private loadViewMeetScreen(seasonId: string, meetId: string) {
-    Promise.all([getSeason(seasonId), getMeet(seasonId, meetId)]).then(
+    Promise.all([api.getSeason(seasonId), api.getMeet(seasonId, meetId)]).then(
       ([season, meet]) => {
         const user = this.user;
         this.app
@@ -456,7 +449,7 @@ export default class ScreenLoader {
           .then(screen => {
             const { state } = screen;
 
-            const { meet, raceDivisions } = openMeetHandleUntil(
+            const { meet, raceDivisions } = api.openMeetHandleUntil(
               state.season.id,
               state.meetSummary.id,
               screen.expiration
@@ -482,7 +475,7 @@ export default class ScreenLoader {
               });
             });
 
-            const { athletes } = openSeasonAthletesHandleUntil(
+            const { athletes } = api.openSeasonAthletesHandleUntil(
               state.season.id,
               screen.expiration
             );

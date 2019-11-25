@@ -1,7 +1,7 @@
-import { updateAthletes as updateFirestoreAthletes } from "./private/cloudFunctions";
+import { updateAthletes as updateFirestoreAthletes } from "../cloudFunctions";
 
-import Option from "../types/Option";
-import { Athlete, compressAthlete, TeamsRecipe } from "../types/misc";
+import Option from "../../types/Option";
+import { Athlete, compressAthlete, TeamsRecipe } from "../../types/misc";
 
 export default function updateAthletes(
   seasonId: string,

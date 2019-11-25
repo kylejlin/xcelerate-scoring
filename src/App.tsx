@@ -6,7 +6,7 @@ import "./App.css";
 import { AppState, StateType, StateOf } from "./types/states";
 import { ControllerCollection } from "./types/controllers";
 import createControllers from "./createControllers";
-import doesUserAccountExist from "./firestore/doesUserAccountExist";
+import { api } from "./api";
 import guessFullName from "./guessFullName";
 import Option from "./types/Option";
 import LocalStorageKeys from "./types/LocalStorageKeys";
@@ -83,10 +83,10 @@ export default class App extends React.Component<{}, AppState> {
   componentDidMount() {
     window.addEventListener("popstate", this.onPopState);
 
-    firebase.auth().onAuthStateChanged(user => {
+    api.onAuthStateChanged(user => {
       localStorage.setItem(LocalStorageKeys.IsWaitingForSignIn, "false");
-      if (user) {
-        doesUserAccountExist(user).then(doesExist => {
+      if (user !== null) {
+        api.doesUserAccountExist(user).then(doesExist => {
           if (doesExist) {
             const loader = new ScreenLoader(this, Option.some(user));
             loader.loadScreen(window.location.pathname);

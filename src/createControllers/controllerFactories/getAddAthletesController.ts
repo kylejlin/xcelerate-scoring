@@ -11,7 +11,7 @@ import {
 } from "../../types/misc";
 import getHypotheticalAthleteFieldValue from "../../getHypotheticalAthleteFieldValue";
 import updateHypotheticalAthletesIfPendingEditIsValid from "../../updateHypotheticalAthletesIfPendingEditIsValid";
-import addAthletesToSeason from "../../firestore/addAthletesToSeason";
+import { api } from "../../api";
 import Option from "../../types/Option";
 import { ScreenGuarantee } from "../../types/handle";
 
@@ -122,19 +122,21 @@ export default function getAddAthletesController(
       screen.update({ areAthletesBeingAdded: true });
 
       const { athletes, season, raceDivisions } = screen.state;
-      addAthletesToSeason(
-        Option.all(athletes.map(finalizeTentativeAthlete)).expect(
-          "Attempted to addAthletes when one or more athletes was missing a field."
-        ),
-        season.id,
-        raceDivisions.expect(
-          "Attempted to addAthletes before state.raceDivisions has loaded."
+      api
+        .addAthletesToSeason(
+          Option.all(athletes.map(finalizeTentativeAthlete)).expect(
+            "Attempted to addAthletes when one or more athletes was missing a field."
+          ),
+          season.id,
+          raceDivisions.expect(
+            "Attempted to addAthletes before state.raceDivisions has loaded."
+          )
         )
-      ).then(() => {
-        if (!screen.hasExpired()) {
-          addAthletesController.navigateToAthletesMenu();
-        }
-      });
+        .then(() => {
+          if (!screen.hasExpired()) {
+            addAthletesController.navigateToAthletesMenu();
+          }
+        });
     },
   };
   return addAthletesController;

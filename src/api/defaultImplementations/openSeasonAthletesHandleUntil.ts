@@ -1,9 +1,9 @@
-import firebase from "../firebase";
+import firebase from "../../firebase";
 
-import { Athlete, TeamsRecipe } from "../types/misc";
-import Option from "../types/Option";
-import { RaceDivisionUtil } from "../types/race";
-import zeroPadToFiveDigits from "../zeroPadToFiveDigits";
+import { Athlete, TeamsRecipe } from "../../types/misc";
+import Option from "../../types/Option";
+import { RaceDivisionUtil } from "../../types/race";
+import zeroPadToFiveDigits from "../../zeroPadToFiveDigits";
 
 const db = firebase.firestore();
 

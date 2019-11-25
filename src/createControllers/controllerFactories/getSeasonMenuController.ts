@@ -6,9 +6,8 @@ import {
 import { StateType } from "../../types/states";
 import Option from "../../types/Option";
 
-import getSeasonOwnerAndAssistants from "../../firestore/getSeasonOwnerAndAssistants";
+import { api } from "../../api";
 
-import getUserSeasonPermissions from "../../firestore/getUserSeasonPermissions";
 import { ScreenGuarantee } from "../../types/handle";
 
 export default function getSeasonMenuController(
@@ -48,23 +47,21 @@ export default function getSeasonMenuController(
         })
         .then(screen => {
           const { season, user } = screen.state;
-          getSeasonOwnerAndAssistants(season.id).then(
-            ([owner, assistants]) => {
+          api
+            .getSeasonOwnerAndAssistants(season.id)
+            .then(([owner, assistants]) => {
               screen.update({
                 owner: Option.some(owner),
                 assistants: Option.some(assistants),
               });
-            }
-          );
+            });
           user.ifSome(user => {
-            getUserSeasonPermissions(user, season.id).then(
-              permissions => {
-                screen.update({
-                  isUserOwner: permissions.isOwner,
-                  doesUserHaveWriteAccess: permissions.hasWriteAccess,
-                });
-              }
-            );
+            api.getUserSeasonPermissions(user, season.id).then(permissions => {
+              screen.update({
+                isUserOwner: permissions.isOwner,
+                doesUserHaveWriteAccess: permissions.hasWriteAccess,
+              });
+            });
           });
         });
     },

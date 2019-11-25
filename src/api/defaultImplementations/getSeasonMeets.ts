@@ -1,6 +1,6 @@
-import firebase from "../firebase";
+import firebase from "../../firebase";
 
-import { MeetSummary } from "../types/misc";
+import { MeetSummary } from "../../types/misc";
 
 const db = firebase.firestore();
 

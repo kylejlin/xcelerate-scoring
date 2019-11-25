@@ -1,5 +1,5 @@
-import firebase from "../firebase";
-import { Season } from "../types/misc";
+import firebase from "../../firebase";
+import { Season } from "../../types/misc";
 
 const db = firebase.firestore();
 

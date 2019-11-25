@@ -1,7 +1,7 @@
-import firebase from "../firebase";
+import firebase from "../../firebase";
 import stringSimilarity from "string-similarity";
 
-import { UserAccount } from "../types/misc";
+import { UserAccount } from "../../types/misc";
 
 const db = firebase.firestore();
 

@@ -1,10 +1,10 @@
-import firebase from "../../firebase";
+import firebase from "../firebase";
 import {
   CompressedHypotheticalAthlete,
   CompressedAthlete,
   SeasonSpec,
   Season,
-} from "../../types/misc";
+} from "../types/misc";
 
 const functions = firebase.functions();
 
@@ -42,6 +42,3 @@ export const applyRaceActions: Callable<{
   meetId: string;
   actions: number[];
 }> = functions.httpsCallable("applyRaceActions");
-
-// @ts-ignore
-window.applyRaceActions = applyRaceActions;

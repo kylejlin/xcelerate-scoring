@@ -1,7 +1,7 @@
-import firebase from "../firebase";
+import firebase from "../../firebase";
 
-import Option from "../types/Option";
-import { FullName } from "../types/misc";
+import Option from "../../types/Option";
+import { FullName } from "../../types/misc";
 
 const db = firebase.firestore();
 

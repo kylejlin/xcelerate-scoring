@@ -1,5 +1,5 @@
-import { applyRaceActions } from "./private/cloudFunctions";
-import { RaceAction, RaceActionType } from "../types/race";
+import { applyRaceActions } from "../cloudFunctions";
+import { RaceAction, RaceActionType } from "../../types/race";
 
 export default function appendAction(
   seasonId: string,

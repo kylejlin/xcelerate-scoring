@@ -17,13 +17,10 @@ import updateAthletesIfPendingEditIsValid from "../../updateAthletesIfPendingEdi
 
 import areAthletesEqual from "../../areAthletesEqual";
 
-import updateAthletes from "../../firestore/updateAthletes";
+import { api } from "../../api";
 
-import deleteAthletes from "../../firestore/deleteAthletes";
 import Option from "../../types/Option";
 import { ScreenGuarantee } from "../../types/handle";
-import openUndeletableIdsHandleUntil from "../../firestore/openUndeletableIdsHandleUntil";
-import getSeason from "../../firestore/getSeason";
 
 export default function getAthletesMenuController(
   { getCurrentScreen }: ScreenGuarantee<StateType.AthletesMenu>,
@@ -54,7 +51,7 @@ export default function getAthletesMenuController(
           selectedSchool: Option.none(),
         })
         .then(screen => {
-          getSeason(screen.state.season.id).then(season => {
+          api.getSeason(screen.state.season.id).then(season => {
             screen.update({ schools: Option.some(season.schools) });
           });
         });
@@ -74,7 +71,7 @@ export default function getAthletesMenuController(
           areAthletesBeingAdded: false,
         })
         .then(screen => {
-          getSeason(screen.state.season.id).then(season => {
+          api.getSeason(screen.state.season.id).then(season => {
             screen.update({ raceDivisions: Option.some(season) });
           });
         });
@@ -178,21 +175,23 @@ export default function getAthletesMenuController(
         const teams = screen.state.teamsRecipe.expect(
           "Attempted to syncAndUnfocusEditedAthleteField when teams recipe has not yet loaded."
         );
-        updateAthletes(
-          screen.state.season.id,
-          [
-            updatedAthletes.find(
-              athlete => athlete.id === pendingEdit.athleteId
-            )!,
-          ],
-          teams
-        ).then(() => {
-          screen.update({
-            pendingEditsBeingSyncedWithFirestore: screen.state.pendingEditsBeingSyncedWithFirestore.filter(
-              edit => edit !== pendingEdit
-            ),
+        api
+          .updateAthletes(
+            screen.state.season.id,
+            [
+              updatedAthletes.find(
+                athlete => athlete.id === pendingEdit.athleteId
+              )!,
+            ],
+            teams
+          )
+          .then(() => {
+            screen.update({
+              pendingEditsBeingSyncedWithFirestore: screen.state.pendingEditsBeingSyncedWithFirestore.filter(
+                edit => edit !== pendingEdit
+              ),
+            });
           });
-        });
       }
     },
     showSpreadsheetData() {
@@ -218,7 +217,7 @@ export default function getAthletesMenuController(
           areAthletesBeingDeleted: false,
         }),
       });
-      const { undeletableIds } = openUndeletableIdsHandleUntil(
+      const { undeletableIds } = api.openUndeletableIdsHandleUntil(
         screen.state.season.id,
         Promise.race([subscreenExpiration, screen.expiration])
       );
@@ -280,7 +279,7 @@ export default function getAthletesMenuController(
           areAthletesBeingDeleted: true,
         })),
       });
-      deleteAthletes(seasonId, idsToDelete).then(() => {
+      api.deleteAthletes(seasonId, idsToDelete).then(() => {
         screen.update({ deleteAthletes: Option.none() });
       });
     },

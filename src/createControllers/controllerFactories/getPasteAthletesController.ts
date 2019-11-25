@@ -9,7 +9,7 @@ import parseSpreadsheetData from "../../parseSpreadsheetData";
 
 import Option from "../../types/Option";
 import { ScreenGuarantee } from "../../types/handle";
-import getSeason from "../../firestore/getSeason";
+import { api } from "../../api";
 
 export default function getPasteAthletesController(
   { getCurrentScreen }: ScreenGuarantee<StateType.PasteAthletes>,
@@ -46,12 +46,7 @@ export default function getPasteAthletesController(
     },
     submitSpreadsheetData() {
       const screen = getCurrentScreen();
-      const {
-        user,
-        season,
-        spreadsheetData,
-        selectedSchool,
-      } = screen.state;
+      const { user, season, spreadsheetData, selectedSchool } = screen.state;
       screen
         .pushScreen(StateType.AddAthletes, {
           user: user,
@@ -63,7 +58,7 @@ export default function getPasteAthletesController(
           areAthletesBeingAdded: false,
         })
         .then(screen => {
-          getSeason(screen.state.season.id).then(season => {
+          api.getSeason(screen.state.season.id).then(season => {
             screen.update({ raceDivisions: Option.some(season) });
           });
         });

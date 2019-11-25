@@ -1,6 +1,6 @@
-import firebase from "../firebase";
-import removeDuplicates from "../removeDuplicates";
-import parseFlattened2dArray from "../parseFlattened2dArray";
+import firebase from "../../firebase";
+import removeDuplicates from "../../removeDuplicates";
+import parseFlattened2dArray from "../../parseFlattened2dArray";
 
 const db = firebase.firestore();
 

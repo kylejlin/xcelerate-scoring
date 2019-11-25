@@ -2,10 +2,8 @@ import {
   SharedControllerMethods,
   UserProfileController,
 } from "../../types/controllers";
-import firebase from "../../firebase";
 import { StateType } from "../../types/states";
-import updateUserName from "../../firestore/updateUserName";
-import createUserAccount from "../../firestore/createUserAccount";
+import { api } from "../../api";
 import { ScreenGuarantee } from "../../types/handle";
 
 export default function getUserProfileController(
@@ -18,10 +16,7 @@ export default function getUserProfileController(
   return {
     navigateToUserSeasonsScreen,
     signOut() {
-      firebase
-        .auth()
-        .signOut()
-        .then(navigateToSearchForSeasonScreen);
+      api.signOut().then(navigateToSearchForSeasonScreen);
     },
     editPendingFirstName(event: React.ChangeEvent<HTMLInputElement>) {
       const screen = getCurrentScreen();
@@ -47,9 +42,9 @@ export default function getUserProfileController(
       const screen = getCurrentScreen();
       const { user, fullName } = screen.state;
       fullName.ifSome(fullName => {
-        updateUserName(user, fullName).catch(() =>
-          createUserAccount(user, fullName)
-        );
+        api
+          .updateUserName(user, fullName)
+          .catch(() => api.createUserAccount(user, fullName));
       });
     },
   };

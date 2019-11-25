@@ -1,6 +1,6 @@
-import { createMeet } from "./private/cloudFunctions";
+import { createMeet } from "../cloudFunctions";
 
-import { MeetSummary } from "../types/misc";
+import { MeetSummary } from "../../types/misc";
 
 export default function addMeetToSeason(
   meetName: string,

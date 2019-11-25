@@ -5,11 +5,9 @@ import {
 import { MeetSummary, AthleteOrSchool } from "../../types/misc";
 import { RaceDivision, RaceDivisionUtil } from "../../types/race";
 import { StateType } from "../../types/states";
-import addMeetToSeason from "../../firestore/addMeetToSeason";
+import { api } from "../../api";
 import Option from "../../types/Option";
-import openSeasonAthletesHandleUntil from "../../firestore/openSeasonAthletesHandleUntil";
 import { ScreenGuarantee } from "../../types/handle";
-import openMeetHandleUntil from "../../firestore/openMeetHandleUntil";
 
 export default function getSeasonsMeetsController(
   { getCurrentScreen }: ScreenGuarantee<StateType.SeasonMeets>,
@@ -43,7 +41,7 @@ export default function getSeasonsMeetsController(
         .then(screen => {
           const { state } = screen;
 
-          const { meet, raceDivisions } = openMeetHandleUntil(
+          const { meet, raceDivisions } = api.openMeetHandleUntil(
             state.season.id,
             state.meetSummary.id,
             screen.expiration
@@ -69,7 +67,7 @@ export default function getSeasonsMeetsController(
             });
           });
 
-          const { athletes } = openSeasonAthletesHandleUntil(
+          const { athletes } = api.openSeasonAthletesHandleUntil(
             state.season.id,
             screen.expiration
           );
@@ -99,7 +97,7 @@ export default function getSeasonsMeetsController(
         .then(screen => {
           const { state } = screen;
 
-          const { meet, raceDivisions } = openMeetHandleUntil(
+          const { meet, raceDivisions } = api.openMeetHandleUntil(
             state.season.id,
             state.meetSummary.id,
             screen.expiration
@@ -125,7 +123,7 @@ export default function getSeasonsMeetsController(
             });
           });
 
-          const { athletes } = openSeasonAthletesHandleUntil(
+          const { athletes } = api.openSeasonAthletesHandleUntil(
             state.season.id,
             screen.expiration
           );
@@ -144,15 +142,15 @@ export default function getSeasonsMeetsController(
       const { pendingMeetName } = screen.state;
       if (pendingMeetName !== "") {
         screen.update({ pendingMeetName: "" });
-        addMeetToSeason(pendingMeetName, screen.state.season.id).then(
-          meetSummary => {
+        api
+          .addMeetToSeason(pendingMeetName, screen.state.season.id)
+          .then(meetSummary => {
             screen.update({
               meets: screen.state.meets.map(meets =>
                 meets.concat([meetSummary])
               ),
             });
-          }
-        );
+          });
       }
     },
   };

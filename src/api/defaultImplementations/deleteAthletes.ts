@@ -1,4 +1,4 @@
-import { deleteAthletes as deleteFirestoreAthletes } from "./private/cloudFunctions";
+import { deleteAthletes as deleteFirestoreAthletes } from "../cloudFunctions";
 
 export default function deleteAthletes(
   seasonId: string,

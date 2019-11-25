@@ -5,7 +5,7 @@ import {
 
 import { StateType, CreateSeasonState } from "../../types/states";
 
-import createSeason from "../../firestore/createSeason";
+import { api } from "../../api";
 import { SeasonSpec } from "../../types/misc";
 import { ScreenGuarantee } from "../../types/handle";
 
@@ -69,7 +69,7 @@ export default function getCreateSeasonController(
       const screen = getCurrentScreen();
       screen.update({ isCreatingSeason: true });
       const spec = getSeasonSpec(screen.state);
-      createSeason(spec).then(navigateToUserSeasonsScreen);
+      api.createSeason(spec).then(navigateToUserSeasonsScreen);
     },
   };
 }

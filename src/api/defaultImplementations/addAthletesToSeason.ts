@@ -1,10 +1,10 @@
-import { addAthletes } from "./private/cloudFunctions";
+import { addAthletes } from "../cloudFunctions";
 import {
   HypotheticalAthlete,
   compressHypotheticalAthlete,
   TeamsRecipe,
-} from "../types/misc";
-import Option from "../types/Option";
+} from "../../types/misc";
+import Option from "../../types/Option";
 
 export default function addAthletesToSeason(
   athletes: HypotheticalAthlete[],

@@ -1,18 +1,12 @@
 import { StateType } from "../../types/states";
 import Option from "../../types/Option";
 
-import getUserSeasons from "../../firestore/getUserSeasons";
-
-import getUserName from "../../firestore/getUserName";
+import { api } from "../../api";
 
 import { Season, Gender } from "../../types/misc";
 import { SharedControllerMethods } from "../../types/controllers";
-import getUserSeasonPermissions from "../../firestore/getUserSeasonPermissions";
-import getSeasonMeets from "../../firestore/getSeasonMeets";
-import openSeasonAthletesHandleUntil from "../../firestore/openSeasonAthletesHandleUntil";
 import { UnknownScreenHandle } from "../../types/handle";
 import guessFullName from "../../guessFullName";
-import getSeason from "../../firestore/getSeason";
 
 export default function getSharedControllerMethods(
   app: UnknownScreenHandle
@@ -43,7 +37,7 @@ export default function getSharedControllerMethods(
               seasons: Option.none(),
             })
             .then(screen => {
-              getUserSeasons(user).then(seasonSummaries => {
+              api.getUserSeasons(user).then(seasonSummaries => {
                 screen.update({ seasons: Option.some(seasonSummaries) });
               });
             });
@@ -62,7 +56,7 @@ export default function getSharedControllerMethods(
           doesUserExist: true,
         })
         .then(screen => {
-          getUserName(screen.state.user).then(profile => {
+          api.getUserName(screen.state.user).then(profile => {
             profile.match({
               none: () => {
                 screen.update({
@@ -113,7 +107,7 @@ export default function getSharedControllerMethods(
 
           userHasAccessToSeason.ifNone(() => {
             user.ifSome(user => {
-              getUserSeasonPermissions(user, seasonId).then(permissions => {
+              api.getUserSeasonPermissions(user, seasonId).then(permissions => {
                 screen.update({
                   doesUserHaveWriteAccess: permissions.hasWriteAccess,
                 });
@@ -124,7 +118,7 @@ export default function getSharedControllerMethods(
           const {
             teamsRecipe: raceDivisions,
             athletes,
-          } = openSeasonAthletesHandleUntil(seasonId, screen.expiration);
+          } = api.openSeasonAthletesHandleUntil(seasonId, screen.expiration);
           raceDivisions.then(raceDivisions => {
             screen.update({ teamsRecipe: Option.some(raceDivisions) });
           });
@@ -152,16 +146,16 @@ export default function getSharedControllerMethods(
         .then(screen => {
           const seasonId = season.id;
           user.ifSome(user => {
-            getUserSeasonPermissions(user, seasonId).then(permissions => {
+            api.getUserSeasonPermissions(user, seasonId).then(permissions => {
               screen.update({
                 doesUserHaveWriteAccess: permissions.hasWriteAccess,
               });
             });
           });
-          getSeasonMeets(seasonId).then(meets => {
+          api.getSeasonMeets(seasonId).then(meets => {
             screen.update({ meets: Option.some(meets) });
           });
-          getSeason(seasonId).then(season => {
+          api.getSeason(seasonId).then(season => {
             screen.update({
               gradeBounds: Option.some({
                 min: season.minGrade,

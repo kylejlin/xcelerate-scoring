@@ -10,7 +10,7 @@ import {
   Delete as RaceActionDelete,
   areRaceActionsEqual,
 } from "../../types/race";
-import appendAction from "../../firestore/appendAction";
+import { api } from "../../api";
 import Option from "../../types/Option";
 import { ScreenGuarantee } from "../../types/handle";
 
@@ -102,16 +102,13 @@ export default function getEditMeetController(
               screen.update({
                 pendingActions: screen.state.pendingActions.concat([action]),
               });
-              appendAction(season.id, meetSummary.id, action).then(
-                () => {
-                  screen.update(prevState => ({
-                    pendingActions: prevState.pendingActions.filter(
-                      pendingAction =>
-                        !areRaceActionsEqual(pendingAction, action)
-                    ),
-                  }));
-                }
-              );
+              api.appendAction(season.id, meetSummary.id, action).then(() => {
+                screen.update(prevState => ({
+                  pendingActions: prevState.pendingActions.filter(
+                    pendingAction => !areRaceActionsEqual(pendingAction, action)
+                  ),
+                }));
+              });
             }
           } else {
             screen.update({
@@ -152,7 +149,7 @@ export default function getEditMeetController(
         screen.update({
           pendingActions: screen.state.pendingActions.concat([action]),
         });
-        appendAction(season.id, meetSummary.id, action).then(() => {
+        api.appendAction(season.id, meetSummary.id, action).then(() => {
           screen.update(prevState => ({
             pendingActions: prevState.pendingActions.filter(
               pendingAction => !areRaceActionsEqual(pendingAction, action)

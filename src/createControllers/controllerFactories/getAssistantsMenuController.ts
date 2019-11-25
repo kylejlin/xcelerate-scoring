@@ -5,9 +5,7 @@ import {
 import { StateType } from "../../types/states";
 import { UserAccount } from "../../types/misc";
 import Option from "../../types/Option";
-import addAssistantToSeason from "../../firestore/addAssistantToSeason";
-import deleteAssistantFromSeason from "../../firestore/deleteAssistantFromSeason";
-import searchForUser from "../../firestore/searchForUser";
+import { api } from "../../api";
 import { ScreenGuarantee } from "../../types/handle";
 
 export default function getAssistantsMenuController(
@@ -31,16 +29,15 @@ export default function getAssistantsMenuController(
     },
     deleteAssistant(assistantId: string) {
       const screen = getCurrentScreen();
-      deleteAssistantFromSeason(
-        assistantId,
-        screen.state.season.id
-      ).then(() => {
-        screen.update(prevState => ({
-          assistants: prevState.assistants.map(assistants =>
-            assistants.filter(assistant => assistant.id !== assistantId)
-          ),
-        }));
-      });
+      api
+        .deleteAssistantFromSeason(assistantId, screen.state.season.id)
+        .then(() => {
+          screen.update(prevState => ({
+            assistants: prevState.assistants.map(assistants =>
+              assistants.filter(assistant => assistant.id !== assistantId)
+            ),
+          }));
+        });
     },
     editAssistantQuery(event: React.ChangeEvent<HTMLInputElement>) {
       const assistantQuery = event.target.value;
@@ -52,7 +49,7 @@ export default function getAssistantsMenuController(
       screen.update({ areQueryResultsLoading: true });
       const originalQuery = screen.state.assistantQuery;
       if (originalQuery !== "") {
-        searchForUser(originalQuery).then(userAccounts => {
+        api.searchForUser(originalQuery).then(userAccounts => {
           if (!screen.hasExpired()) {
             const possiblyUpdatedState = getCurrentScreen().state;
             if (
@@ -70,15 +67,15 @@ export default function getAssistantsMenuController(
     },
     addAssistant(assistant: UserAccount) {
       const screen = getCurrentScreen();
-      addAssistantToSeason(assistant.id, screen.state.season.id).then(
-        () => {
+      api
+        .addAssistantToSeason(assistant.id, screen.state.season.id)
+        .then(() => {
           screen.update(prevState => ({
             assistants: prevState.assistants.map(assistants =>
               assistants.concat(assistant)
             ),
           }));
-        }
-      );
+        });
     },
   };
 }

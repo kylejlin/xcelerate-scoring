@@ -1,9 +1,9 @@
-import firebase from "../firebase";
+import firebase from "../../firebase";
 
-import { Meet } from "../types/misc";
-import Option from "../types/Option";
-import { RaceDivisionsRecipe } from "../types/race";
-import parseFlattened2dArray from "../parseFlattened2dArray";
+import { Meet } from "../../types/misc";
+import Option from "../../types/Option";
+import { RaceDivisionsRecipe } from "../../types/race";
+import parseFlattened2dArray from "../../parseFlattened2dArray";
 
 const db = firebase.firestore();
 

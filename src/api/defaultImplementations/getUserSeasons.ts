@@ -1,6 +1,6 @@
-import firebase from "../firebase";
+import firebase from "../../firebase";
 
-import { Season } from "../types/misc";
+import { Season } from "../../types/misc";
 
 const db = firebase.firestore();
 

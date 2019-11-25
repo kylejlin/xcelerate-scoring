@@ -4,7 +4,7 @@ import {
   SharedControllerMethods,
 } from "../../types/controllers";
 import Option from "../../types/Option";
-import searchForSeason from "../../firestore/searchForSeason";
+import { api } from "../../api";
 import { ScreenGuarantee } from "../../types/handle";
 
 export default function getSearchForSeasonController(
@@ -28,7 +28,7 @@ export default function getSearchForSeasonController(
       const screen = getCurrentScreen();
       screen.update({ isLoading: true });
       const originalQuery = screen.state.query;
-      searchForSeason(originalQuery).then(seasons => {
+      api.searchForSeason(originalQuery).then(seasons => {
         if (!screen.hasExpired()) {
           const possiblyUpdatedState = getCurrentScreen().state;
           if (
