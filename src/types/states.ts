@@ -1,4 +1,4 @@
-import firebase from "../firebase";
+import { User } from "../api";
 
 import Option from "./Option";
 import {
@@ -58,7 +58,7 @@ export interface SearchForSeasonState {
   kind: StateType.SearchForSeason;
   screenNumber: number;
 
-  user: Option<firebase.User>;
+  user: Option<User>;
   query: string;
   isLoading: boolean;
   seasons: Option<Season[]>;
@@ -80,7 +80,7 @@ export interface UserProfileState {
   kind: StateType.UserProfile;
   screenNumber: number;
 
-  user: firebase.User;
+  user: User;
   fullName: Option<FullName>;
   doesUserExist: boolean;
 }
@@ -89,7 +89,7 @@ export interface UserSeasonsState {
   kind: StateType.UserSeasons;
   screenNumber: number;
 
-  user: firebase.User;
+  user: User;
   seasons: Option<Season[]>;
 }
 
@@ -97,7 +97,7 @@ export interface CreateSeasonState {
   kind: StateType.CreateSeason;
   screenNumber: number;
 
-  user: firebase.User;
+  user: User;
   seasonName: string;
   minGrade: string;
   maxGrade: string;
@@ -110,7 +110,7 @@ export interface SeasonMenuState {
   kind: StateType.SeasonMenu;
   screenNumber: number;
 
-  user: Option<firebase.User>;
+  user: Option<User>;
   season: Season;
 }
 
@@ -118,7 +118,7 @@ export interface AthletesMenuState {
   kind: StateType.AthletesMenu;
   screenNumber: number;
 
-  user: Option<firebase.User>;
+  user: Option<User>;
   doesUserHaveWriteAccess: boolean;
   season: Season;
   athletes: Option<Athlete[]>;
@@ -143,7 +143,7 @@ export interface PasteAthletesState {
   kind: StateType.PasteAthletes;
   screenNumber: number;
 
-  user: firebase.User;
+  user: User;
   season: Season;
   spreadsheetData: string;
   schools: Option<string[]>;
@@ -154,7 +154,7 @@ export interface AddAthletesState {
   kind: StateType.AddAthletes;
   screenNumber: number;
 
-  user: firebase.User;
+  user: User;
   season: Season;
   wereAthletesPasted: boolean;
   athletes: TentativeHypotheticalAthlete[];
@@ -167,7 +167,7 @@ export interface AssistantsMenuState {
   kind: StateType.AssistantsMenu;
   screenNumber: number;
 
-  user: Option<firebase.User>;
+  user: Option<User>;
   doesUserHaveWriteAccess: boolean;
   isUserOwner: boolean;
   season: Season;
@@ -182,7 +182,7 @@ export interface SeasonMeetsState {
   kind: StateType.SeasonMeets;
   screenNumber: number;
 
-  user: Option<firebase.User>;
+  user: Option<User>;
   doesUserHaveWriteAccess: boolean;
   season: Season;
   meets: Option<MeetSummary[]>;
@@ -194,7 +194,7 @@ export interface EditMeetState {
   kind: StateType.EditMeet;
   screenNumber: number;
 
-  user: firebase.User;
+  user: User;
   season: Season;
   meetSummary: MeetSummary;
 
@@ -212,7 +212,7 @@ export interface ViewMeetState {
   kind: StateType.ViewMeet;
   screenNumber: number;
 
-  user: Option<firebase.User>;
+  user: Option<User>;
   season: Season;
   meetSummary: MeetSummary;
 

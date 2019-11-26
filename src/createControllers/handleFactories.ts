@@ -6,6 +6,7 @@ import {
 } from "../types/handle";
 import { AppState, StateOf } from "../types/states";
 import Option from "../types/Option";
+import { User } from "../api";
 
 export function getUnknownScreenHandle(app: App): UnknownScreenHandle {
   return {
@@ -15,7 +16,7 @@ export function getUnknownScreenHandle(app: App): UnknownScreenHandle {
     ): Promise<ScreenHandle<T>> {
       return app.pushScreen(kind, state);
     },
-    getUser(): Option<firebase.User> {
+    getUser(): Option<User> {
       return app.getUser();
     },
   };

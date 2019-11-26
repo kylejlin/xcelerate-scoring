@@ -20,7 +20,7 @@ import { getStubbableApi } from "./StubbableApi";
 
 export interface Api {
   onAuthStateChanged(
-    callback: (user: firebase.User | null) => void
+    callback: (user: User | null) => void
   ): firebase.Unsubscribe;
 
   signIntoGoogleWithRedirect(): void;
@@ -45,7 +45,7 @@ export interface Api {
 
   createSeason(season: SeasonSpec): Promise<Season>;
 
-  createUserAccount(user: firebase.User, fullName: FullName): Promise<void>;
+  createUserAccount(userUid: string, fullName: FullName): Promise<void>;
 
   deleteAssistantFromSeason(
     assistantId: string,
@@ -54,7 +54,7 @@ export interface Api {
 
   deleteAthletes(seasonId: string, athleteIds: number[]): Promise<void>;
 
-  doesUserAccountExist(user: firebase.User): Promise<boolean>;
+  doesUserAccountExist(userUid: string): Promise<boolean>;
 
   getMeet(seasonId: string, meetId: string): Promise<MeetSummary>;
 
@@ -66,14 +66,14 @@ export interface Api {
     seasonId: string
   ): Promise<[UserAccount, UserAccount[]]>;
 
-  getUserName(user: firebase.User): Promise<Option<FullName>>;
+  getUserName(userUid: string): Promise<Option<FullName>>;
 
   getUserSeasonPermissions(
-    user: firebase.User,
+    userUid: string,
     seasonId: string
   ): Promise<{ isOwner: boolean; hasWriteAccess: boolean }>;
 
-  getUserSeasons(user: firebase.User): Promise<Season[]>;
+  getUserSeasons(userUid: string): Promise<Season[]>;
 
   openMeetHandleUntil(
     seasonId: string,
@@ -115,9 +115,17 @@ export interface Api {
     teams: TeamsRecipe
   ): Promise<void>;
 
-  updateUserName(user: firebase.User, fullName: FullName): Promise<void>;
+  updateUserName(userUid: string, fullName: FullName): Promise<void>;
 }
 
 export type ApiFnId = keyof Api;
 
 export const api: Api = getStubbableApi(DEFAULT_IMPLEMENTATIONS);
+
+export interface User {
+  uid: firebase.User["uid"];
+  displayName: firebase.User["displayName"];
+}
+
+// @ts-ignore
+window.__stubbableApi__ = api;

@@ -1,14 +1,15 @@
-import firebase from "../firebase";
+import { User } from "../api";
 
 import { AppState, StateOf } from "./states";
 import Option from "./Option";
+import { format } from "path";
 
 export interface UnknownScreenHandle {
   pushScreen<T extends AppState["kind"]>(
     kind: T,
     state: Omit<StateOf<T>, "kind" | "screenNumber">
   ): Promise<ScreenHandle<T>>;
-  getUser(): Option<firebase.User>;
+  getUser(): Option<User>;
 }
 
 export interface ScreenHandle<T extends AppState["kind"]> {

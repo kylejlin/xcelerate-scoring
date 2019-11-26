@@ -15,4 +15,7 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
+// @ts-ignore
+window.firebase = firebase;
+
 export default firebase;

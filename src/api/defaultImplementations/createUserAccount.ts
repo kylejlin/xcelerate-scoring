@@ -5,11 +5,11 @@ import { FullName } from "../../types/misc";
 const db = firebase.firestore();
 
 export default function createUserAccount(
-  user: firebase.User,
+  userUid: string,
   fullName: FullName
 ): Promise<void> {
   return db
     .collection("users")
-    .doc(user.uid)
+    .doc(userUid)
     .set(fullName);
 }

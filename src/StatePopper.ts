@@ -1,7 +1,7 @@
 import App from "./App";
 import { StateType } from "./types/states";
 import Option from "./types/Option";
-import { api } from "./api";
+import { api, User } from "./api";
 import {
   CachedState,
   SeasonMenuCachedState,
@@ -76,7 +76,7 @@ export default class StatePopper {
     });
   }
 
-  private getUser(): Option<firebase.User> {
+  private getUser(): Option<User> {
     return this.app.getUser();
   }
 
@@ -84,7 +84,7 @@ export default class StatePopper {
     this.getUserOrLoadSignInScreen(this.loadUserSeasonsScreen);
   }
 
-  private getUserOrLoadSignInScreen(callback: (user: firebase.User) => void) {
+  private getUserOrLoadSignInScreen(callback: (user: User) => void) {
     this.getUser().match({
       none: () => {
         this.app.replaceScreen(StateType.SignIn, {});
@@ -93,14 +93,14 @@ export default class StatePopper {
     });
   }
 
-  private loadUserSeasonsScreen(user: firebase.User) {
+  private loadUserSeasonsScreen(user: User) {
     this.app
       .replaceScreen(StateType.UserSeasons, {
         user,
         seasons: Option.none(),
       })
       .then(screen => {
-        api.getUserSeasons(user).then(seasonSummaries => {
+        api.getUserSeasons(user.uid).then(seasonSummaries => {
           screen.update({ seasons: Option.some(seasonSummaries) });
         });
       });
@@ -110,7 +110,7 @@ export default class StatePopper {
     this.getUserOrLoadSignInScreen(this.loadUserProfileScreen);
   }
 
-  private loadUserProfileScreen(user: firebase.User) {
+  private loadUserProfileScreen(user: User) {
     this.app
       .replaceScreen(StateType.UserProfile, {
         user,
@@ -118,7 +118,7 @@ export default class StatePopper {
         doesUserExist: true,
       })
       .then(screen => {
-        api.getUserName(user).then(profile => {
+        api.getUserName(user.uid).then(profile => {
           profile.match({
             none: () => {
               screen.update({
@@ -138,7 +138,7 @@ export default class StatePopper {
     this.getUserOrLoadSignInScreen(this.loadCreateSeasonScreen);
   }
 
-  private loadCreateSeasonScreen(user: firebase.User) {
+  private loadCreateSeasonScreen(user: User) {
     this.app.replaceScreen(StateType.CreateSeason, {
       user,
       seasonName: "My Awesome Season",
@@ -185,7 +185,7 @@ export default class StatePopper {
         const seasonId = season.id;
 
         user.ifSome(user => {
-          api.getUserSeasonPermissions(user, seasonId).then(permissions => {
+          api.getUserSeasonPermissions(user.uid, seasonId).then(permissions => {
             if (permissions.hasWriteAccess) {
               screen.update({ doesUserHaveWriteAccess: true });
             }
@@ -213,10 +213,7 @@ export default class StatePopper {
     });
   }
 
-  private loadPasteAthletesScreen(
-    state: PasteAthletesCachedState,
-    user: firebase.User
-  ) {
+  private loadPasteAthletesScreen(state: PasteAthletesCachedState, user: User) {
     this.app
       .replaceScreen(StateType.PasteAthletes, {
         user,
@@ -240,10 +237,7 @@ export default class StatePopper {
     });
   }
 
-  private loadAddAthletesScreen(
-    state: AddAthletesCachedState,
-    user: firebase.User
-  ) {
+  private loadAddAthletesScreen(state: AddAthletesCachedState, user: User) {
     this.app
       .replaceScreen(StateType.AddAthletes, {
         user,
@@ -287,12 +281,14 @@ export default class StatePopper {
             });
           });
         user.ifSome(user => {
-          api.getUserSeasonPermissions(user, season.id).then(permissions => {
-            screen.update({
-              isUserOwner: permissions.isOwner,
-              doesUserHaveWriteAccess: permissions.hasWriteAccess,
+          api
+            .getUserSeasonPermissions(user.uid, season.id)
+            .then(permissions => {
+              screen.update({
+                isUserOwner: permissions.isOwner,
+                doesUserHaveWriteAccess: permissions.hasWriteAccess,
+              });
             });
-          });
         });
       });
   }
@@ -312,7 +308,7 @@ export default class StatePopper {
       .then(screen => {
         const seasonId = season.id;
         user.ifSome(user => {
-          api.getUserSeasonPermissions(user, seasonId).then(permissions => {
+          api.getUserSeasonPermissions(user.uid, seasonId).then(permissions => {
             if (permissions.hasWriteAccess) {
               screen.update({ doesUserHaveWriteAccess: true });
             }
@@ -338,7 +334,7 @@ export default class StatePopper {
     });
   }
 
-  private loadEditMeetScreen(state: EditMeetCachedState, user: firebase.User) {
+  private loadEditMeetScreen(state: EditMeetCachedState, user: User) {
     const { season, meetSummary } = state;
     this.app
       .replaceScreen(StateType.EditMeet, {

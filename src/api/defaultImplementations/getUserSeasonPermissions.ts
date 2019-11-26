@@ -3,7 +3,7 @@ import firebase from "../../firebase";
 const db = firebase.firestore();
 
 export default function getUserSeasonPermissions(
-  user: firebase.User,
+  userUid: string,
   seasonId: string
 ): Promise<{ isOwner: boolean; hasWriteAccess: boolean }> {
   return db
@@ -17,11 +17,11 @@ export default function getUserSeasonPermissions(
           "Attempted to call getUserSeasonPermissions on a nonexistent season."
         );
       } else {
-        const isOwner = data.ownerId === user.uid;
+        const isOwner = data.ownerId === userUid;
         const hasWriteAccess =
           isOwner ||
           (Array.isArray(data.assistantIds) &&
-            data.assistantIds.includes(user.uid));
+            data.assistantIds.includes(userUid));
         return { isOwner, hasWriteAccess };
       }
     });

@@ -29,6 +29,8 @@ class StubManager {
 }
 
 export interface StubbableApi extends Api {
+  getAllFunctionIds(): ApiFnId[];
+
   override<T extends ApiFnId>(id: T, implementation: Api[T]): void;
 }
 
@@ -37,15 +39,21 @@ export function getStubbableApi(defaultImplementations: Api): StubbableApi {
 
   manager.override = manager.override.bind(manager);
 
-  return (Object.keys(defaultImplementations) as (keyof Api)[]).reduce(
+  function getAllFunctionIds(): ApiFnId[] {
+    return Object.keys(defaultImplementations) as ApiFnId[];
+  }
+
+  const wrappedApi = (Object.keys(
+    defaultImplementations
+  ) as (keyof Api)[]).reduce(
     (acc, key) => ({
       ...(acc as any),
       [key]: (...args: any[]): any => {
         return (manager.getImplementation(key) as any)(...args);
       },
     }),
-    {
-      override: manager.override,
-    }
-  ) as StubbableApi;
+    {}
+  ) as Api;
+
+  return { ...wrappedApi, getAllFunctionIds, override: manager.override };
 }

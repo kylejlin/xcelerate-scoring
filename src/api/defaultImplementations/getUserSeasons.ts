@@ -4,14 +4,14 @@ import { Season } from "../../types/misc";
 
 const db = firebase.firestore();
 
-export default function getUserSeasons(user: firebase.User): Promise<Season[]> {
+export default function getUserSeasons(userUid: string): Promise<Season[]> {
   const ownedSeasons = db
     .collection("seasons")
-    .where("ownerId", "==", user.uid)
+    .where("ownerId", "==", userUid)
     .get();
   const assistedSeasons = db
     .collection("seasons")
-    .where("assistantIds", "array-contains", user.uid)
+    .where("assistantIds", "array-contains", userUid)
     .get();
   return Promise.all([ownedSeasons, assistedSeasons]).then(
     ([ownedSeasons, assistedSeasons]) =>

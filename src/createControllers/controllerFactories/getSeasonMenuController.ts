@@ -56,12 +56,14 @@ export default function getSeasonMenuController(
               });
             });
           user.ifSome(user => {
-            api.getUserSeasonPermissions(user, season.id).then(permissions => {
-              screen.update({
-                isUserOwner: permissions.isOwner,
-                doesUserHaveWriteAccess: permissions.hasWriteAccess,
+            api
+              .getUserSeasonPermissions(user.uid, season.id)
+              .then(permissions => {
+                screen.update({
+                  isUserOwner: permissions.isOwner,
+                  doesUserHaveWriteAccess: permissions.hasWriteAccess,
+                });
               });
-            });
           });
         });
     },

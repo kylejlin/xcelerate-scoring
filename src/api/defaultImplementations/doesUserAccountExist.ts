@@ -3,11 +3,11 @@ import firebase from "../../firebase";
 const db = firebase.firestore();
 
 export default function doesUserAccountExist(
-  user: firebase.User
+  userUid: string
 ): Promise<boolean> {
   return db
     .collection("users")
-    .doc(user.uid)
+    .doc(userUid)
     .get()
     .then(doc => doc.exists);
 }

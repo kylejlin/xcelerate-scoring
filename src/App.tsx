@@ -1,4 +1,3 @@
-import firebase from "./firebase";
 import React from "react";
 
 import "./App.css";
@@ -6,7 +5,7 @@ import "./App.css";
 import { AppState, StateType, StateOf } from "./types/states";
 import { ControllerCollection } from "./types/controllers";
 import createControllers from "./createControllers";
-import { api } from "./api";
+import { api, User } from "./api";
 import guessFullName from "./guessFullName";
 import Option from "./types/Option";
 import LocalStorageKeys from "./types/LocalStorageKeys";
@@ -52,8 +51,6 @@ export default class App extends React.Component<{}, AppState> {
 
     // @ts-ignore
     window.app = this;
-    // @ts-ignore
-    window.firebase = firebase;
 
     const isWaitingForSignInCompletion =
       localStorage.getItem(LocalStorageKeys.IsWaitingForSignIn) === "true";
@@ -75,18 +72,31 @@ export default class App extends React.Component<{}, AppState> {
   }
 
   private bindMethods() {
+    this.addListeners = this.addListeners.bind(this);
     this.pushScreen = this.pushScreen.bind(this);
     this.unsafeGetScreenHandle = this.unsafeGetScreenHandle.bind(this);
     this.onPopState = this.onPopState.bind(this);
   }
 
   componentDidMount() {
+    if (localStorage.getItem("__shouldWaitForStubs__") === "true") {
+      console.log("Deferring initialization...");
+
+      (window as any).__onStubsAdded__ = this.addListeners;
+    } else {
+      this.addListeners();
+    }
+  }
+
+  addListeners() {
+    console.log("initializing");
+
     window.addEventListener("popstate", this.onPopState);
 
     api.onAuthStateChanged(user => {
       localStorage.setItem(LocalStorageKeys.IsWaitingForSignIn, "false");
       if (user !== null) {
-        api.doesUserAccountExist(user).then(doesExist => {
+        api.doesUserAccountExist(user.uid).then(doesExist => {
           if (doesExist) {
             const loader = new ScreenLoader(this, Option.some(user));
             loader.loadScreen(window.location.pathname);
@@ -211,7 +221,7 @@ export default class App extends React.Component<{}, AppState> {
     }
   }
 
-  getUser(): Option<firebase.User> {
+  getUser(): Option<User> {
     switch (this.state.kind) {
       case StateType.SearchForSeason:
         return this.state.user;

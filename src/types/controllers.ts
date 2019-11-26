@@ -1,12 +1,6 @@
 import React from "react";
-
-import {
-  Athlete,
-  EditableAthleteField,
-  MeetSummary,
-  Season,
-  UserAccount,
-} from "./misc";
+import { User } from "../api";
+import { EditableAthleteField, MeetSummary, Season, UserAccount } from "./misc";
 import Option from "./Option";
 
 export interface ControllerCollection {
@@ -34,7 +28,7 @@ export interface SharedControllerMethods {
   navigateToUserProfileScreen(): void;
   viewSeason(season: Season): void;
   navigateToAthletesMenu(
-    user: Option<firebase.User>,
+    user: Option<User>,
     season: Season,
     userHasAccessToSeason: Option<boolean>
   ): void;
@@ -42,7 +36,7 @@ export interface SharedControllerMethods {
     user,
     season,
   }: {
-    user: Option<firebase.User>;
+    user: Option<User>;
     season: Season;
   }): void;
 }

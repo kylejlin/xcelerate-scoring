@@ -1,7 +1,7 @@
 import { StateType } from "../../types/states";
 import Option from "../../types/Option";
 
-import { api } from "../../api";
+import { api, User } from "../../api";
 
 import { Season, Gender } from "../../types/misc";
 import { SharedControllerMethods } from "../../types/controllers";
@@ -37,7 +37,7 @@ export default function getSharedControllerMethods(
               seasons: Option.none(),
             })
             .then(screen => {
-              api.getUserSeasons(user).then(seasonSummaries => {
+              api.getUserSeasons(user.uid).then(seasonSummaries => {
                 screen.update({ seasons: Option.some(seasonSummaries) });
               });
             });
@@ -56,7 +56,7 @@ export default function getSharedControllerMethods(
           doesUserExist: true,
         })
         .then(screen => {
-          api.getUserName(screen.state.user).then(profile => {
+          api.getUserName(screen.state.user.uid).then(profile => {
             profile.match({
               none: () => {
                 screen.update({
@@ -80,7 +80,7 @@ export default function getSharedControllerMethods(
       });
     },
     navigateToAthletesMenu(
-      user: Option<firebase.User>,
+      user: Option<User>,
       season: Season,
       userHasAccessToSeason: Option<boolean>
     ) {
@@ -107,11 +107,13 @@ export default function getSharedControllerMethods(
 
           userHasAccessToSeason.ifNone(() => {
             user.ifSome(user => {
-              api.getUserSeasonPermissions(user, seasonId).then(permissions => {
-                screen.update({
-                  doesUserHaveWriteAccess: permissions.hasWriteAccess,
+              api
+                .getUserSeasonPermissions(user.uid, seasonId)
+                .then(permissions => {
+                  screen.update({
+                    doesUserHaveWriteAccess: permissions.hasWriteAccess,
+                  });
                 });
-              });
             });
           });
 
@@ -131,7 +133,7 @@ export default function getSharedControllerMethods(
       user,
       season,
     }: {
-      user: Option<firebase.User>;
+      user: Option<User>;
       season: Season;
     }) {
       app
@@ -146,11 +148,13 @@ export default function getSharedControllerMethods(
         .then(screen => {
           const seasonId = season.id;
           user.ifSome(user => {
-            api.getUserSeasonPermissions(user, seasonId).then(permissions => {
-              screen.update({
-                doesUserHaveWriteAccess: permissions.hasWriteAccess,
+            api
+              .getUserSeasonPermissions(user.uid, seasonId)
+              .then(permissions => {
+                screen.update({
+                  doesUserHaveWriteAccess: permissions.hasWriteAccess,
+                });
               });
-            });
           });
           api.getSeasonMeets(seasonId).then(meets => {
             screen.update({ meets: Option.some(meets) });

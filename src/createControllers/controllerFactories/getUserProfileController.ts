@@ -43,8 +43,8 @@ export default function getUserProfileController(
       const { user, fullName } = screen.state;
       fullName.ifSome(fullName => {
         api
-          .updateUserName(user, fullName)
-          .catch(() => api.createUserAccount(user, fullName));
+          .updateUserName(user.uid, fullName)
+          .catch(() => api.createUserAccount(user.uid, fullName));
       });
     },
   };

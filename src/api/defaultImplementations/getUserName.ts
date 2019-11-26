@@ -6,11 +6,11 @@ import { FullName } from "../../types/misc";
 const db = firebase.firestore();
 
 export default function getUserName(
-  user: firebase.User
+  userUid: string
 ): Promise<Option<FullName>> {
   return db
     .collection("users")
-    .doc(user.uid)
+    .doc(userUid)
     .get()
     .then(snapshot => {
       const data = snapshot.data();

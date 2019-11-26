@@ -1,6 +1,6 @@
 import firebase from "../../../src/firebase";
 import deleteSeason from "../../deleteSeason";
-import getApp from "../../getApp";
+import { checkXcelerateWindowHooks } from "../../hooks";
 import Option from "../../../src/types/Option";
 import { Season } from "../../../src/types/misc";
 
@@ -19,7 +19,8 @@ describe("The cleanup script", function() {
     cy.contains("Your seasons");
 
     cy.window().then(win => {
-      const seasons: Option<Season[]> = (getApp(win).state as any).seasons;
+      const { app } = checkXcelerateWindowHooks(win);
+      const seasons: Option<Season[]> = (app.state as any).seasons;
 
       cy.wrap(seasons).should("satisfy", seasons => seasons.isSome());
 
