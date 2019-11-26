@@ -1,4 +1,5 @@
 import firebase from "../../../src/firebase";
+import generateRandomAlphaNumStr from "../../generateRandomAlphaNumStr";
 
 describe("The Create Season Screen when user is signed in", function() {
   before(() => {
@@ -196,11 +197,3 @@ describe("The Create Season Page when user is not signed in", function() {
     cy.location("pathname").should("equal", "/sign-in");
   });
 });
-
-function generateRandomAlphaNumStr(len: number): string {
-  let out = "";
-  while (out.length < len) {
-    out += Math.floor(36 * Math.random()).toString(36);
-  }
-  return out;
-}

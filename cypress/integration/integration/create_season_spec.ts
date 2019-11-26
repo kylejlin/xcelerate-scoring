@@ -1,17 +1,37 @@
-import deferAppInitUntil from "../../deferAppInitUntil";
+import visitAndManipulatePage from "../../visitAndManipulatePage";
 import disableAllApiFunctions from "../../disableAllApiFunctions";
 import stubAuth from "../../stubAuth";
+import { StubbableApi } from "../../../src/api/StubbableApi";
+import { SeasonSpec, Season } from "../../../src/types/misc";
+import generateRandomAlphaNumStr from "../../generateRandomAlphaNumStr";
+import { getHooks } from "../../../src/testingHooks";
 
 describe("The Create Season Screen when user is signed in", function() {
-  beforeEach(() => {
-    deferAppInitUntil("/create-season", win => {
-      const { __stubbableApi__ } = win;
+  beforeEach(function() {
+    visitAndManipulatePage("/create-season", hooks => {
+      const { api } = hooks;
 
-      disableAllApiFunctions(__stubbableApi__);
+      disableAllApiFunctions(api, err => {
+        hooks.errors.push(err);
+      });
 
-      stubAuth(__stubbableApi__);
+      stubAuth(api);
 
-      __stubbableApi__.signIntoGoogleWithRedirect();
+      stubDoesUserAccountExist(api, expect);
+      stubCreateSeason(api);
+      stubGetUserSeasons(api);
+
+      api.signIntoGoogleWithRedirect();
+    });
+  });
+
+  afterEach(function() {
+    cy.window().then(win => {
+      const { errors } = getHooks(win);
+
+      if (errors.length > 0) {
+        throw errors[0];
+      }
     });
   });
 
@@ -148,47 +168,46 @@ describe("The Create Season Screen when user is signed in", function() {
   });
 
   it("lets user create season if name and schools are valid", function() {
-    throw new Error("Nope");
+    const seasonName = "My Amazing Season " + generateRandomAlphaNumStr(6);
 
-    // // cy.visit("/create-season");
+    cy.contains("Name")
+      .find("input")
+      .clear()
+      .type(seasonName);
 
-    // const seasonName = "My Amazing Season " + generateRandomAlphaNumStr(6);
+    cy.contains("Add school")
+      .find("input")
+      .type("School 1");
 
-    // cy.contains("Name")
-    //   .find("input")
-    //   .clear()
-    //   .type(seasonName);
+    cy.contains("Add").click();
 
-    // cy.contains("Add school")
-    //   .find("input")
-    //   .type("School 1");
+    cy.contains("Add school")
+      .find("input")
+      .type("School 2");
 
-    // cy.contains("Add").click();
+    cy.contains("Add").click();
 
-    // cy.contains("Add school")
-    //   .find("input")
-    //   .type("School 2");
+    cy.contains("Create season").click();
 
-    // cy.contains("Add").click();
-
-    // cy.contains("Create season").click();
-
-    // // createSeason() cloud function may be dormant, so give it time to awaken.
-    // cy.contains("Your seasons", { timeout: 20e3 });
-    // cy.contains(seasonName);
+    cy.contains("Your seasons");
+    cy.contains(seasonName);
   });
 });
 
 describe("The Create Season Page when user is not signed in", function() {
-  beforeEach(() => {
-    deferAppInitUntil("/create-season", win => {
-      const { __stubbableApi__ } = win;
+  beforeEach(function() {
+    visitAndManipulatePage("/create-season", hooks => {
+      const { api } = hooks;
 
-      disableAllApiFunctions(__stubbableApi__);
+      disableAllApiFunctions(api, err => {
+        hooks.errors.push(err);
+      });
 
-      stubAuth(__stubbableApi__);
+      stubAuth(api);
 
-      __stubbableApi__.signOut();
+      stubDoesUserAccountExist(api, expect);
+
+      api.signOut();
     });
   });
 
@@ -197,10 +216,49 @@ describe("The Create Season Page when user is not signed in", function() {
   });
 });
 
-function generateRandomAlphaNumStr(len: number): string {
-  let out = "";
-  while (out.length < len) {
-    out += Math.floor(36 * Math.random()).toString(36);
-  }
-  return out;
+function stubDoesUserAccountExist(
+  api: StubbableApi,
+  expect: Chai.ExpectStatic
+): void {
+  api.override("doesUserAccountExist", function doesUserAccountExist(
+    userUid: string
+  ): Promise<boolean> {
+    expect(userUid).to.be.equal(Cypress.env("TEST_ACCOUNT_UID"));
+
+    return Promise.resolve(true);
+  });
+}
+
+function stubCreateSeason(api: StubbableApi): void {
+  api.override("createSeason", function createSeason(
+    season: SeasonSpec
+  ): Promise<Season> {
+    const { name, minGrade, maxGrade, schools } = season;
+
+    return Promise.resolve({
+      id: generateRandomAlphaNumStr(20),
+      ownerId: Cypress.env("TEST_ACCOUNT_UID"),
+      assistantIds: [],
+      name,
+      minGrade,
+      maxGrade,
+      schools,
+    });
+  });
+}
+
+function stubGetUserSeasons(api: StubbableApi): void {
+  api.override("getUserSeasons", function getUserSeasons(): Promise<Season[]> {
+    return Promise.resolve([
+      {
+        id: generateRandomAlphaNumStr(20),
+        ownerId: Cypress.env("TEST_ACCOUNT_UID"),
+        assistantIds: [],
+        name: "My Awesome Season " + generateRandomAlphaNumStr(6),
+        minGrade: 6,
+        maxGrade: 8,
+        schools: ["School 1", "School 2"],
+      },
+    ]);
+  });
 }

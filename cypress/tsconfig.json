@@ -15,5 +15,5 @@
     "noEmit": false,
     "jsx": "react"
   },
-  "include": ["./**/*"]
+  "include": ["./**/*", "../src/hooks.ts"]
 }

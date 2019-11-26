@@ -2,6 +2,8 @@ import React from "react";
 
 import "./App.css";
 
+import { LOCAL_STORAGE_DEFERRED_INIT_FLAG, setHook } from "./testingHooks";
+
 import { AppState, StateType, StateOf } from "./types/states";
 import { ControllerCollection } from "./types/controllers";
 import createControllers from "./createControllers";
@@ -49,8 +51,7 @@ export default class App extends React.Component<{}, AppState> {
   constructor(props: {}) {
     super(props);
 
-    // @ts-ignore
-    window.app = this;
+    setHook("app", this);
 
     const isWaitingForSignInCompletion =
       localStorage.getItem(LocalStorageKeys.IsWaitingForSignIn) === "true";
@@ -79,18 +80,14 @@ export default class App extends React.Component<{}, AppState> {
   }
 
   componentDidMount() {
-    if (localStorage.getItem("__shouldWaitForStubs__") === "true") {
-      console.log("Deferring initialization...");
-
-      (window as any).__onStubsAdded__ = this.addListeners;
+    if (localStorage.getItem(LOCAL_STORAGE_DEFERRED_INIT_FLAG) === "true") {
+      setHook("onManipulationComplete", this.addListeners);
     } else {
       this.addListeners();
     }
   }
 
   addListeners() {
-    console.log("initializing");
-
     window.addEventListener("popstate", this.onPopState);
 
     api.onAuthStateChanged(user => {

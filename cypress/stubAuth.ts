@@ -13,8 +13,6 @@ export default function stubAuth(api: StubbableApi): void {
   api.override("onAuthStateChanged", function onAuthStateChanged(
     callback: AuthStateChangeHandler
   ) {
-    console.log("hi", user, callback);
-
     listeners.push(callback);
 
     callback(user);

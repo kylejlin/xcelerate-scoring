@@ -16,7 +16,9 @@ import {
   UserAccount,
 } from "../types/misc";
 import { RaceAction, RaceDivisionsRecipe } from "../types/race";
-import { getStubbableApi } from "./StubbableApi";
+import { getStubbableApi, StubbableApi } from "./StubbableApi";
+
+import { setHook } from "../testingHooks";
 
 export interface Api {
   onAuthStateChanged(
@@ -120,12 +122,11 @@ export interface Api {
 
 export type ApiFnId = keyof Api;
 
-export const api: Api = getStubbableApi(DEFAULT_IMPLEMENTATIONS);
+export const api: StubbableApi = getStubbableApi(DEFAULT_IMPLEMENTATIONS);
 
 export interface User {
   uid: firebase.User["uid"];
   displayName: firebase.User["displayName"];
 }
 
-// @ts-ignore
-window.__stubbableApi__ = api;
+setHook("api", api);

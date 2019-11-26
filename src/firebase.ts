@@ -3,6 +3,8 @@ import "firebase/auth";
 import "firebase/firestore";
 import "firebase/functions";
 
+import { setHook } from "./testingHooks";
+
 const firebaseConfig = {
   apiKey: "AIzaSyAd079564PqCy3RsC-LjPvVStGqx4mETuw",
   authDomain: "xcelerate-scoring.firebaseapp.com",
@@ -15,7 +17,6 @@ const firebaseConfig = {
 
 firebase.initializeApp(firebaseConfig);
 
-// @ts-ignore
-window.firebase = firebase;
+setHook("firebase", firebase);
 
 export default firebase;
