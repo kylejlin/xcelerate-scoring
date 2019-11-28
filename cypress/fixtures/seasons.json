@@ -1,0 +1,33 @@
+[
+  {
+    "id": "qK4fGX7y08M3tikCIgQs",
+    "ownerId": "%userUid",
+    "assistantIds": [
+      "S4nB2HOnLX4DwQFaKdfKGr37s5Bj",
+      "WS6a9y005WYsa0OWQ6tbV5bFBY5e",
+      "d44eqNzP3WP3YwfSXnxSF06HzbY7"
+    ],
+    "name": "My Awesome Season",
+    "minGrade": 3,
+    "maxGrade": 4,
+    "schools": []
+  },
+  {
+    "id": "MZ18A2UET01HjXt8FYtL",
+    "ownerId": "eX2OM4G4J0aE61vq3Bs8ADBZpqYD",
+    "assistantIds": ["3WW4C7rj135rpEipcIdBsV9tN288", "%userUid"],
+    "name": "2019 cup",
+    "minGrade": 6,
+    "maxGrade": 8,
+    "schools": []
+  },
+  {
+    "id": "H1UnqlYSfQUrJO5WzKfI",
+    "ownerId": "%userUid",
+    "assistantIds": [],
+    "name": "another awesome season",
+    "minGrade": 2,
+    "maxGrade": 5,
+    "schools": []
+  }
+]
